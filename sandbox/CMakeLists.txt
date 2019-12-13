@@ -5,6 +5,8 @@ project(sandbox LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+link_directories(${CMAKE_BINARY_DIR}/glem)
+
 include_directories(
     ${PROJECT_SOURCE_DIR}
     ${PROJECT_SOURCE_DIR}/..
