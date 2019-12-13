@@ -1,0 +1,17 @@
+cmake_minimum_required(VERSION 3.12)
+
+project(glm-download NONE)
+
+include(ExternalProject)
+
+ExternalProject_Add(
+    glm
+    GIT_REPOSITORY    https://github.com/g-truc/glm.git
+    GIT_TAG           master
+    SOURCE_DIR        "${CMAKE_CURRENT_BINARY_DIR}/glm-src"
+    BINARY_DIR        "${CMAKE_CURRENT_BINARY_DIR}/glm-build"
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND     ""
+    INSTALL_COMMAND   ""
+    TEST_COMMAND      ""
+)
