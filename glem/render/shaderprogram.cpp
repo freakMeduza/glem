@@ -21,6 +21,11 @@ namespace glem::render {
         glUseProgram(id_);
     }
 
+    void ShaderProgram::onAppend(Visitor &visitor) noexcept
+    {
+        visitor.visit(*this);
+    }
+
     void ShaderProgram::append(const std::shared_ptr<Shader> &value) noexcept
     {
         glAttachShader(id_, value->id());

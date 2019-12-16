@@ -27,6 +27,7 @@ namespace glem::render {
 
         // Bindable interface
         void bind() noexcept override;
+        void onAppend(Visitor &visitor) noexcept override;
 
         /**
          * @brief layout    render::InputLayout
@@ -36,7 +37,6 @@ namespace glem::render {
 
     private:
         const InputLayout& layout_;
-
 
     };
 

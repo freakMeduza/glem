@@ -28,6 +28,11 @@ namespace glem::render {
         glBindBuffer(GL_ARRAY_BUFFER, id_);
     }
 
+    void VertexBuffer::onAppend(Visitor &visitor) noexcept
+    {
+        visitor.visit(*this);
+    }
+
     const InputLayout &VertexBuffer::layout() const noexcept
     {
         return layout_;

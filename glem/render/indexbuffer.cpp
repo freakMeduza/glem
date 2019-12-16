@@ -28,6 +28,11 @@ namespace glem::render {
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, id_);
     }
 
+    void IndexBuffer::onAppend(Visitor &visitor) noexcept
+    {
+        visitor.visit(*this);
+    }
+
     uint32_t IndexBuffer::count() const noexcept
     {
         return count_;

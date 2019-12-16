@@ -11,6 +11,7 @@
 #include <render/vertexbuffer.hpp>
 #include <render/shader.hpp>
 #include <render/shaderprogram.hpp>
+#include <render/drawable.hpp>
 
 namespace glem::core {
 
@@ -36,16 +37,16 @@ namespace glem::core {
 
         const GLuint indices[] { 0, 1, 3, 1, 2, 3 };
 
-        render::VertexArray array;
-        array.append(std::make_shared<render::VertexBuffer>(render::InputLayout{
-                                                                { render::AttributeType::Float2, "a_Position" }
-                                                            },
-                                                            positions,
-                                                            sizeof (positions)));
-        array.bind();
+        auto vao = std::make_shared<render::VertexArray>();
+        vao->append(std::make_shared<render::VertexBuffer>(render::InputLayout{
+                                                               { render::AttributeType::Float2, "a_Position" }
+                                                           },
+                                                           positions,
+                                                           sizeof (positions)));
+//        array.bind();
 
-        render::IndexBuffer buffer{indices, sizeof (indices)};
-        buffer.bind();
+        auto indexBuffer = std::make_shared<render::IndexBuffer>(indices, sizeof (indices));
+//        buffer.bind();
 
         const auto& vs = R"glsl(
                          #version 450 core
@@ -67,14 +68,19 @@ namespace glem::core {
                          }
                          )glsl";
 
-        render::ShaderProgram program;
-        program.append(render::Shader::fromSource(vs, render::ShaderType::VS));
-        program.append(render::Shader::fromSource(ps, render::ShaderType::PS));
+        auto program = std::make_shared<render::ShaderProgram>();
+        program->append(render::Shader::fromSource(vs, render::ShaderType::VS));
+        program->append(render::Shader::fromSource(ps, render::ShaderType::PS));
 
-        if(!program.link())
+        if(!program->link())
             return -1;
 
-        program.bind();
+//        program.bind();
+
+        render::Drawable drawable;
+        drawable.append(vao);
+        drawable.append(indexBuffer);
+        drawable.append(program);
 
         while(true) {
             if(auto ret = window_->pollEvents())
@@ -82,7 +88,8 @@ namespace glem::core {
 
             window_->context().beginFrame();
 
-            glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(buffer.count()), GL_UNSIGNED_INT, reinterpret_cast<const void*>(0));
+            drawable.draw(window_->context());
+//            glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(buffer.count()), GL_UNSIGNED_INT, reinterpret_cast<const void*>(0));
 
             window_->context().endFrame();
         }
