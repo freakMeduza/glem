@@ -1,15 +1,11 @@
 #include "inputlayout.hpp"
 
-namespace {
-
-}
-
 namespace glem::render {
 
     InputLayout::InputLayout(const std::initializer_list<Attribute> &attributes) :
         attributes_ {attributes}
     {
-        size_t offset {0};
+        uint32_t offset {0};
 
         for(auto&& attr : attributes_) {
             attr.offset_ = offset;
@@ -19,7 +15,7 @@ namespace glem::render {
         }
     }
 
-    size_t InputLayout::stride() const noexcept
+    uint32_t InputLayout::stride() const noexcept
     {
         return stride_;
     }

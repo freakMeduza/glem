@@ -2,41 +2,83 @@
 
 #include <glad/glad.h>
 
+namespace {
+    [[maybe_unused]] uint32_t computeComponentCount(glem::render::AttributeType t) noexcept {
+        switch (t) {
+        case glem::render::AttributeType::Float:  { return 1; }
+        case glem::render::AttributeType::Float2: { return 2; }
+        case glem::render::AttributeType::Float3: { return 3; }
+        case glem::render::AttributeType::Float4: { return 4; }
+        case glem::render::AttributeType::Mat3:   { return 3 * 3; }
+        case glem::render::AttributeType::Mat4:   { return 4 * 4; }
+        case glem::render::AttributeType::Int:    { return 1; }
+        case glem::render::AttributeType::Int2:   { return 2; }
+        case glem::render::AttributeType::Int3:   { return 3; }
+        case glem::render::AttributeType::Int4:   { return 4; }
+        case glem::render::AttributeType::Bool:   { return 1; }
+        default: { return 0; }
+        }
+    }
+
+    [[maybe_unused]] uint32_t computeAttributeSize(glem::render::AttributeType t) noexcept {
+        switch (t) {
+        case glem::render::AttributeType::Float:  { return sizeof (uint32_t); }
+        case glem::render::AttributeType::Float2: { return sizeof (uint32_t) * 2; }
+        case glem::render::AttributeType::Float3: { return sizeof (uint32_t) * 3; }
+        case glem::render::AttributeType::Float4: { return sizeof (uint32_t) * 4; }
+        case glem::render::AttributeType::Mat3:   { return sizeof (uint32_t) * 3 * 3; }
+        case glem::render::AttributeType::Mat4:   { return sizeof (uint32_t) * 4 * 4; }
+        case glem::render::AttributeType::Int:    { return sizeof (uint32_t); }
+        case glem::render::AttributeType::Int2:   { return sizeof (uint32_t) * 2; }
+        case glem::render::AttributeType::Int3:   { return sizeof (uint32_t) * 3; }
+        case glem::render::AttributeType::Int4:   { return sizeof (uint32_t) * 4; }
+        case glem::render::AttributeType::Bool:   { return sizeof (uint8_t); }
+        default: { return 0; }
+        }
+    }
+}
+
 namespace glem::render {
 
-    Attribute::Attribute(Attribute::Type type) :
-        type_ {type}
+    Attribute::Attribute(AttributeType type, const std::string &tag, bool normalized) :
+        type_       {type},
+        tag_        {tag},
+        offset_     {0},
+        count_      {computeComponentCount(type_)},
+        size_       {computeAttributeSize(type_)},
+        normalized_ {normalized}
     {
 
     }
 
-    Attribute::Attribute(Attribute::Type type, size_t offset) :
-        type_   {type},
-        offset_ {offset}
-    {
-
-    }
-
-    Attribute::Type Attribute::type() const noexcept
+    AttributeType Attribute::type() const noexcept
     {
         return type_;
     }
 
-    size_t Attribute::size() const noexcept
+    std::string Attribute::tag() const noexcept
     {
-        switch (type_) {
-        case Type::Position2D: { return sizeof (GLfloat) * 2; }
-        case Type::Position3D: { return sizeof (GLfloat) * 3; }
-        case Type::Texture2D:  { return sizeof (GLfloat) * 2; }
-        case Type::Color3D:    { return sizeof (GLfloat) * 3; }
-        case Type::Color4D:    { return sizeof (GLfloat) * 4; }
-        default: return 0;
-        }
+        return tag_;
     }
 
-    size_t Attribute::offset() const noexcept
+    uint32_t Attribute::offset() const noexcept
     {
         return offset_;
+    }
+
+    uint32_t Attribute::count() const noexcept
+    {
+        return count_;
+    }
+
+    uint32_t Attribute::size() const noexcept
+    {
+        return size_;
+    }
+
+    bool Attribute::normalized() const noexcept
+    {
+        return normalized_;
     }
 
 }

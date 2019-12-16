@@ -1,35 +1,36 @@
 #pragma once
 
-#include "context.hpp"
-#include "indexbuffer.hpp"
-#include "vertexarray.hpp"
-
-#include <glm/mat4x4.hpp>
+#include "visitor.hpp"
+#include "bindable.hpp"
 
 #include <vector>
 #include <memory>
 
 namespace glem::render {
 
+    /**
+     * @brief The Drawable class
+     *
+     * Interfasce of any drawable object
+     */
     class Drawable {
     public:
         Drawable() = default;
         virtual ~Drawable() = default;
 
+        Drawable(Drawable&&) = delete;
         Drawable(const Drawable&) = delete;
+
+        Drawable& operator=(Drawable&&) = delete;
         Drawable& operator=(const Drawable&) = delete;
 
         /**
-         * @brief modelMatrix Transform (rotation, scale, etc.)
-         * @return
+         * @brief append  Append bindable
+         * @param value
          */
-        virtual glm::mat4 modelMatrix() const noexcept = 0;
-
-        void draw(Context& context) const noexcept;
+        bool append(const std::shared_ptr<Bindable>& value) noexcept;
 
     private:
-        std::shared_ptr<IndexBuffer> indexBuffer_ {nullptr};
-
         std::vector<std::shared_ptr<Bindable>> bindables_;
 
     };

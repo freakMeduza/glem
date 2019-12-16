@@ -6,6 +6,11 @@
 
 namespace glem::render {
 
+    /**
+     * @brief The InputLayout class
+     *
+     * Describing attributes of single vertex.
+     */
     class InputLayout {
     public:
         InputLayout() = default;
@@ -13,22 +18,28 @@ namespace glem::render {
 
         InputLayout(const std::initializer_list<Attribute>& attributes);
 
-        /**
-         * @brief stride Vertex stride
-         * @return
-         */
-        size_t stride() const noexcept;
+        InputLayout(InputLayout&&) = default;
+        InputLayout(const InputLayout&) = default;
+
+        InputLayout& operator=(InputLayout&&) = default;
+        InputLayout& operator=(const InputLayout&) = default;
 
         /**
-         * @brief attributes Vertex attributes
+         * @brief stride        Verttex stride
          * @return
          */
-        const std::vector<Attribute>& attributes() const noexcept;
+        [[nodiscard]] uint32_t stride() const noexcept;
+
+        /**
+         * @brief attributes    Vertex attributes
+         * @return
+         */
+        [[nodiscard]] const std::vector<Attribute>& attributes() const noexcept;
 
     private:
         std::vector<Attribute> attributes_;
 
-        size_t stride_;
+        uint32_t stride_ {0};
 
     };
 

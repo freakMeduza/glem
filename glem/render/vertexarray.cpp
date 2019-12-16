@@ -2,6 +2,25 @@
 
 #include <glad/glad.h>
 
+namespace {
+    [[maybe_unused]] GLenum translate(glem::render::AttributeType t) noexcept {
+        switch (t) {
+        case glem::render::AttributeType::Float:  { return GL_FLOAT; }
+        case glem::render::AttributeType::Float2: { return GL_FLOAT; }
+        case glem::render::AttributeType::Float3: { return GL_FLOAT; }
+        case glem::render::AttributeType::Float4: { return GL_FLOAT; }
+        case glem::render::AttributeType::Mat3:   { return GL_FLOAT; }
+        case glem::render::AttributeType::Mat4:   { return GL_FLOAT; }
+        case glem::render::AttributeType::Int:    { return GL_INT;   }
+        case glem::render::AttributeType::Int2:   { return GL_INT;   }
+        case glem::render::AttributeType::Int3:   { return GL_INT;   }
+        case glem::render::AttributeType::Int4:   { return GL_INT;   }
+        case glem::render::AttributeType::Bool:   { return GL_BOOL;  }
+        default: return GL_FALSE;
+        }
+    }
+}
+
 namespace glem::render {
 
     VertexArray::VertexArray()
@@ -19,14 +38,27 @@ namespace glem::render {
         glBindVertexArray(id_);
     }
 
-    void VertexArray::append(const std::shared_ptr<Bindable> &value) noexcept
+    void VertexArray::append(const std::shared_ptr<VertexBuffer> &value) noexcept
     {
         bind();
         value->bind();
 
-        /**** TODO: magic with buffer layout ****/
+        const auto& layout = value->layout();
 
-        bindables_.emplace_back(value);
+        for(const auto& attr : layout.attributes()) {
+            glEnableVertexAttribArray(attriuteIndex_);
+
+            glVertexAttribPointer(attriuteIndex_,
+                                  static_cast<GLint>(attr.count()),
+                                  translate(attr.type()),
+                                  attr.normalized() ? GL_TRUE : GL_FALSE,
+                                  static_cast<GLsizei>(layout.stride()),
+                                  reinterpret_cast<const void*>(attr.offset()));
+
+            attriuteIndex_++;
+        }
+
+        buffers_.emplace_back(std::move(value));
     }
 
 }

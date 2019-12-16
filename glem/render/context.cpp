@@ -33,6 +33,13 @@ namespace glem::render {
 
         info();
 
+        int width  {0};
+        int height {0};
+
+        glfwGetWindowSize(parent_, &width, &height);
+
+        glViewport(0, 0, width, height);
+
         /**** vsync enabled ****/
         glfwSwapInterval(1);
     }
