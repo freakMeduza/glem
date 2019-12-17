@@ -4,13 +4,13 @@
 
 namespace glem::render {
 
-    VertexBuffer::VertexBuffer(const InputLayout &layout) :
+    VertexBuffer::VertexBuffer(InputLayout layout) :
         layout_ {std::move(layout)}
     {
         glCreateBuffers(1, &id_);
     }
 
-    VertexBuffer::VertexBuffer(const InputLayout &layout, const void *value, uint32_t size) :
+    VertexBuffer::VertexBuffer(InputLayout layout, const void *value, uint32_t size) :
         layout_ {std::move(layout)}
     {
         glCreateBuffers(1, &id_);

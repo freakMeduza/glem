@@ -12,8 +12,8 @@ namespace glem::render {
      */
     class VertexBuffer : public Bindable {
     public:
-        VertexBuffer(const InputLayout& layout);
-        VertexBuffer(const InputLayout& layout,
+        VertexBuffer(InputLayout layout);
+        VertexBuffer(InputLayout layout,
                      const void* value,
                      uint32_t size);
 
@@ -36,7 +36,7 @@ namespace glem::render {
         [[nodiscard]] const InputLayout& layout() const noexcept;
 
     private:
-        const InputLayout& layout_;
+        InputLayout layout_;
 
     };
 

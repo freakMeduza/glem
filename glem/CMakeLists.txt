@@ -70,7 +70,8 @@ find_package(OpenGL REQUIRED)
 include_directories(
     ${PROJECT_SOURCE_DIR}
     ${PROJECT_SOURCE_DIR}/..
-    ${PROJECT_SOURCE_DIR}/libs/glad/include)
+    ${PROJECT_SOURCE_DIR}/libs/glad/include
+    ${PROJECT_SOURCE_DIR}/libs/stb)
 
 file(GLOB_RECURSE HDRS ${PROJECT_SOURCE_DIR}/*.hpp)
 file(GLOB_RECURSE SRCS ${PROJECT_SOURCE_DIR}/*.cpp)

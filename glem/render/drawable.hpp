@@ -39,11 +39,7 @@ namespace glem::render {
          */
         void append(const std::shared_ptr<Bindable>& value) noexcept;
 
-        /**
-         * @brief draw   Draw object
-         * @param context
-         */
-        void draw(Context& context) noexcept;
+        void draw() noexcept;
 
     private:
         std::vector<std::shared_ptr<Bindable>> bindables_;
