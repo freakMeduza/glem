@@ -7,7 +7,7 @@ namespace glem::render {
     /**
      * @brief The IndexBuffer class
      *
-     * Describe buffer of indices
+     * Describing buffer of indices
      */
     class IndexBuffer : public Bindable {
     public:

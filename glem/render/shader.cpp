@@ -74,15 +74,11 @@ namespace glem::render {
         type_   {type},
         source_ {source}
     {
-        std::cout << __FUNCTION__ << std::endl;
-
         id_ = compile(source_, type);
     }
 
     Shader::~Shader()
     {
-        std::cout << __FUNCTION__ << std::endl;
-
         glDeleteShader(id_);
     }
 

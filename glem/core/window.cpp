@@ -17,8 +17,6 @@ namespace glem::core {
         height_ {DEFAULT_HEIGHT},
         title_  {DEFAULT_TITLE}
     {
-        std::cout << __FUNCTION__ << std::endl;
-
         if(!glfwInit()) {
             std::cerr << "Failed to initialize GLFW." << std::endl;
             return;
@@ -57,8 +55,6 @@ namespace glem::core {
 
     Window::~Window()
     {
-        std::cout << __FUNCTION__ << std::endl;
-
         glfwDestroyWindow(window_);
         glfwTerminate();
     }

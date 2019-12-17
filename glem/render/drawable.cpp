@@ -8,8 +8,6 @@ namespace glem::render {
 
     void Drawable::visit(IndexBuffer &value) noexcept
     {
-        std::cout << __FUNCTION__ << std::endl;
-
         indexBuffer_ = &value;
     }
 

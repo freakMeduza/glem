@@ -22,7 +22,7 @@ namespace glem::render {
     /**
      * @brief The Attribute class
      *
-     * Describe single vertex attribute
+     * Describing single vertex attribute
      */
     class Attribute {
     public:

@@ -11,10 +11,9 @@ namespace {
         auto renderer = glGetString(GL_RENDERER);
         auto version  = glGetString(GL_VERSION);
 
-        std::cout << "OpenGL Context:" << std::endl;
-        std::cout << "[vendor]:   " << vendor   << std::endl;
-        std::cout << "[version]:  " << version  << std::endl;
-        std::cout << "[renderer]: " << renderer << std::endl;
+        std::cout << "[vendor]:   "        << vendor   << std::endl;
+        std::cout << "[version]:  OpenGL " << version  << std::endl;
+        std::cout << "[renderer]: "        << renderer << std::endl;
     }
 }
 

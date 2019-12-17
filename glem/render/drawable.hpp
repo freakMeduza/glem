@@ -14,7 +14,7 @@ namespace glem::render {
     /**
      * @brief The Drawable class
      *
-     * Interfasce of any drawable object
+     * Interface of any drawable object
      */
     class Drawable : public Visitor {
     public:

@@ -30,9 +30,6 @@ namespace glem::render {
     {
         glAttachShader(id_, value->id());
 
-        std::cout << "Attaching shader " << value->id() << std::endl;
-        std::cout << value->source() << std::endl;
-
         shaders_.emplace_back(std::move(value));
     }
 
