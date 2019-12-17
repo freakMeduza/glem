@@ -30,6 +30,11 @@ namespace glem::core {
         glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
         glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
 
+#ifdef NDEBUG
+#else
+        glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
+#endif
+
         window_ = glfwCreateWindow(width_, height_, title_.data(), nullptr, nullptr);
 
         if(!window_) {

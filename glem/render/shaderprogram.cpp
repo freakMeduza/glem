@@ -23,7 +23,7 @@ namespace glem::render {
 
     void ShaderProgram::onAppend(Visitor &visitor) noexcept
     {
-        visitor.visit(*this);
+        visitor.onAppend(*this);
     }
 
     void ShaderProgram::append(const std::shared_ptr<Shader> &value) noexcept

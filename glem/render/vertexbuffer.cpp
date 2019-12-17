@@ -30,7 +30,7 @@ namespace glem::render {
 
     void VertexBuffer::onAppend(Visitor &visitor) noexcept
     {
-        visitor.visit(*this);
+        visitor.onAppend(*this);
     }
 
     const InputLayout &VertexBuffer::layout() const noexcept

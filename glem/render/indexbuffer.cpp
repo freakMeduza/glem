@@ -30,7 +30,7 @@ namespace glem::render {
 
     void IndexBuffer::onAppend(Visitor &visitor) noexcept
     {
-        visitor.visit(*this);
+        visitor.onAppend(*this);
     }
 
     uint32_t IndexBuffer::count() const noexcept

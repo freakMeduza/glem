@@ -1,9 +1,11 @@
 #include "context.hpp"
 
-#include <glad/glad.h>
-
 #include <assert.h>
 #include <iostream>
+
+#include <glad/glad.h>
+
+#include <util/debug.hpp>
 
 namespace {
     [[maybe_unused]] void info() noexcept {
@@ -11,9 +13,9 @@ namespace {
         auto renderer = glGetString(GL_RENDERER);
         auto version  = glGetString(GL_VERSION);
 
-        std::cout << "[vendor]:   "        << vendor   << std::endl;
-        std::cout << "[version]:  OpenGL " << version  << std::endl;
-        std::cout << "[renderer]: "        << renderer << std::endl;
+        std::cout << vendor    << std::endl;
+        std::cout << "OpenGL " << version  << std::endl;
+        std::cout << renderer  << std::endl;
     }
 }
 
@@ -28,6 +30,24 @@ namespace glem::render {
         if(!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress))) {
             std::cerr << "Failed to initialize GLAD." << std::endl;
             return;
+        }
+
+        /**** Enable debug context ****/
+        GLint flags;
+
+        glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
+
+        if(flags & GL_CONTEXT_FLAG_DEBUG_BIT) {
+            glEnable(GL_DEBUG_OUTPUT);
+            glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+            glDebugMessageCallback(glDebugOutput, nullptr);
+
+            glDebugMessageControl(GL_DONT_CARE,
+                                  GL_DEBUG_TYPE_ERROR,
+                                  GL_DONT_CARE,
+                                  0,
+                                  nullptr,
+                                  GL_TRUE);
         }
 
         info();

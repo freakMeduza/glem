@@ -6,22 +6,22 @@
 
 namespace glem::render {
 
-    void Drawable::visit(IndexBuffer &value) noexcept
+    void Drawable::onAppend(IndexBuffer &value) noexcept
     {
         indexBuffer_ = &value;
     }
 
-    void Drawable::visit(VertexBuffer &value) noexcept
+    void Drawable::onAppend(VertexBuffer &value) noexcept
     {
         static_cast<void>(value);
     }
 
-    void Drawable::visit(VertexArray &value) noexcept
+    void Drawable::onAppend(VertexArray &value) noexcept
     {
         static_cast<void>(value);
     }
 
-    void Drawable::visit(ShaderProgram &value) noexcept
+    void Drawable::onAppend(ShaderProgram &value) noexcept
     {
         static_cast<void>(value);
     }

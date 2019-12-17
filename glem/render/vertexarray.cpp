@@ -40,7 +40,7 @@ namespace glem::render {
 
     void VertexArray::onAppend(Visitor &visitor) noexcept
     {
-        visitor.visit(*this);
+        visitor.onAppend(*this);
     }
 
     void VertexArray::append(const std::shared_ptr<VertexBuffer> &value) noexcept

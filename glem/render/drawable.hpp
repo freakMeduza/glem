@@ -28,10 +28,10 @@ namespace glem::render {
         Drawable& operator=(const Drawable&) = delete;
 
         // Visitor interface
-        void visit(IndexBuffer   &value) noexcept override;
-        void visit(VertexBuffer  &value) noexcept override;
-        void visit(VertexArray   &value) noexcept override;
-        void visit(ShaderProgram &value) noexcept override;
+        void onAppend(IndexBuffer   &value) noexcept override;
+        void onAppend(VertexBuffer  &value) noexcept override;
+        void onAppend(VertexArray   &value) noexcept override;
+        void onAppend(ShaderProgram &value) noexcept override;
 
         /**
          * @brief append  Append bindable
