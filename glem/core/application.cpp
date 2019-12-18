@@ -111,7 +111,9 @@ namespace glem::core {
 
         stbi_set_flip_vertically_on_load(1);
 
-        uint8_t* data = stbi_load("texture.jpg", &w, &h, &c, STBI_rgb_alpha);
+        std::string path = "texture.jpg";
+
+        uint8_t* data = stbi_load(path.c_str(), &w, &h, &c, 0);
 
         if(!data)
             return -1;
@@ -147,6 +149,8 @@ namespace glem::core {
 
         while(true) {
             if(auto ret = window_->pollEvents()) {
+                std::cout << "Exit" << std::endl;
+                glDeleteTextures(1, &t);
                 return *ret;
             }
 
@@ -161,7 +165,7 @@ namespace glem::core {
             program->bind();
             glBindVertexArray(vao);
 
-            glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+            glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, reinterpret_cast<const void*>(0));
 
             window_->context().endFrame();
         }

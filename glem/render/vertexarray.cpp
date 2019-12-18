@@ -53,11 +53,6 @@ namespace glem::render {
         const auto& layout = value->layout();
 
         for(const auto& attr : layout.attributes()) {
-#ifdef __win32
-            std::cout << __FUNCTION__ << std::endl;
-#elif __linux
-            std::cout << __PRETTY_FUNCTION__ << std::endl;
-#endif
             std::cout << attr.tag() << std::endl;
             std::cout << "offset: "   << attr.offset() << std::endl;
             std::cout << "count:  "   << attr.count()  << std::endl;
