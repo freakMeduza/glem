@@ -2,6 +2,9 @@
 
 #include <glad/glad.h>
 
+#include <glm/gtc/type_ptr.hpp>
+
+#include <optional>
 #include <iostream>
 
 namespace glem::render {
@@ -57,6 +60,108 @@ namespace glem::render {
         shaders_.clear();
 
         return true;
+    }
+
+    bool ShaderProgram::setUniform(const std::string &tag, int value) noexcept
+    {
+        if(auto location = resolveUniformLocation(tag); location != -1) {
+            glUniform1i(location, value);
+
+            return true;
+        }
+
+        return false;
+    }
+
+    bool ShaderProgram::setUniform(const std::string &tag, float value) noexcept
+    {
+        if(auto location = resolveUniformLocation(tag); location != -1) {
+            glUniform1f(location, value);
+
+            return true;
+        }
+
+        return false;
+    }
+
+    bool ShaderProgram::setUniform(const std::string &tag, const glm::vec2 &value) noexcept
+    {
+        if(auto location = resolveUniformLocation(tag); location != -1) {
+            glUniform2f(location, value.x, value.y);
+
+            return true;
+        }
+
+        return false;
+    }
+
+    bool ShaderProgram::setUniform(const std::string &tag, const glm::vec3 &value) noexcept
+    {
+        if(auto location = resolveUniformLocation(tag); location != -1) {
+            glUniform3f(location, value.x, value.y, value.z);
+
+            return true;
+        }
+
+        return false;
+    }
+
+    bool ShaderProgram::setUniform(const std::string &tag, const glm::vec4 &value) noexcept
+    {
+        if(auto location = resolveUniformLocation(tag); location != -1) {
+            glUniform4f(location, value.x, value.y, value.z, value.w);
+
+            return true;
+        }
+
+        return false;
+    }
+
+    bool ShaderProgram::setUniform(const std::string &tag, const glm::mat3 &value) noexcept
+    {
+        if(auto location = resolveUniformLocation(tag); location != -1) {
+            glUniformMatrix3fv(location, 1, GL_FALSE, glm::value_ptr(value));
+
+            return true;
+        }
+
+        return false;
+    }
+
+    bool ShaderProgram::setUniform(const std::string &tag, const glm::mat4 &value) noexcept
+    {
+        if(auto location = resolveUniformLocation(tag); location != -1) {
+            glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(value));
+
+            return true;
+        }
+
+        return false;
+    }
+
+    int ShaderProgram::resolveUniformLocation(const std::string &tag) noexcept
+    {
+        int result = -1;
+
+        auto find = [this](const std::string& t)->std::optional<GLint>{
+            auto location = glGetUniformLocation(id_, t.data());
+
+            if(location == -1)
+                return {};
+
+            return location;
+        };
+
+        if(auto it = uniforms_.find(tag); it != uniforms_.end())
+            result = (*it).second;
+        else {
+            if(auto l = find(tag)) {
+                uniforms_[tag] = *l;
+                result = *l;
+            }
+        }
+
+        return result;
     }
 
 }

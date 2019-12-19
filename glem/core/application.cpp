@@ -70,11 +70,12 @@ namespace glem::core {
 
                          in vec2 uv;
 
+                         uniform vec3      u_color;
                          uniform sampler2D sampler;
 
                          void main()
                          {
-                            color = texture(sampler, uv);
+                            color = texture(sampler, uv) * vec4(u_color, 1.0f);
                          })glsl";
 
         auto vao = std::make_shared<render::VertexArray>();
@@ -103,6 +104,12 @@ namespace glem::core {
             vao->bind();
             tex->bind();
             program->bind();
+
+            auto r = std::sin(glfwGetTime());
+            auto g = 0.4;
+            auto b = g / r;
+
+            program->setUniform("u_color", {r, g, b});
 
             glDrawElements(GL_TRIANGLES, vao->indexBuffer()->count(), GL_UNSIGNED_INT, reinterpret_cast<const void*>(0));
 
