@@ -35,7 +35,7 @@ namespace glem::core {
         int exec() noexcept;
 
     private:
-        std::unique_ptr<Window>       window_ {nullptr};
+        std::unique_ptr<Window>       window_       {nullptr};
         std::unique_ptr<LayerManager> layerManager_ {nullptr};
 
     };
