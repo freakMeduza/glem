@@ -40,11 +40,6 @@ namespace glem::render {
         glBindVertexArray(id_);
     }
 
-    void VertexArray::onAppend(Visitor &visitor) noexcept
-    {
-        visitor.onAppend(*this);
-    }
-
     void VertexArray::append(const std::shared_ptr<VertexBuffer> &value) noexcept
     {
         bind();

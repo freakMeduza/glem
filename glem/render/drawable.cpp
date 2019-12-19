@@ -6,30 +6,8 @@
 
 namespace glem::render {
 
-    void Drawable::onAppend(IndexBuffer &value) noexcept
-    {
-        indexBuffer_ = &value;
-    }
-
-    void Drawable::onAppend(VertexBuffer &value) noexcept
-    {
-        static_cast<void>(value);
-    }
-
-    void Drawable::onAppend(VertexArray &value) noexcept
-    {
-        static_cast<void>(value);
-    }
-
-    void Drawable::onAppend(ShaderProgram &value) noexcept
-    {
-        static_cast<void>(value);
-    }
-
     void Drawable::append(const std::shared_ptr<Bindable> &value) noexcept
     {
-        value->onAppend(*this);
-
         bindables_.emplace_back(std::move(value));
     }
 

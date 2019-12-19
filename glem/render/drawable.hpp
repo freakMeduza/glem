@@ -1,7 +1,6 @@
 #pragma once
 
 #include "context.hpp"
-#include "visitor.hpp"
 #include "bindable.hpp"
 
 #include "indexbuffer.hpp"
@@ -16,22 +15,16 @@ namespace glem::render {
      *
      * Interface of any drawable object
      */
-    class Drawable : public Visitor {
+    class Drawable {
     public:
         Drawable() = default;
-        virtual ~Drawable() override = default;
+        virtual ~Drawable() = default;
 
         Drawable(Drawable&&) = delete;
         Drawable(const Drawable&) = delete;
 
         Drawable& operator=(Drawable&&) = delete;
         Drawable& operator=(const Drawable&) = delete;
-
-        // Visitor interface
-        void onAppend(IndexBuffer   &value) noexcept override;
-        void onAppend(VertexBuffer  &value) noexcept override;
-        void onAppend(VertexArray   &value) noexcept override;
-        void onAppend(ShaderProgram &value) noexcept override;
 
         /**
          * @brief append  Append bindable

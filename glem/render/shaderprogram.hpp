@@ -20,7 +20,6 @@ namespace glem::render {
 
         // Bindable interface
         void bind() noexcept override;
-        void onAppend(Visitor &visitor) noexcept override;
 
         /**
          * @brief append        Append shader into program

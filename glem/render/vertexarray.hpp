@@ -25,7 +25,6 @@ namespace glem::render {
 
         // Bindable interface
         void bind() noexcept override;
-        void onAppend(Visitor &visitor) noexcept override;
 
         /**
          * @brief append    Append render::VertexBuffer into array (enable render::VertexBuffer attributes)

@@ -40,6 +40,4 @@ namespace glem::core {
 
     };
 
-    Application* createApplication() noexcept;
-
 }
