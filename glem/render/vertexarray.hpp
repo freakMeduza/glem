@@ -1,5 +1,6 @@
 #pragma once
 
+#include "indexbuffer.hpp"
 #include "vertexbuffer.hpp"
 
 #include <vector>
@@ -27,13 +28,27 @@ namespace glem::render {
         void bind() noexcept override;
 
         /**
-         * @brief append    Append render::VertexBuffer into array (enable render::VertexBuffer attributes)
+         * @brief append        Append render::VertexBuffer into array (enable render::VertexBuffer attributes)
          * @param value
          */
         void append(const std::shared_ptr<VertexBuffer>& value) noexcept;
 
+        /**
+         * @brief append        Append render::IndexBuffer into array
+         * @param value
+         */
+        void append(const std::shared_ptr<IndexBuffer>& value) noexcept;
+
+        /**
+         * @brief indexBuffer   render::IndexBuffer bound into array
+         * @return
+         */
+        std::shared_ptr<IndexBuffer> indexBuffer() const noexcept;
+
     private:
         uint32_t attriuteIndex_ {0};
+
+        std::shared_ptr<IndexBuffer> indexBuffer_ {nullptr};
 
         std::vector<std::shared_ptr<VertexBuffer>> buffers_;
 

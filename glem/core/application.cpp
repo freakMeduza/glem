@@ -77,11 +77,9 @@ namespace glem::core {
                             color = texture(sampler, uv);
                          })glsl";
 
-        auto vbo = std::make_shared<render::VertexBuffer>(render::InputLayout{{render::Float4, "vertex"}}, vertices, sizeof (vertices));
-        auto ibo = std::make_shared<render::IndexBuffer>(indices, sizeof (indices));
-
         auto vao = std::make_shared<render::VertexArray>();
-        vao->append(std::move(vbo));
+        vao->append(std::make_shared<render::VertexBuffer>(render::InputLayout{{render::Float4, "vertex"}}, vertices, sizeof (vertices)));
+        vao->append(std::make_shared<render::IndexBuffer>(indices, sizeof (indices)));
 
         auto program = std::make_shared<render::ShaderProgram>();
         program->append(render::Shader::fromSource(vs, render::VS));
@@ -93,9 +91,8 @@ namespace glem::core {
         auto tex = std::make_shared<render::Texture>("texture", "tex.jpg", render::Wrap::Repeat, render::Filter::Linear, render::Filter::Linear, 0);
 
         while(true) {
-            if(auto ret = window_->pollEvents()) {
+            if(auto ret = window_->pollEvents())
                 return *ret;
-            }
 
             layerManager_->onUpdate(0.0f);
 
@@ -104,11 +101,10 @@ namespace glem::core {
             layerManager_->onDraw();
 
             vao->bind();
-            ibo->bind();
             tex->bind();
             program->bind();
 
-            glDrawElements(GL_TRIANGLES, ibo->count(), GL_UNSIGNED_INT, reinterpret_cast<const void*>(0));
+            glDrawElements(GL_TRIANGLES, vao->indexBuffer()->count(), GL_UNSIGNED_INT, reinterpret_cast<const void*>(0));
 
             window_->context().endFrame();
         }

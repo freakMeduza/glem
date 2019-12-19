@@ -68,4 +68,17 @@ namespace glem::render {
         buffers_.emplace_back(std::move(value));
     }
 
+    void VertexArray::append(const std::shared_ptr<IndexBuffer> &value) noexcept
+    {
+        bind();
+        value->bind();
+
+        indexBuffer_ = value;
+    }
+
+    std::shared_ptr<IndexBuffer> VertexArray::indexBuffer() const noexcept
+    {
+        return indexBuffer_;
+    }
+
 }
