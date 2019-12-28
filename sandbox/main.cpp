@@ -8,92 +8,86 @@ public:
     ~Sandbox() = default;
 };
 
-//class Layer : public glem::core::Layer {
-//public:
-//    Layer() = default;
-//    ~Layer() override = default;
+class Layer : public glem::core::Layer {
+public:
+    Layer() = default;
+    ~Layer() override = default;
 
-//    // Layer interface
-//    void onAttach() noexcept override {
-//        const float vertices[] {
-//            // positions    // texture coords
-//               0.5f,  0.5f,   1.0f, 1.0f, // top right
-//               0.5f, -0.5f,   1.0f, 0.0f, // bottom right
-//              -0.5f, -0.5f,   0.0f, 0.0f, // bottom left
-//              -0.5f,  0.5f,   0.0f, 1.0f  // top left
-//        };
+    // Layer interface
+    void onAttach() noexcept override {
+        const float vertices[] {
+               0.5f,  0.5f,
+               0.5f, -0.5f,
+              -0.5f, -0.5f,
+              -0.5f,  0.5f,
+        };
 
-//        const uint32_t indices[] { 0, 1, 3, 1, 2, 3 };
+        const uint32_t indices[] { 0, 1, 3, 1, 2, 3 };
 
-//        const auto& vao     = std::make_shared<glem::render::VertexArray>();
-//        const auto& program = std::make_shared<glem::render::ShaderProgram>();
+        const auto& vao     = std::make_shared<glem::render::VertexArray>();
+        const auto& program = std::make_shared<glem::render::ShaderProgram>();
 
-//        const auto& vbo = std::make_shared<glem::render::VertexBuffer>(glem::render::InputLayout{{glem::render::Float4, "vertex"}}, vertices, sizeof (vertices));
-//        const auto& ibo = std::make_shared<glem::render::IndexBuffer>(indices, sizeof (indices));
-//        const auto& tex = glem::render::Texture2D::fromFile("download.jpeg");
+        const auto& vbo = std::make_shared<glem::render::VertexBuffer>(glem::render::InputLayout{{glem::render::Float2, "vertex"}}, vertices, sizeof (vertices));
+        const auto& ibo = std::make_shared<glem::render::IndexBuffer>(indices, sizeof (indices));
 
-//        vao->append(vbo);
+        vao->append(vbo);
+        vao->append(ibo);
 
-//        const auto& vs = R"glsl(
-//                         #version 450 core
-//                         layout(location = 0) in vec4 vertex;
+        const auto& vs = R"glsl(
+                         #version 450 core
 
-//                         out vec2 uv;
+                         layout(location = 0) in vec4 vertex;
 
-//                         void main() {
-//                            uv = vertex.zw;
-//                            gl_Position = vec4(vertex.xy, 0.0f, 1.0f);
-//                         }
-//                         )glsl";
+                         out vec2 uv;
 
-//        const auto& ps = R"glsl(
-//                         #version 450 core
-//                         layout(location = 0) out vec4 color;
+                         void main() {
+                            gl_Position = vec4(vertex.xy, 0.0f, 1.0f);
+                         }
+                         )glsl";
 
-//                         in vec2 uv;
+        const auto& ps = R"glsl(
+                         #version 450 core
 
-//                         uniform sampler2D s;
+                         layout(location = 0) out vec4 color;
 
-//                         void main() {
-//                            color = texture(s, uv);
-//                         }
-//                         )glsl";
+                         void main() {
+                            color = vec4(0.5f, 1.0f, 1.0f, 1.0f);
+                         }
+                         )glsl";
 
-//        program->append(glem::render::Shader::fromSource(vs, glem::render::ShaderType::VS));
-//        program->append(glem::render::Shader::fromSource(ps, glem::render::ShaderType::PS));
+        program->append(glem::render::Shader::fromSource(vs, glem::render::ShaderType::VS));
+        program->append(glem::render::Shader::fromSource(ps, glem::render::ShaderType::PS));
 
-//        if(!program->link())
-//            std::cerr << "Unable to link shader program." << std::endl;
+        if(!program->link())
+            std::cerr << "Unable to link shader program." << std::endl;
 
-//        drawable_.reset(new glem::render::Drawable{});
+        drawable_.reset(new glem::render::Drawable{});
 
-//        drawable_->append(vao);
-//        drawable_->append(ibo);
-//        drawable_->append(tex);
-//        drawable_->append(program);
-//    }
+        drawable_->append(vao);
+        drawable_->append(program);
+    }
 
-//    void onDetach() noexcept override {
-//        drawable_.reset();
-//    }
+    void onDetach() noexcept override {
+        drawable_.reset();
+    }
 
-//    void onUpdate(float dt) noexcept override {
-//        static_cast<void>(dt);
-//    }
+    void onUpdate(float dt) noexcept override {
+        static_cast<void>(dt);
+    }
 
-//    void onDraw() noexcept override {
-//        drawable_->draw();
-//    }
+    void onDraw() noexcept override {
+        drawable_->draw();
+    }
 
-//private:
-//    std::unique_ptr<glem::render::Drawable> drawable_ {nullptr};
+private:
+    std::unique_ptr<glem::render::Drawable> drawable_ {nullptr};
 
-//};
+};
 
 int main() {
     Sandbox sandbox;
 
-//    sandbox.attach(std::make_shared<Layer>());
+    sandbox.attach(std::make_shared<Layer>());
 
     return sandbox.exec();
 }

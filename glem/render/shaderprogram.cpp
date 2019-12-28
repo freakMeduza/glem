@@ -5,7 +5,12 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include <optional>
-#include <iostream>
+
+#include <util/log.hpp>
+
+namespace {
+    const std::string TAG = "ShaderProgram";
+}
 
 namespace glem::render {
 
@@ -48,7 +53,7 @@ namespace glem::render {
 
             glGetProgramInfoLog(id_, length, &length, msg.data());
 
-            std::cerr << "Unable to link program: " << msg << std::endl;
+            util::Log::e(TAG, "Unable to link program:", msg);
 
             shaders_.clear();
 

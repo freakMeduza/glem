@@ -3,7 +3,7 @@
 #include "context.hpp"
 #include "bindable.hpp"
 
-#include "indexbuffer.hpp"
+#include "vertexarray.hpp"
 
 #include <vector>
 #include <memory>
@@ -32,6 +32,15 @@ namespace glem::render {
          */
         void append(const std::shared_ptr<Bindable>& value) noexcept;
 
+        /**
+         * @brief append
+         * @param value
+         */
+        void append(const std::shared_ptr<VertexArray>& value) noexcept;
+
+        /**
+         * @brief draw
+         */
         void draw() noexcept;
 
     private:

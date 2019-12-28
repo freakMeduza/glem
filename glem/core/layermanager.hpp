@@ -9,7 +9,8 @@ namespace glem::core {
 
     class LayerManager {
     public:
-        ~LayerManager();
+        LayerManager() = delete;
+        ~LayerManager() = delete;
 
         LayerManager(LayerManager&&) = delete;
         LayerManager(const LayerManager&) = delete;
@@ -17,18 +18,14 @@ namespace glem::core {
         LayerManager& operator=(LayerManager&&) = delete;
         LayerManager& operator=(const LayerManager&) = delete;
 
-        void attach(const std::shared_ptr<Layer>& layer) noexcept;
-        void detach(const std::shared_ptr<Layer>& layer) noexcept;
+        static void attach(const std::shared_ptr<Layer>& layer) noexcept;
+        static void detach(const std::shared_ptr<Layer>& layer) noexcept;
 
-        void onUpdate(float dt) noexcept;
-        void onDraw() noexcept;
+        static void onUpdate(float dt) noexcept;
+        static void onDraw() noexcept;
 
     private:
-        friend class Application;
-
-        LayerManager();
-
-        std::vector<std::shared_ptr<Layer>> layers_;
+        static std::vector<std::shared_ptr<Layer>> layers_;
 
     };
 

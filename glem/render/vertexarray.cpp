@@ -2,8 +2,6 @@
 
 #include <glad/glad.h>
 
-#include <iostream>
-
 namespace {
     [[maybe_unused]] GLenum translate(glem::render::AttributeType t) noexcept {
         switch (t) {
@@ -48,11 +46,6 @@ namespace glem::render {
         const auto& layout = value->layout();
 
         for(const auto& attr : layout.attributes()) {
-            std::cout << attr.tag() << std::endl;
-            std::cout << "offset: "   << attr.offset() << std::endl;
-            std::cout << "count:  "   << attr.count()  << std::endl;
-            std::cout << "size:   "   << attr.size()   << std::endl;
-
             glEnableVertexAttribArray(attriuteIndex_);
 
             glVertexAttribPointer(attriuteIndex_,

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "window.hpp"
+#include "layer.hpp"
 #include "layermanager.hpp"
 
 namespace glem::core {
@@ -35,8 +36,7 @@ namespace glem::core {
         int exec() noexcept;
 
     private:
-        std::unique_ptr<Window>       window_       {nullptr};
-        std::unique_ptr<LayerManager> layerManager_ {nullptr};
+        std::unique_ptr<Window> window_ {nullptr};
 
     };
 

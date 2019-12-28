@@ -44,6 +44,11 @@ namespace glem::core {
         std::optional<int> pollEvents() noexcept;
 
         /**
+         * @brief close
+         */
+        void close() const noexcept;
+
+        /**
          * @brief context
          * @return
          */

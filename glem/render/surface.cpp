@@ -1,6 +1,6 @@
 #include "surface.hpp"
 
-#include <iostream>
+#include <util/log.hpp>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -22,6 +22,8 @@ namespace {
 
     const std::string SUFFIX_JPG = ".jpg";
     const std::string SUFFIX_PNG = ".png";
+
+    const std::string TAG = "Surface";
 }
 
 namespace glem::render {
@@ -46,11 +48,9 @@ namespace glem::render {
         auto data = stbi_load(path.c_str(), &width, &height, &components, STBI_default);
 
         if(!data) {
-            std::cerr << "Unable to load image." << std::endl;
+            util::Log::e(TAG, "Unable to load image.");
             return {};
         }
-
-        std::cout << "Image loaded ( " << width << "x" << height << " [" << components << "] )" << std::endl;
 
         Format format {Format::Unspecified};
 
@@ -60,7 +60,7 @@ namespace glem::render {
             format = Format::RGBA;
 
         if(format == Format::Unspecified) {
-            std::cerr << "Unsupported image format." << std::endl;
+            util::Log::e(TAG, "Unsupported image format.");
             return {};
         }
 
@@ -74,29 +74,21 @@ namespace glem::render {
     bool Surface::save(const std::string &path) const noexcept
     {
         if(format_ == Format::RGB) {
-            std::cout << "RGB image format. Save as jpg." << std::endl;
-
             auto _path = substring(path).append(SUFFIX_JPG);
-
-            std::cout << "Full path " << _path << std::endl;
 
             int ret = stbi_write_jpg(_path.c_str(), width_, height_, 3, pixels_.data(), 100);
 
             return (ret != 0);
         }
         else if(format_ == Format::RGBA) {
-            std::cout << "RGBA image format. Save as png." << std::endl;
-
             auto _path = substring(path).append(SUFFIX_PNG);
-
-            std::cout << "Full path " << _path << std::endl;
 
             int ret = stbi_write_png(_path.c_str(), width_, height_, 4, pixels_.data(), width_ * 4);
 
             return (ret != 0);
         }
 
-        std::cerr << "Unspecified image format." <<std::endl;
+        util::Log::e(TAG, "Unspecified image format.");
 
         return false;
     }

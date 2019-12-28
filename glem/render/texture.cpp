@@ -2,16 +2,19 @@
 
 #include <glad/glad.h>
 
-#include <iostream>
 #include <tuple>
 
+#include <util/log.hpp>
+
 namespace {
+    const std::string TAG = "Texture";
+
     [[maybe_unused]] std::tuple<GLenum, GLenum> convertFormat(glem::render::Format f) noexcept {
         switch (f) {
         case glem::render::Format::RGB:  { return { GL_RGB,  GL_RGB8  }; }
         case glem::render::Format::RGBA: { return { GL_RGBA, GL_RGBA8 }; }
         default: {
-            std::cerr << "Format unspecified." << std::endl;
+            glem::util::Log::w(TAG, "Format unspecified. Used default RGBA.");
             return { GL_RGBA, GL_RGBA8 };
         }
         }
@@ -22,7 +25,7 @@ namespace {
         case glem::render::Filter::Linear:  { return GL_LINEAR;  }
         case glem::render::Filter::Nearest: { return GL_NEAREST; }
         default: {
-            std::cerr << "Filter unspecified." << std::endl;
+            glem::util::Log::w(TAG, "Filter unspecified. Used default Linear.");
             return GL_LINEAR;
         }
         }
@@ -35,7 +38,7 @@ namespace {
         case glem::render::Wrap::ClampToBorder:  { return GL_CLAMP_TO_BORDER; }
         case glem::render::Wrap::MirroredRepeat: { return GL_MIRRORED_REPEAT; }
         default: {
-            std::cerr << "Wrap unspecified." << std::endl;
+            glem::util::Log::w(TAG, "Wrap unspecified. Used default Repeat.");
             return GL_REPEAT;
         }
         }
@@ -67,7 +70,7 @@ namespace glem::render {
             glTextureSubImage2D(id_, 0, 0, 0, width_, height_, imageFormat, GL_UNSIGNED_BYTE, surface->pixels().data());
         }
         else
-            std::cerr << "Unable to load image surface." << std::endl;
+            util::Log::e(TAG, "Unable to load image surface.");
     }
 
     Texture::Texture(const std::string &tag, uint32_t width, uint32_t height, Wrap wrap, Filter minFilter, Filter magFilter, Format format, uint32_t slot) :
@@ -117,7 +120,7 @@ namespace glem::render {
     bool Texture::setSurface(const Surface &value) noexcept
     {
         if(value.width() != width_ || value.height() != height_ || value.format() != format_) {
-            std::cerr << "Unable to set surface. Surface must be entire texture." << std::endl;
+            util::Log::e(TAG, "Unable to set surface. Surface must be entire texture.");
             return false;
         }
 

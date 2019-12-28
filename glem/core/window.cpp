@@ -1,10 +1,13 @@
 #include "window.hpp"
+#include "inputmanager.hpp"
 
 #include <glad/glad.h>
 
-#include <iostream>
+#include <util/log.hpp>
 
 namespace {
+    const std::string TAG = "Window";
+
     const int   DEFAULT_WIDTH  = 1280;
     const int   DEFAULT_HEIGHT = 720;
     const char* DEFAULT_TITLE  = "GLEM Engine";
@@ -18,7 +21,7 @@ namespace glem::core {
         title_  {DEFAULT_TITLE}
     {
         if(!glfwInit()) {
-            std::cerr << "Failed to initialize GLFW." << std::endl;
+            util::Log::e(TAG, "Failed to initialize GLFW.");
             return;
         }
 
@@ -38,7 +41,7 @@ namespace glem::core {
         window_ = glfwCreateWindow(width_, height_, title_.data(), nullptr, nullptr);
 
         if(!window_) {
-            std::cerr << "Failed to create GLFW window." << std::endl;
+            util::Log::e(TAG, "Failed to create GLFW window.");
             return;
         }
 
@@ -49,12 +52,27 @@ namespace glem::core {
         context_.reset(new render::Context{window_});
 
         glfwSetKeyCallback(window_, [](GLFWwindow* window, int key, int scancode, int action, int mods){
-            /**** TODO: event system ****/
+            static_cast<void>(window);
             static_cast<void>(scancode);
             static_cast<void>(mods);
 
-            if(key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-                glfwSetWindowShouldClose(window, true);
+            InputManager::onKeyboardEvent(KeyboardEvent{(action == GLFW_PRESS ? Action::Pressed : Action::Released),
+                                                        static_cast<uint16_t>(key)});
+        });
+
+        glfwSetMouseButtonCallback(window_, [](GLFWwindow* window, int button, int action, int mods){
+            static_cast<void>(mods);
+
+            double x;
+            double y;
+
+            glfwGetCursorPos(window, &x, &y);
+
+            InputManager::onMouseEvent(MouseEvent{(action == GLFW_PRESS ? Action::Pressed : Action::Released),
+                                                  static_cast<int>(x),
+                                                  static_cast<int>(y),
+                                                  0.0f,
+                                                  static_cast<uint16_t>(button)});
         });
     }
 
@@ -87,6 +105,11 @@ namespace glem::core {
             return {};
 
         return 0;
+    }
+
+    void Window::close() const noexcept
+    {
+        glfwSetWindowShouldClose(window_, true);
     }
 
     render::Context &Window::context() const noexcept

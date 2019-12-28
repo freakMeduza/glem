@@ -4,6 +4,8 @@
 
 namespace glem::core {
 
+    std::vector<std::shared_ptr<Layer>> LayerManager::layers_;
+
     void LayerManager::attach(const std::shared_ptr<Layer> &layer) noexcept
     {
         layer->onAttach();
@@ -32,17 +34,6 @@ namespace glem::core {
     {
         for(auto&& l : layers_)
             l->onDraw();
-    }
-
-    LayerManager::LayerManager()
-    {
-
-    }
-
-    LayerManager::~LayerManager()
-    {
-//        for(auto l : layers_)
-//            detach(l);
     }
 
 }

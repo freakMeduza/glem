@@ -2,11 +2,14 @@
 
 #include <glad/glad.h>
 
-#include <iostream>
+#include <util/log.hpp>
+
 #include <fstream>
 #include <sstream>
 
 namespace {
+    const std::string TAG = "Shader";
+
     [[maybe_unused]] GLenum translate(glem::render::ShaderType t) noexcept {
         switch (t) {
         case glem::render::ShaderType::PS: { return GL_FRAGMENT_SHADER; }
@@ -37,8 +40,7 @@ namespace {
 
             glGetShaderInfoLog(shader, length, &length, msg.data());
 
-            std::cerr << "Unable to compile shader: " << msg << std::endl;
-            std::cerr << src << std::endl;
+            glem::util::Log::e(TAG, "Unable to compile shader:", msg, src);
 
             glDeleteShader(shader);
 
@@ -61,7 +63,7 @@ namespace {
             return ss.str();
         }
 
-        std::cerr << "Unable to open file for reading ." << path << std::endl;
+        glem::util::Log::e(TAG, "Unable to open file for reading", path);
 
         return {};
     }
