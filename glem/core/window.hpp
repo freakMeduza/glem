@@ -19,13 +19,34 @@ namespace glem::core {
         Window(const Window&) = delete;
         Window& operator=(const Window&) = delete;
 
+        /**
+         * @brief width
+         * @return
+         */
         int width()  const noexcept;
+
+        /**
+         * @brief height
+         * @return
+         */
         int height() const noexcept;
 
+        /**
+         * @brief title
+         * @return
+         */
         std::string title() const noexcept;
 
+        /**
+         * @brief pollEvents
+         * @return
+         */
         std::optional<int> pollEvents() noexcept;
 
+        /**
+         * @brief context
+         * @return
+         */
         render::Context& context() const noexcept;
 
     private:
