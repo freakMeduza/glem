@@ -1,15 +1,15 @@
 #pragma once
 
-#include "window.hpp"
-#include "layer.hpp"
-#include "layermanager.hpp"
+#include <memory>
 
 namespace glem::core {
 
+    class Layer;
+    class Window;
+
     class Application {
     public:
-        Application();
-        ~Application();
+        virtual ~Application() = default;
 
         Application(Application&&) = delete;
         Application(const Application&) = delete;
@@ -18,25 +18,30 @@ namespace glem::core {
         Application& operator=(const Application&) = delete;
 
         /**
-         * @brief attach
-         * @param layer
-         */
-        void attach(const std::shared_ptr<Layer>& layer) noexcept;
-
-        /**
-         * @brief detach
-         * @param layer
-         */
-        void detach(const std::shared_ptr<Layer>& layer) noexcept;
-
-        /**
          * @brief exec
          * @return
          */
         int exec() noexcept;
 
+        /**
+         * @brief window
+         * @return
+         */
+        std::shared_ptr<Window> window() noexcept;
+
+        /**
+         * @brief instance
+         * @return
+         */
+        static Application& instance() noexcept;
+
     private:
-        std::unique_ptr<Window> window_ {nullptr};
+        void onStart() noexcept;
+        void onShutdown() noexcept;
+
+        Application() = default;
+
+        std::shared_ptr<Window> window_ {nullptr};
 
     };
 

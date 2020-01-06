@@ -6,8 +6,11 @@
 #include <string>
 #include <memory>
 #include <optional>
+#include <functional>
 
 #include <render/context.hpp>
+
+#include "event.hpp"
 
 namespace glem::core {
 
@@ -54,6 +57,18 @@ namespace glem::core {
          */
         render::Context& context() const noexcept;
 
+        /**
+         * @brief nativeWindow
+         * @return
+         */
+        GLFWwindow& nativeWindow() const noexcept;
+
+        /**
+         * @brief setEventCallBack
+         * @param value
+         */
+        void setEventCallBack(const std::function<void(Event&)>& value) noexcept;
+
     private:
         GLFWwindow* window_ {nullptr};
 
@@ -63,6 +78,8 @@ namespace glem::core {
         std::string title_;
 
         std::unique_ptr<render::Context> context_ {nullptr};
+
+        std::function<void(Event&)> eventCallBack_;
 
     };
 

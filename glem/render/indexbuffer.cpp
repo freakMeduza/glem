@@ -9,13 +9,13 @@ namespace glem::render {
         glCreateBuffers(1, &id_);
     }
 
-    IndexBuffer::IndexBuffer(const void* value, uint32_t size)
+    IndexBuffer::IndexBuffer(const void* value, size_t size)
     {
         glCreateBuffers(1, &id_);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, id_);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, size, value, GL_STATIC_DRAW);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, static_cast<GLsizei>(size), value, GL_STATIC_DRAW);
 
-        count_ = size / sizeof (uint32_t);
+        count_ = static_cast<uint32_t>(size / sizeof (uint32_t));
     }
 
     IndexBuffer::~IndexBuffer()

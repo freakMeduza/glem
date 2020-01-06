@@ -51,13 +51,19 @@ namespace glem::core {
 
         context_.reset(new render::Context{window_});
 
+        glfwSetWindowUserPointer(window_, &eventCallBack_);
+
         glfwSetKeyCallback(window_, [](GLFWwindow* window, int key, int scancode, int action, int mods){
             static_cast<void>(window);
             static_cast<void>(scancode);
             static_cast<void>(mods);
 
-            InputManager::onKeyboardEvent(KeyboardEvent{(action == GLFW_PRESS ? Action::Pressed : Action::Released),
-                                                        static_cast<uint16_t>(key)});
+            if(auto function = *static_cast<std::function<void(Event&)>*>(glfwGetWindowUserPointer(window))) {
+                KeyboardEvent e{(action == GLFW_PRESS || action == GLFW_REPEAT ? Event::KeyPressed : Event::KeyReleased),
+                                static_cast<uint16_t>(key)};
+
+                function(e);
+            }
         });
 
         glfwSetMouseButtonCallback(window_, [](GLFWwindow* window, int button, int action, int mods){
@@ -68,11 +74,40 @@ namespace glem::core {
 
             glfwGetCursorPos(window, &x, &y);
 
-            InputManager::onMouseEvent(MouseEvent{(action == GLFW_PRESS ? Action::Pressed : Action::Released),
-                                                  static_cast<int>(x),
-                                                  static_cast<int>(y),
-                                                  0.0f,
-                                                  static_cast<uint16_t>(button)});
+            if(auto function = *static_cast<std::function<void(Event&)>*>(glfwGetWindowUserPointer(window))) {
+                MouseEvent e{(action == GLFW_PRESS ? Event::MouseButtonPressed : Event::MouseButtonReleased),
+                             static_cast<uint16_t>(button),
+                             static_cast<float>(x),
+                             static_cast<float>(y)};
+                function(e);
+            }
+        });
+
+        glfwSetCursorPosCallback(window_, [](GLFWwindow* window, double xpos, double ypos){
+            if(auto function = *static_cast<std::function<void(Event&)>*>(glfwGetWindowUserPointer(window))) {
+                MouseEvent e{Event::MouseMoved,
+                             static_cast<uint16_t>(0),
+                             static_cast<float>(xpos),
+                             static_cast<float>(ypos)};
+                function(e);
+            }
+        });
+
+        glfwSetScrollCallback(window_, [](GLFWwindow* window, double xoffset, double yoffset){
+            if(auto function = *static_cast<std::function<void(Event&)>*>(glfwGetWindowUserPointer(window))) {
+                double x {0.0};
+                double y {0.0};
+
+                glfwGetCursorPos(window, &x, &y);
+
+                MouseEvent e{Event::MouseScrolled,
+                             static_cast<uint16_t>(0),
+                             static_cast<float>(x),
+                             static_cast<float>(y),
+                             static_cast<float>(xoffset),
+                             static_cast<float>(yoffset)};
+                function(e);
+            }
         });
     }
 
@@ -115,6 +150,16 @@ namespace glem::core {
     render::Context &Window::context() const noexcept
     {
         return *context_;
+    }
+
+    GLFWwindow &Window::nativeWindow() const noexcept
+    {
+        return *window_;
+    }
+
+    void Window::setEventCallBack(const std::function<void (Event &)> &value) noexcept
+    {
+        eventCallBack_ = value;
     }
 
 }

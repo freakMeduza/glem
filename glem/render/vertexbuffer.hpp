@@ -15,7 +15,7 @@ namespace glem::render {
         VertexBuffer(InputLayout layout);
         VertexBuffer(InputLayout layout,
                      const void* value,
-                     uint32_t size);
+                     size_t size);
 
         ~VertexBuffer() override;
 

@@ -14,7 +14,7 @@ namespace {
         auto version  = glGetString(GL_VERSION);
 
         std::cout << vendor    << std::endl;
-        std::cout << "OpenGL " << version  << std::endl;
+        std::cout << "OpenGL " << version << std::endl;
         std::cout << renderer  << std::endl;
     }
 }

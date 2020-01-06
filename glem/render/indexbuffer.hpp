@@ -13,7 +13,7 @@ namespace glem::render {
     public:
         IndexBuffer();
         IndexBuffer(const void* value,
-                    uint32_t size);
+                    size_t size);
 
         ~IndexBuffer() override;
 

@@ -1,9 +1,7 @@
 #pragma once
 
-#include "event.hpp"
-
-#include <queue>
-#include <optional>
+#include "mouse.hpp"
+#include "keyboard.hpp"
 
 namespace glem::core {
 
@@ -19,26 +17,22 @@ namespace glem::core {
         InputManager& operator=(const InputManager&) = delete;
 
         /**
-         * @brief fetchMouseEvent
+         * @brief mouse
          * @return
          */
-        static std::optional<MouseEvent>    fetchMouseEvent()    noexcept;
+        static const Mouse& mouse() noexcept;
 
         /**
-         * @brief fetchKeyboardEvent
+         * @brief keyboard
          * @return
          */
-        static std::optional<KeyboardEvent> fetchKeyboardEvent() noexcept;
+        static const Keyboard& keyboard() noexcept;
 
     private:
-        friend class Window;
-
-        static void onMouseEvent(const MouseEvent& value) noexcept;
-        static void onKeyboardEvent(const KeyboardEvent& value) noexcept;
-
-        static std::queue<MouseEvent>    mouse_;
-        static std::queue<KeyboardEvent> keyboard_;
+        static Mouse    mouse_;
+        static Keyboard keyboard_;
 
     };
 
 }
+

@@ -28,28 +28,40 @@ namespace glem::render {
         update();
     }
 
-    void Camera::setProjection(const glm::mat4 &value) noexcept
+    const glm::vec3 &Camera::position() const noexcept
     {
-        projection_ = value;
+        return position_;
     }
 
-    void Camera::setProjection(float left, float right, float bottom, float top) noexcept
+    void Camera::setSensitivity(float value) noexcept
     {
-        projection_ = glm::ortho(left, right, bottom, top, NEAR, FAR);
+        sensitivity_ = value;
+    }
+
+    float Camera::sensitivity() const noexcept
+    {
+        return sensitivity_;
+    }
+
+    void Camera::move(Moveable::Movement movement, float dt) noexcept
+    {
+        switch (movement) {
+        case Movement::Up:    { position_.y += sensitivity_ * dt; break; }
+        case Movement::Down:  { position_.y -= sensitivity_ * dt; break; }
+        case Movement::Left:  { position_.x -= sensitivity_ * dt; break; }
+        case Movement::Right: { position_.x += sensitivity_ * dt; break; }
+        }
+
+        update();
     }
 
     void Camera::update() noexcept
     {
         // TODO: add rotation
-        auto&& transform = glm::translate(glm::mat4(1.0f), position_);
+        const auto& transform = glm::translate(glm::mat4(1.0f), position());
 
         view_           = glm::inverse(transform);
         viewProjection_ = projection_ * view_;
-    }
-
-    const glm::vec3 &Camera::position() const noexcept
-    {
-        return position_;
     }
 
     const glm::mat4 &Camera::view() const noexcept
