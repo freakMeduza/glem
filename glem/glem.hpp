@@ -1,6 +1,5 @@
 #pragma once
 
-#include <core/layer.hpp>
 #include <core/window.hpp>
 #include <core/application.hpp>
 
