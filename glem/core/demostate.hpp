@@ -3,6 +3,7 @@
 #include "state.hpp"
 
 #include <glem.hpp>
+#include <render/renderer.hpp>
 
 #include <memory>
 
@@ -25,6 +26,8 @@ namespace glem::core {
 
         std::unique_ptr<render::ShaderProgram> program_ {nullptr};
         std::unique_ptr<render::VertexArray>   vao_     {nullptr};
+
+        std::vector<std::shared_ptr<render::Drawable>> sprites_;
 
     };
 

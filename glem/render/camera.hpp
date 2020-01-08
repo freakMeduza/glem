@@ -9,7 +9,7 @@ namespace glem::render {
 
     class Camera : public Moveable {
     public:
-        ~Camera() = default;
+        ~Camera() override = default;
 
         Camera(Camera&&) = delete;
         Camera(const Camera&) = delete;

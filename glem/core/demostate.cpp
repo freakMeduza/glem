@@ -2,9 +2,12 @@
 
 #include "inputmanager.hpp"
 
-#include <glad/glad.h>
+#include <render/drawable.hpp>
+#include <render/renderer.hpp>
 
 #include <util/log.hpp>
+
+#include <time.h>
 
 namespace  {
     const std::string TAG = "Demo";
@@ -14,37 +17,45 @@ namespace glem::core {
 
     void DemoState::onAttach() noexcept
     {
-        const float positions[] {
-             0.5f,  0.5f,
-             0.5f, -0.5f,
-            -0.5f, -0.5f,
-            -0.5f,  0.5f,
-        };
+        render::Renderer::init();
 
-        const uint32_t indicies[] {
-            0, 1, 3, 1, 2, 3
-        };
+        std::srand(time(nullptr));
 
-        vao_.reset(new render::VertexArray{});
+        const auto& width  = static_cast<float>(Application::instance().window()->width());
+        const auto& height = static_cast<float>(Application::instance().window()->height());
+
+        util::Log::d(TAG, "Width: ", width, " Height: ", height);
+
+        for(float y = 0.0f; y < height; y += 5.0f) {
+            for(float x = 0.0f; x < width; x += 5.0f) {
+                sprites_.emplace_back(std::make_shared<render::Drawable>(glm::vec3{x, y, 0.0f},
+                                                                         glm::vec4{std::rand() % 1000 / 1000.0f, 0.0f, 1.0f, 1.0f},
+                                                                         glm::vec2{4.0f, 4.0f}));
+            }
+        }
+
+        util::Log::d(TAG, "Number of sprites: ", sprites_.size());
+
+        camera_.reset(new render::Camera{glm::ortho(0.0f, width, 0.0f, height)});
+
         program_.reset(new render::ShaderProgram{});
-
-        const auto& vbo = std::make_shared<render::VertexBuffer>(render::InputLayout{{render::Float2, "positions"}}, positions, sizeof (positions));
-        const auto& ibo = std::make_shared<render::IndexBuffer>(indicies, sizeof (indicies));
-
-        vao_->append(vbo);
-        vao_->append(ibo);
 
         const auto& vs = R"glsl(
                          #version 450 core
 
-                         layout(location = 0) in vec4 positions;
+                         layout(location = 0) in vec3 vPosition;
+                         layout(location = 1) in vec4 vColor;
 
                          uniform mat4 uViewProjection;
 
-                         out vec2 uv;
+                         out vec3 fPosition;
+                         out vec4 fColor;
 
                          void main() {
-                             gl_Position = uViewProjection * vec4(positions.xy, 0.0f, 1.0f);
+                             gl_Position = uViewProjection * vec4(vPosition, 1.0f);
+
+                             fPosition = vPosition;
+                             fColor    = vColor;
                          }
                          )glsl";
 
@@ -53,8 +64,20 @@ namespace glem::core {
 
                          layout(location = 0) out vec4 color;
 
+                         uniform vec2 uLightPosition;
+
+                         in vec3 fPosition;
+                         in vec4 fColor;
+
                          void main() {
-                             color = vec4(0.5f, 1.0f, 1.0f, 1.0f);
+                             float intensity = 1.0 / length(fPosition.xy - uLightPosition);
+
+                             intensity = clamp(intensity, 0.0f, 1.0f);
+                             intensity = sqrt(intensity);
+
+                             intensity = intensity * 2.5f;
+
+                             color = fColor * intensity;
                          }
                          )glsl";
 
@@ -63,8 +86,6 @@ namespace glem::core {
 
         if(!program_->link())
             util::Log::e(TAG, "Failed to link program.");
-
-        camera_.reset(new render::Camera{glm::ortho(-1.6f, 1.6f, -0.9f, 0.9f)});
     }
 
     void DemoState::onDetach() noexcept
@@ -98,15 +119,22 @@ namespace glem::core {
 
     void DemoState::onDraw() noexcept
     {
-        vao_->bind();
-
         program_->bind();
         program_->setUniform("uViewProjection", camera_->viewProjection());
 
-        glDrawElements(GL_TRIANGLES,
-                       static_cast<GLsizei>(vao_->indexBuffer()->count()),
-                       GL_UNSIGNED_INT,
-                       reinterpret_cast<const void*>(0));
+        auto [x, y] = InputManager::mouse().position();
+
+        program_->setUniform("uLightPosition", glm::vec2{x, (static_cast<float>(Application::instance().window()->height()) - y)});
+
+        render::Renderer::begin();
+
+        for(size_t i = 0; i < sprites_.size(); ++i) {
+            render::Renderer::submit(sprites_[i]);
+        }
+
+        render::Renderer::end();
+
+        render::Renderer::release();
     }
 
 }

@@ -34,11 +34,13 @@ namespace glem::core {
                 return *ret;
             }
 
-            StateManager::top()->onUpdate(dt);
+            if(!StateManager::empty())
+                StateManager::top()->onUpdate(dt);
 
             window_->context().beginFrame();
 
-            StateManager::top()->onDraw();
+            if(!StateManager::empty())
+                StateManager::top()->onDraw();
 
             window_->context().endFrame();
         }
@@ -60,7 +62,7 @@ namespace glem::core {
     {
         window_.reset(new Window{});
 
-        window_->setEventCallBack([](Event& event){ StateManager::top()->onEvent(event); });
+        window_->setEventCallBack([](Event& event){ if(!StateManager::empty()) StateManager::top()->onEvent(event); });
 
         StateManager::push(std::make_shared<DemoState>());
     }
@@ -70,5 +72,4 @@ namespace glem::core {
         while(!StateManager::empty())
             StateManager::pop();
     }
-
 }

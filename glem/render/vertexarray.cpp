@@ -1,4 +1,6 @@
 #include "vertexarray.hpp"
+#include "indexbuffer.hpp"
+#include "vertexbuffer.hpp"
 
 #include <glad/glad.h>
 
@@ -53,7 +55,7 @@ namespace glem::render {
                                   translate(attr.type()),
                                   attr.normalized() ? GL_TRUE : GL_FALSE,
                                   static_cast<GLsizei>(layout.stride()),
-                                  reinterpret_cast<const void*>(attr.offset()));
+                                  reinterpret_cast<const GLvoid*>(attr.offset()));
 
             attriuteIndex_++;
         }

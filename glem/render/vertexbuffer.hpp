@@ -12,7 +12,6 @@ namespace glem::render {
      */
     class VertexBuffer : public Bindable {
     public:
-        VertexBuffer(InputLayout layout);
         VertexBuffer(InputLayout layout,
                      const void* value,
                      size_t size);

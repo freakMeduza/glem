@@ -1,12 +1,14 @@
 #pragma once
 
-#include "indexbuffer.hpp"
-#include "vertexbuffer.hpp"
-
 #include <vector>
 #include <memory>
 
+#include "bindable.hpp"
+
 namespace glem::render {
+
+    class IndexBuffer;
+    class VertexBuffer;
 
     /**
      * @brief The VertexArray class
