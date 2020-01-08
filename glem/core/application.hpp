@@ -4,7 +4,7 @@
 
 namespace glem::core {
 
-    class Layer;
+    class State;
     class Window;
 
     class Application {
@@ -16,6 +16,17 @@ namespace glem::core {
 
         Application& operator=(Application&&) = delete;
         Application& operator=(const Application&) = delete;
+
+        /**
+         * @brief push
+         * @param value
+         */
+        void push(const std::shared_ptr<State>& value) noexcept;
+
+        /**
+         * @brief pop
+         */
+        void pop() noexcept;
 
         /**
          * @brief exec
@@ -36,10 +47,7 @@ namespace glem::core {
         static Application& instance() noexcept;
 
     private:
-        void onStart() noexcept;
-        void onShutdown() noexcept;
-
-        Application() = default;
+        Application();
 
         std::shared_ptr<Window> window_ {nullptr};
 

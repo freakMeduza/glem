@@ -2,13 +2,12 @@
 #include "application.hpp"
 #include "inputmanager.hpp"
 #include "statemanager.hpp"
+#include "state.hpp"
 
 #include <util/log.hpp>
 #include <util/timer.hpp>
 
 #include <glad/glad.h>
-
-#include "demostate.hpp"
 
 namespace {
     const std::string TAG = "Application";
@@ -16,31 +15,43 @@ namespace {
 
 namespace glem::core {
 
+    void Application::push(const std::shared_ptr<State> &value) noexcept
+    {
+        StateManager::push(value);
+    }
+
+    void Application::pop() noexcept
+    {
+        StateManager::pop();
+    }
+
     int Application::exec() noexcept
     {
-        onStart();
-
         util::Timer markTimer;
 
         float dt = 0.0f;
 
         while(true) {
+            if(StateManager::empty()) {
+                util::Log::w(TAG, "State stack is empty.");
+
+                return 0;
+            }
+
             dt = markTimer.mark();
 
             if(auto ret = window_->pollEvents()) {
-                // Cleanup
-                onShutdown();
+                while(!StateManager::empty())
+                    StateManager::pop();
 
                 return *ret;
             }
 
-            if(!StateManager::empty())
-                StateManager::top()->onUpdate(dt);
+            StateManager::top()->onUpdate(dt);
 
             window_->context().beginFrame();
 
-            if(!StateManager::empty())
-                StateManager::top()->onDraw();
+            StateManager::top()->onDraw();
 
             window_->context().endFrame();
         }
@@ -58,18 +69,9 @@ namespace glem::core {
         return app;
     }
 
-    void Application::onStart() noexcept
+    Application::Application() :
+        window_ {new Window{}}
     {
-        window_.reset(new Window{});
-
-        window_->setEventCallBack([](Event& event){ if(!StateManager::empty()) StateManager::top()->onEvent(event); });
-
-        StateManager::push(std::make_shared<DemoState>());
-    }
-
-    void Application::onShutdown() noexcept
-    {
-        while(!StateManager::empty())
-            StateManager::pop();
+        window_->setEventCallBack([](Event& event){ StateManager::top()->onEvent(event); });
     }
 }

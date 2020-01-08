@@ -1,8 +1,12 @@
 #pragma once
 
+#include <core/state.hpp>
 #include <core/window.hpp>
 #include <core/application.hpp>
+#include <core/inputmanager.hpp>
 
+#include <render/drawable.hpp>
+#include <render/renderer.hpp>
 #include <render/shader.hpp>
 #include <render/surface.hpp>
 #include <render/texture.hpp>

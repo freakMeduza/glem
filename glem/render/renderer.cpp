@@ -12,7 +12,7 @@
 namespace {
     const std::string TAG = "Renderer";
 
-    const uint64_t MAX_SPRITE_SIZE = 60000;
+    const uint64_t MAX_SPRITE_SIZE = 300000;
 
     const uint64_t VERTEX_SIZE  = sizeof (glem::render::Vertex);
     const uint64_t SPRITE_SIZE  = VERTEX_SIZE * 4;
