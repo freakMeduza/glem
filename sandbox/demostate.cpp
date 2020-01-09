@@ -13,8 +13,6 @@ const std::string TAG = "Demo";
 
 void DemoState::onAttach() noexcept
 {
-    glem::render::Renderer::init();
-
     std::srand(time(nullptr));
 
     const auto& width  = static_cast<float>(glem::core::Application::instance().window()->width());
@@ -120,7 +118,7 @@ void DemoState::onDraw() noexcept
 
     auto [x, y] = glem::core::InputManager::mouse().position();
 
-            program_->setUniform("uLightPosition", glm::vec2{x, (static_cast<float>(glem::core::Application::instance().window()->height()) - y)});
+    program_->setUniform("uLightPosition", glm::vec2{x, (static_cast<float>(glem::core::Application::instance().window()->height()) - y)});
 
     glem::render::Renderer::begin();
 
@@ -130,5 +128,5 @@ void DemoState::onDraw() noexcept
 
     glem::render::Renderer::end();
 
-    glem::render::Renderer::release();
+    glem::render::Renderer::present();
 }

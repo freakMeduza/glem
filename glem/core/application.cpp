@@ -4,6 +4,8 @@
 #include "statemanager.hpp"
 #include "state.hpp"
 
+#include <render/renderer.hpp>
+
 #include <util/log.hpp>
 #include <util/timer.hpp>
 
@@ -27,6 +29,8 @@ namespace glem::core {
 
     int Application::exec() noexcept
     {
+        render::Renderer::init();
+
         util::Timer markTimer;
 
         float dt = 0.0f;
@@ -43,6 +47,8 @@ namespace glem::core {
             if(auto ret = window_->pollEvents()) {
                 while(!StateManager::empty())
                     StateManager::pop();
+
+                render::Renderer::deinit();
 
                 return *ret;
             }

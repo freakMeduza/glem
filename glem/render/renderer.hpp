@@ -25,6 +25,11 @@ namespace glem::render {
         static void init() noexcept;
 
         /**
+         * @brief deinit
+         */
+        static void deinit() noexcept;
+
+        /**
          * @brief begin
          */
         static void begin() noexcept;
@@ -41,14 +46,14 @@ namespace glem::render {
         static void end() noexcept;
 
         /**
-         * @brief release
+         * @brief present
          */
-        static void release() noexcept;
+        static void present() noexcept;
 
     private:
-        static std::shared_ptr<VertexArray> vao_;
-        static Vertex*  buffer_;
-        static uint32_t index_;
+        static VertexArray* vao_;
+        static Vertex*      buffer_;
+        static uint32_t     index_;
 
     };
 

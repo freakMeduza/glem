@@ -1,6 +1,8 @@
 #include "state.hpp"
 #include "statemanager.hpp"
 
+#include <algorithm>
+
 namespace glem::core {
 
     std::deque<std::shared_ptr<State>> StateManager::states_;

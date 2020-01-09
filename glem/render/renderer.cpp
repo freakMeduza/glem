@@ -22,13 +22,13 @@ namespace {
 
 namespace glem::render {
 
-    std::shared_ptr<VertexArray> Renderer::vao_;
-    Vertex*                      Renderer::buffer_;
-    uint32_t                     Renderer::index_;
+    VertexArray*                 Renderer::vao_    {nullptr};
+    Vertex*                      Renderer::buffer_ {nullptr};
+    uint32_t                     Renderer::index_  {0};
 
     void Renderer::init() noexcept
     {
-        vao_.reset(new VertexArray{});
+        vao_ = new VertexArray{};
 
         auto vbo = std::make_shared<VertexBuffer>(InputLayout{
                                                       { Float3, "position" },
@@ -55,6 +55,12 @@ namespace glem::render {
 
         vao_->append(vbo);
         vao_->append(ibo);
+    }
+
+    void Renderer::deinit() noexcept
+    {
+        delete vao_;
+        vao_ = nullptr;
     }
 
     void Renderer::begin() noexcept
@@ -94,10 +100,8 @@ namespace glem::render {
         glUnmapBuffer(GL_ARRAY_BUFFER);
     }
 
-    void Renderer::release() noexcept
+    void Renderer::present() noexcept
     {
-        vao_->bind();
-
         glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(index_), GL_UNSIGNED_INT, reinterpret_cast<const GLvoid*>(0));
 
         index_ = 0;
