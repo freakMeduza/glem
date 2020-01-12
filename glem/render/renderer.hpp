@@ -54,12 +54,11 @@ namespace glem::render {
          */
         static void present() noexcept;
 
-        static void submitTextured(const glm::vec3 position, const glm::vec2& size, const glm::vec4& color, const std::shared_ptr<Texture>& texture, int slot) noexcept;
-
     private:
         static VertexArray* vao_;
-        static Vertex*      buffer_;
+        static Vertex*      vertex_;
         static uint32_t     index_;
+        static uint32_t     submitted_;
 
     };
 

@@ -1,8 +1,13 @@
 #pragma once
 
+#include <vector>
+#include <memory>
+
 #include <glm/glm.hpp>
 
 namespace glem::render {
+
+    class Texture;
 
     class Drawable {
     public:
@@ -11,7 +16,8 @@ namespace glem::render {
 
         Drawable(const glm::vec3& position,
                  const glm::vec2& size,
-                 const glm::vec4& color = {1.0f, 1.0f, 1.0f, 1.0f});
+                 const glm::vec4& color = {1.0f, 1.0f, 1.0f, 1.0f},
+                 const std::shared_ptr<Texture>& texture = nullptr);
 
         Drawable(Drawable&&) = default;
         Drawable(const Drawable&) = default;
@@ -55,10 +61,38 @@ namespace glem::render {
          */
         [[nodiscard]] const glm::vec2& size() const noexcept;
 
+        /**
+         * @brief setUV
+         * @param value
+         */
+        void setUV(const std::vector<glm::vec2>& value) noexcept;
+
+        /**
+         * @brief uv
+         * @return
+         */
+        [[nodiscard]] const std::vector<glm::vec2>& uv() const noexcept;
+
+        /**
+         * @brief setTexture
+         * @param value
+         */
+        void setTexture(const std::shared_ptr<Texture>& value) noexcept;
+
+        /**
+         * @brief texture
+         * @return
+         */
+        [[nodiscard]] std::shared_ptr<Texture> texture() const noexcept;
+
     private:
         glm::vec3 position_;
         glm::vec4 color_;
         glm::vec2 size_;
+
+        std::vector<glm::vec2> uv_;
+
+        std::shared_ptr<Texture> texture_ {nullptr};
 
     };
 

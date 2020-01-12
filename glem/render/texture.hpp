@@ -39,6 +39,8 @@ namespace glem::render {
         // Bindable interface
         void bind() noexcept override;
 
+        inline uint32_t slot() const noexcept { return slot_; }
+
         /**
          * @brief tag       Texture tag
          * @return

@@ -13,7 +13,7 @@
 namespace {
     const std::string TAG = "Renderer";
 
-    const uint64_t MAX_SPRITE_SIZE = 60000;
+    const uint64_t MAX_SPRITE_SIZE = 50000;
 
     const uint64_t VERTEX_SIZE  = sizeof (glem::render::Vertex);
     const uint64_t SPRITE_SIZE  = VERTEX_SIZE * 4;
@@ -23,9 +23,10 @@ namespace {
 
 namespace glem::render {
 
-    VertexArray*                 Renderer::vao_    {nullptr};
-    Vertex*                      Renderer::buffer_ {nullptr};
-    uint32_t                     Renderer::index_  {0};
+    VertexArray* Renderer::vao_       {nullptr};
+    Vertex*      Renderer::vertex_    {nullptr};
+    uint32_t     Renderer::index_     {0};
+    uint32_t     Renderer::submitted_ {0};
 
     void Renderer::init() noexcept
     {
@@ -70,32 +71,59 @@ namespace glem::render {
     {
         vao_->bind();
 
-        buffer_ = static_cast<Vertex*>(glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY));
+        vertex_ = static_cast<Vertex*>(glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY));
     }
 
     void Renderer::submit(const std::shared_ptr<Drawable> &value) noexcept
     {
+        if(submitted_ == MAX_SPRITE_SIZE) {
+            end();
+            present();
+            begin();
+
+            submitted_ = 0;
+        }
+
         const auto& position = value->position();
         const auto& color    = value->color();
         const auto& size     = value->size();
+        const auto& uv       = value->uv();
 
-        buffer_->position = position;
-        buffer_->color    = color;
-        buffer_++;
+        auto slot = -1.0f;
 
-        buffer_->position = glm::vec3(position.x, position.y + size.y, position.z);
-        buffer_->color    = color;
-        buffer_++;
+        if(const auto& t = value->texture()) {
+            t->bind();
 
-        buffer_->position = glm::vec3(position.x + size.x, position.y + size.y, position.z);
-        buffer_->color    = color;
-        buffer_++;
+            slot = t->slot();
+        }
 
-        buffer_->position = glm::vec3(position.x + size.x, position.y, position.z);
-        buffer_->color    = color;
-        buffer_++;
+        vertex_->position = position;
+        vertex_->color    = color;
+        vertex_->uv       = uv[0];
+        vertex_->slot     = slot;
+        vertex_++;
+
+        vertex_->position = glm::vec3(position.x, position.y + size.y, position.z);
+        vertex_->color    = color;
+        vertex_->uv       = uv[1];
+        vertex_->slot     = slot;
+        vertex_++;
+
+        vertex_->position = glm::vec3(position.x + size.x, position.y + size.y, position.z);
+        vertex_->color    = color;
+        vertex_->uv       = uv[2];
+        vertex_->slot     = slot;
+        vertex_++;
+
+        vertex_->position = glm::vec3(position.x + size.x, position.y, position.z);
+        vertex_->color    = color;
+        vertex_->uv       = uv[3];
+        vertex_->slot     = slot;
+        vertex_++;
 
         index_ += 6;
+
+        submitted_++;
     }
 
     void Renderer::end() noexcept
@@ -105,40 +133,11 @@ namespace glem::render {
 
     void Renderer::present() noexcept
     {
+        vao_->bind();
+
         glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(index_), GL_UNSIGNED_INT, reinterpret_cast<const GLvoid*>(0));
 
         index_ = 0;
-    }
-
-    void Renderer::submitTextured(const glm::vec3 position, const glm::vec2 &size, const glm::vec4 &color, const std::shared_ptr<Texture> &texture, int slot) noexcept
-    {
-        texture->bind();
-
-        buffer_->position = position;
-        buffer_->color    = color;
-        buffer_->uv       = glm::vec2{0.0f, 0.0f};
-        buffer_->slot     = static_cast<float>(slot);
-        buffer_++;
-
-        buffer_->position = glm::vec3(position.x, position.y + size.y, position.z);
-        buffer_->color    = color;
-        buffer_->uv       = glm::vec2{0.0f, 1.0f};
-        buffer_->slot     = static_cast<float>(slot);
-        buffer_++;
-
-        buffer_->position = glm::vec3(position.x + size.x, position.y + size.y, position.z);
-        buffer_->color    = color;
-        buffer_->uv       = glm::vec2{1.0f, 1.0f};
-        buffer_->slot     = static_cast<float>(slot);
-        buffer_++;
-
-        buffer_->position = glm::vec3(position.x + size.x, position.y, position.z);
-        buffer_->color    = color;
-        buffer_->uv       = glm::vec2{1.0f, 0.0f};
-        buffer_->slot     = static_cast<float>(slot);
-        buffer_++;
-
-        index_ += 6;
     }
 
 }

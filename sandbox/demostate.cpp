@@ -61,7 +61,6 @@ namespace  {
 
                          if(fSlot >= 0.0f) {
                             color = texture2D(uTexture[int(fSlot)], fUv);
-//                            color = vec4(fSlot, 0.0f, 0.0f, 1.0f);
                          }
 
                          fragColor = color * intensity;
@@ -73,7 +72,6 @@ namespace  {
     const std::string TEXTURE0 = "texture0.jpg";
     const std::string TEXTURE1 = "texture1.jpg";
 
-
     int used[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
 }
 
@@ -83,17 +81,6 @@ void DemoState::onAttach() noexcept
 
     const auto& width  = static_cast<float>(glem::core::Application::instance().window()->width());
     const auto& height = static_cast<float>(glem::core::Application::instance().window()->height());
-
-    glem::util::Log::d(TAG, "Width: ", width, " Height: ", height);
-
-    for(float y = 0.0f; y < height; y += 50.0f) {
-        for(float x = 0.0f; x < width; x += 50.0f)
-            sprites_.emplace_back(std::make_shared<glem::render::Drawable>(glm::vec3{x, y, 0.0f},
-                                                                           glm::vec2{45.5f, 45.5f},
-                                                                           glm::vec4{std::rand() % 1000 / 1000.0f, 0.0f, 1.0f, 1.0f}));
-    }
-
-    glem::util::Log::d(TAG, "Number of sprites: ", sprites_.size());
 
     camera_.reset(new glem::render::Camera{glm::ortho(0.0f, width, 0.0f, height)});
 
@@ -124,6 +111,18 @@ void DemoState::onAttach() noexcept
                                                                   1));
 
     glem::util::Log::d(TAG, "Number of textures: ", textures.size());
+
+    for(float y = 0.0f; y < height; y += 40.0f) {
+        static bool chose = true;
+        chose = !chose;
+        for(float x = 0.0f; x < width; x += 40.0f)
+            sprites_.emplace_back(std::make_shared<glem::render::Drawable>(glm::vec3{x, y, 0.0f},
+                                                                           glm::vec2{35.5f, 35.5f},
+                                                                           glm::vec4{std::rand() % 1000 / 1000.0f, 0.0f, 1.0f, 1.0f},
+                                                                           textures[chose ? 0 : 1]));
+    }
+
+    glem::util::Log::d(TAG, "Number of sprites: ", sprites_.size());
 }
 
 void DemoState::onDetach() noexcept
@@ -167,26 +166,9 @@ void DemoState::onDraw() noexcept
 
     glem::render::Renderer::begin();
 
-//    for(size_t i = 0; i < sprites_.size(); ++i) {
-//        glem::render::Renderer::submit(sprites_[i]);
-//    }
-
-    const auto& width  = static_cast<float>(glem::core::Application::instance().window()->width());
-    const auto& height = static_cast<float>(glem::core::Application::instance().window()->height());
-
-    glem::render::Renderer::submitTextured(glm::vec3{(width - 95.5f) / 2 - 100.0f, (height - 95.5f) / 2, 0.0f},
-                                           glm::vec2{95.5f, 95.5f},
-                                           glm::vec4{1.0f, 1.0f, 1.0f, 1.0f},
-                                           textures[0],
-                                           0);
-
-    glem::render::Renderer::submitTextured(glm::vec3{(width - 95.5f) / 2 + 100.0f, (height - 95.5f) / 2, 0.0f},
-                                           glm::vec2{95.5f, 95.5f},
-                                           glm::vec4{1.0f, 1.0f, 1.0f, 1.0f},
-                                           textures[1],
-                                           1);
+    for(auto s : sprites_)
+        glem::render::Renderer::submit(s);
 
     glem::render::Renderer::end();
-
     glem::render::Renderer::present();
 }
