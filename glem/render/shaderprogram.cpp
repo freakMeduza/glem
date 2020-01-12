@@ -75,6 +75,21 @@ namespace glem::render {
             return true;
         }
 
+        util::Log::e(TAG, "Failed to set uniform [", tag, "].");
+
+        return false;
+    }
+
+    bool ShaderProgram::setUniform(const std::string &tag, int *value, int size) noexcept
+    {
+        if(auto location = resolveUniformLocation(tag); location != -1) {
+            glUniform1iv(location, size, value);
+
+            return true;
+        }
+
+        util::Log::e(TAG, "Failed to set uniform [", tag, "].");
+
         return false;
     }
 
@@ -85,6 +100,8 @@ namespace glem::render {
 
             return true;
         }
+
+        util::Log::e(TAG, "Failed to set uniform [", tag, "].");
 
         return false;
     }
@@ -97,6 +114,8 @@ namespace glem::render {
             return true;
         }
 
+        util::Log::e(TAG, "Failed to set uniform [", tag, "].");
+
         return false;
     }
 
@@ -107,6 +126,8 @@ namespace glem::render {
 
             return true;
         }
+
+        util::Log::e(TAG, "Failed to set uniform [", tag, "].");
 
         return false;
     }
@@ -119,6 +140,8 @@ namespace glem::render {
             return true;
         }
 
+        util::Log::e(TAG, "Failed to set uniform [", tag, "].");
+
         return false;
     }
 
@@ -130,6 +153,8 @@ namespace glem::render {
             return true;
         }
 
+        util::Log::e(TAG, "Failed to set uniform [", tag, "].");
+
         return false;
     }
 
@@ -140,6 +165,8 @@ namespace glem::render {
 
             return true;
         }
+
+        util::Log::e(TAG, "Failed to set uniform [", tag, "].");
 
         return false;
     }

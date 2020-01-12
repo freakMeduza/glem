@@ -6,12 +6,16 @@
 
 namespace glem::render {
 
+    class Texture;
     class Drawable;
     class VertexArray;
 
     struct Vertex {
         glm::vec3 position;
         glm::vec4 color;
+        glm::vec2 uv;
+
+        float slot;
     };
 
     class Renderer {
@@ -52,8 +56,9 @@ namespace glem::render {
 
     private:
         static VertexArray* vao_;
-        static Vertex*      buffer_;
+        static Vertex*      vertex_;
         static uint32_t     index_;
+        static uint32_t     submitted_;
 
     };
 
