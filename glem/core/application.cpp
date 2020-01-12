@@ -35,11 +35,31 @@ namespace glem::core {
 
         float dt = 0.0f;
 
+        auto&& lastTimestamp = glfwGetTime();
+
+        int fps {0};
+
         while(true) {
             if(StateManager::empty()) {
                 util::Log::w(TAG, "State stack is empty.");
 
                 return 0;
+            }
+
+            /**** FPS ****/
+            {
+                auto&& newTimestamp = glfwGetTime();
+
+                fps++;
+
+                if(newTimestamp - lastTimestamp >= 1.0) {
+                    if(InputManager::keyboard().isKeyPressed(Keyboard::Space))
+                        util::Log::d(TAG, "FPS: ", fps);
+
+                    fps = 0;
+
+                    lastTimestamp++;
+                }
             }
 
             dt = markTimer.mark();

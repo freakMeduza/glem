@@ -2,7 +2,7 @@
 
 namespace glem::render {
 
-    Drawable::Drawable(const glm::vec3 &position, const glm::vec4 &color, const glm::vec2 &size) :
+    Drawable::Drawable(const glm::vec3 &position, const glm::vec2 &size, const glm::vec4 &color) :
         position_ {position},
         color_    {color},
         size_     {size}

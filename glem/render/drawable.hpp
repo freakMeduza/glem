@@ -10,8 +10,8 @@ namespace glem::render {
         ~Drawable() = default;
 
         Drawable(const glm::vec3& position,
-                 const glm::vec4& color,
-                 const glm::vec2& size);
+                 const glm::vec2& size,
+                 const glm::vec4& color = {1.0f, 1.0f, 1.0f, 1.0f});
 
         Drawable(Drawable&&) = default;
         Drawable(const Drawable&) = default;
