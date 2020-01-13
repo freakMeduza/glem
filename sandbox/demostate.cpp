@@ -127,7 +127,7 @@ void DemoState::onAttach() noexcept
 
 void DemoState::onDetach() noexcept
 {
-
+    textures.clear();
 }
 
 void DemoState::onEvent(glem::core::Event &event) noexcept
