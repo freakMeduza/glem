@@ -71,6 +71,7 @@ namespace  {
 
     const std::string TEXTURE0 = "texture0.jpg";
     const std::string TEXTURE1 = "texture1.jpg";
+    const std::string TEXTURE2 = "font_atlas.png";
 
     int used[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
 }

@@ -71,6 +71,7 @@ include_directories(
     ${PROJECT_SOURCE_DIR}
     ${PROJECT_SOURCE_DIR}/..
     ${PROJECT_SOURCE_DIR}/libs/glad/include
+    ${PROJECT_SOURCE_DIR}/libs/freetype-2.10.1/include
     ${PROJECT_SOURCE_DIR}/libs/stb)
 
 file(GLOB_RECURSE HDRS ${PROJECT_SOURCE_DIR}/*.hpp)
@@ -79,9 +80,9 @@ file(GLOB_RECURSE SRCS ${PROJECT_SOURCE_DIR}/*.cpp)
 if(WIN32)
     set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 
-    list(APPEND LIBS opengl32 glfw glm glad)
+    list(APPEND LIBS opengl32 glfw glm glad freetype)
 elseif(UNIX)
-    list(APPEND LIBS ${OPENGL_opengl_LIBRARY} glfw glm glad ${CMAKE_DL_LIBS})
+    list(APPEND LIBS ${OPENGL_opengl_LIBRARY} glfw glm glad ${CMAKE_DL_LIBS} freetype)
 endif()
 
 add_library(${PROJECT_NAME} SHARED ${HDRS} ${SRCS})

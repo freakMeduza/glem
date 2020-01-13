@@ -5,6 +5,7 @@
 #include "state.hpp"
 
 #include <render/renderer.hpp>
+#include <render/font.hpp>
 
 #include <util/log.hpp>
 #include <util/timer.hpp>
@@ -38,6 +39,12 @@ namespace glem::core {
         auto&& lastTimestamp = glfwGetTime();
 
         int fps {0};
+
+        render::Font font;
+        if(font.makeAtlas("OCRAEXT.TTF"))
+            util::Log::d(TAG, "Font atlas generated.");
+        else
+            util::Log::e(TAG, "Failed to generate font atlas.");
 
         while(true) {
             if(StateManager::empty()) {
