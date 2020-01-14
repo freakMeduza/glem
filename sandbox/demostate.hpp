@@ -17,8 +17,7 @@ public:
     void onDraw() noexcept override;
 
 private:
-    std::unique_ptr<glem::render::Camera> camera_ {nullptr};
-
+    std::unique_ptr<glem::render::Camera>        camera_  {nullptr};
     std::unique_ptr<glem::render::ShaderProgram> program_ {nullptr};
 
     std::vector<std::shared_ptr<glem::render::Drawable>> sprites_;

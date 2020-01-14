@@ -17,8 +17,9 @@ namespace glem::render {
         glDeleteBuffers(1, &id_);
     }
 
-    void VertexBuffer::bind() noexcept
+    void VertexBuffer::bind(uint32_t unit) noexcept
     {
+        static_cast<void>(unit);
         glBindBuffer(GL_ARRAY_BUFFER, id_);
     }
 

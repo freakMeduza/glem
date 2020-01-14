@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <vector>
 
 #include <glm/glm.hpp>
 
@@ -55,10 +56,11 @@ namespace glem::render {
         static void present() noexcept;
 
     private:
-        static VertexArray* vao_;
-        static Vertex*      vertex_;
-        static uint32_t     index_;
-        static uint32_t     submitted_;
+        static VertexArray*          vao_;
+        static Vertex*               vertex_;
+        static uint32_t              index_;
+        static uint32_t              submitted_;
+        static std::vector<Texture*> textures_;
 
     };
 

@@ -4,6 +4,7 @@
 
 #include <string>
 #include <vector>
+#include <memory>
 #include <optional>
 
 namespace glem::render {
@@ -31,9 +32,10 @@ namespace glem::render {
         /**
          * @brief load      Load image
          * @param path      filepath
+         * @param path      flip
          * @return
          */
-        static std::optional<Surface> load(const std::string& path) noexcept;
+        static std::shared_ptr<Surface> load(const std::string& path, const Options& options) noexcept;
 
         /**
          * @brief save      Save image

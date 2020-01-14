@@ -27,7 +27,7 @@ namespace glem::render {
         VertexArray& operator=(const VertexArray&) = delete;
 
         // Bindable interface
-        void bind() noexcept override;
+        void bind(uint32_t unit = 0) noexcept override;
 
         /**
          * @brief append        Append render::VertexBuffer into array (enable render::VertexBuffer attributes)

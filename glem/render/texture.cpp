@@ -47,11 +47,13 @@ namespace {
 
 namespace glem::render {
 
-    Texture::Texture(const std::string &tag, const std::string &path, Wrap wrap, Filter minFilter, Filter magFilter, uint32_t slot) :
-        tag_  {tag},
-        slot_ {slot}
+    Texture::Texture(const std::string &tag, const std::string &path, const Properties& properties, const Options& options, uint32_t columns) :
+        tag_     {tag},
+        columns_ {columns}
     {
-        if(auto surface = Surface::load(path)) {
+        if(const auto& surface = Surface::load(path, options)) {
+            surface_ = surface;
+
             width_  = surface->width();
             height_ = surface->height();
             format_ = surface->format();
@@ -62,10 +64,10 @@ namespace glem::render {
 
             glTextureStorage2D(id_, 1, internalFormat, width_, height_);
 
-            glTextureParameteri(id_, GL_TEXTURE_MIN_FILTER, convertFilter(minFilter));
-            glTextureParameteri(id_, GL_TEXTURE_MAG_FILTER, convertFilter(magFilter));
-            glTextureParameteri(id_, GL_TEXTURE_WRAP_S, convertWrap(wrap));
-            glTextureParameteri(id_, GL_TEXTURE_WRAP_T, convertWrap(wrap));
+            glTextureParameteri(id_, GL_TEXTURE_MIN_FILTER, convertFilter(properties.minFilter));
+            glTextureParameteri(id_, GL_TEXTURE_MAG_FILTER, convertFilter(properties.magFilter));
+            glTextureParameteri(id_, GL_TEXTURE_WRAP_S, convertWrap(properties.wrap));
+            glTextureParameteri(id_, GL_TEXTURE_WRAP_T, convertWrap(properties.wrap));
 
             glTextureSubImage2D(id_, 0, 0, 0, width_, height_, imageFormat, GL_UNSIGNED_BYTE, surface->pixels().data());
         }
@@ -73,12 +75,11 @@ namespace glem::render {
             util::Log::e(TAG, "Unable to load image surface.");
     }
 
-    Texture::Texture(const std::string &tag, uint32_t width, uint32_t height, Wrap wrap, Filter minFilter, Filter magFilter, Format format, uint32_t slot) :
+    Texture::Texture(const std::string &tag, uint32_t width, uint32_t height, const Properties &properties) :
         tag_    {tag},
         width_  {width},
         height_ {height},
-        slot_   {slot},
-        format_ {format}
+        format_ {properties.format}
     {
         glCreateTextures(GL_TEXTURE_2D, 1, &id_);
 
@@ -86,10 +87,10 @@ namespace glem::render {
 
         glTextureStorage2D(id_, 1, internalFormat, width_, height_);
 
-        glTextureParameteri(id_, GL_TEXTURE_MIN_FILTER, convertFilter(minFilter));
-        glTextureParameteri(id_, GL_TEXTURE_MAG_FILTER, convertFilter(magFilter));
-        glTextureParameteri(id_, GL_TEXTURE_WRAP_S, convertWrap(wrap));
-        glTextureParameteri(id_, GL_TEXTURE_WRAP_T, convertWrap(wrap));
+        glTextureParameteri(id_, GL_TEXTURE_MIN_FILTER, convertFilter(properties.minFilter));
+        glTextureParameteri(id_, GL_TEXTURE_MAG_FILTER, convertFilter(properties.magFilter));
+        glTextureParameteri(id_, GL_TEXTURE_WRAP_S, convertWrap(properties.wrap));
+        glTextureParameteri(id_, GL_TEXTURE_WRAP_T, convertWrap(properties.wrap));
     }
 
     Texture::~Texture()
@@ -97,9 +98,9 @@ namespace glem::render {
         glDeleteTextures(1, &id_);
     }
 
-    void Texture::bind() noexcept
+    void Texture::bind(uint32_t unit) noexcept
     {
-        glBindTextureUnit(slot_, id_);
+        glBindTextureUnit(unit, id_);
     }
 
     std::string Texture::tag() const noexcept
@@ -117,18 +118,35 @@ namespace glem::render {
         return height_;
     }
 
-    bool Texture::setSurface(const Surface &value) noexcept
+    bool Texture::setSurface(const std::shared_ptr<Surface> &value) noexcept
     {
-        if(value.width() != width_ || value.height() != height_ || value.format() != format_) {
+        if(value->width() != width_ || value->height() != height_ || value->format() != format_) {
             util::Log::e(TAG, "Unable to set surface. Surface must be entire texture.");
             return false;
         }
 
         auto[imageFormat, internalFormat] = convertFormat(format_);
 
-        glTextureSubImage2D(id_, 0, 0, 0, width_, height_, imageFormat, GL_UNSIGNED_BYTE, value.pixels().data());
+        glTextureSubImage2D(id_, 0, 0, 0, width_, height_, imageFormat, GL_UNSIGNED_BYTE, value->pixels().data());
+
+        surface_ = value;
 
         return true;
+    }
+
+    std::shared_ptr<Surface> Texture::surface() const noexcept
+    {
+        return surface_;
+    }
+
+    uint32_t Texture::columns() const noexcept
+    {
+        return columns_;
+    }
+
+    bool Texture::isAtlas() const noexcept
+    {
+        return (columns_ > 1);
     }
 
 }

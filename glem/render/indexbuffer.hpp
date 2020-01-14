@@ -24,7 +24,7 @@ namespace glem::render {
         IndexBuffer& operator=(const IndexBuffer&) = delete;
 
         // Bindable interface
-        void bind() noexcept override;
+        void bind(uint32_t unit = 0) noexcept override;
 
         /**
          * @brief count    Count of indicies

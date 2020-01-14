@@ -14,21 +14,16 @@ namespace glem::render {
     public:
         Texture(const std::string& tag,
                 const std::string& path,
-                Wrap wrap,
-                Filter minFilter,
-                Filter magFilter,
-                uint32_t slot = 0);
+                const Properties& properties = {},
+                const Options& options = {},
+                uint32_t columns = 1);
 
         Texture(const std::string& tag,
                 uint32_t width,
                 uint32_t height,
-                Wrap wrap,
-                Filter minFilter,
-                Filter magFilter,
-                Format format,
-                uint32_t slot = 0);
+                const Properties& properties = {});
 
-        ~Texture() override;
+        virtual ~Texture() override;
 
         Texture(Texture&&) = delete;
         Texture(const Texture&) = delete;
@@ -37,9 +32,7 @@ namespace glem::render {
         Texture& operator=(const Texture&&) = delete;
 
         // Bindable interface
-        void bind() noexcept override;
-
-        inline uint32_t slot() const noexcept { return slot_; }
+        void bind(uint32_t unit = 0) noexcept override;
 
         /**
          * @brief tag       Texture tag
@@ -51,20 +44,38 @@ namespace glem::render {
          * @brief width     Texture width
          * @return
          */
-        uint32_t width() const noexcept;
+        [[nodiscard]] uint32_t width() const noexcept;
 
         /**
          * @brief height    Texture height
          * @return
          */
-        uint32_t height() const noexcept;
+        [[nodiscard]] uint32_t height() const noexcept;
 
         /**
          * @brief setSurface
          * @param value
          * @return
          */
-        bool setSurface(const Surface& value) noexcept;
+        bool setSurface(const std::shared_ptr<Surface>& value) noexcept;
+
+        /**
+         * @brief surface
+         * @return
+         */
+        [[nodiscard]] std::shared_ptr<Surface> surface() const noexcept;
+
+        /**
+         * @brief columns
+         * @return
+         */
+        [[nodiscard]] uint32_t columns() const noexcept;
+
+        /**
+         * @brief isAtlas
+         * @return
+         */
+        bool isAtlas() const noexcept;
 
     private:
         std::string tag_ {"Undefined"};
@@ -72,9 +83,11 @@ namespace glem::render {
         uint32_t width_  {0};
         uint32_t height_ {0};
 
-        uint32_t slot_ {0};
-
         Format format_;
+
+        uint32_t columns_ {1};
+
+        std::shared_ptr<Surface> surface_ {nullptr};
 
     };
 

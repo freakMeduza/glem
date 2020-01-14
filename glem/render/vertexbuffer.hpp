@@ -25,7 +25,7 @@ namespace glem::render {
         VertexBuffer& operator=(const VertexBuffer&) = delete;
 
         // Bindable interface
-        void bind() noexcept override;
+        void bind(uint32_t unit = 0) noexcept override;
 
         /**
          * @brief layout    render::InputLayout

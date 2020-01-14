@@ -24,8 +24,9 @@ namespace glem::render {
         glDeleteProgram(id_);
     }
 
-    void ShaderProgram::bind() noexcept
+    void ShaderProgram::bind(uint32_t unit) noexcept
     {
+        static_cast<void>(unit);
         glUseProgram(id_);
     }
 

@@ -22,7 +22,7 @@ namespace glem::render {
         ShaderProgram& operator=(const ShaderProgram&) = delete;
 
         // Bindable interface
-        void bind() noexcept override;
+        void bind(uint32_t unit = 0) noexcept override;
 
         /**
          * @brief append        Append shader into program

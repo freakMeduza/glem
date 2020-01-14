@@ -22,4 +22,30 @@ namespace glem::render {
         MirroredRepeat
     };
 
+    struct Properties {
+        Wrap   wrap      {Wrap::Unspecified};
+        Filter minFilter {Filter::Unspecified};
+        Filter magFilter {Filter::Unspecified};
+        Format format    {Format::Unspecified};
+
+        Properties() :
+            wrap      {Wrap::Repeat},
+            minFilter {Filter::Linear},
+            magFilter {Filter::Linear},
+            format    {Format::RGBA}
+        {
+
+        }
+    };
+
+    struct Options {
+        bool verticalFlip {false};
+
+        Options() :
+            verticalFlip {false}
+        {
+
+        }
+    };
+
 }

@@ -23,8 +23,9 @@ namespace glem::render {
         glDeleteBuffers(1, &id_);
     }
 
-    void IndexBuffer::bind() noexcept
+    void IndexBuffer::bind(uint32_t unit) noexcept
     {
+        static_cast<void>(unit);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, id_);
     }
 

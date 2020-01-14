@@ -16,9 +16,16 @@ namespace glem::render {
         virtual ~Bindable() = default;
 
         /**
-         * @brief bind      Bind object
+         * @brief bind
+         * @param unit
          */
-        virtual void bind() noexcept = 0;
+        virtual void bind(uint32_t unit = 0) noexcept = 0;
+
+        /**
+         * @brief id        Object id
+         * @return
+         */
+        inline uint32_t id() const noexcept { return id_; }
 
     protected:
         uint32_t id_ {0};

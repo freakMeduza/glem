@@ -35,8 +35,9 @@ namespace glem::render {
         glDeleteVertexArrays(1, &id_);
     }
 
-    void VertexArray::bind() noexcept
+    void VertexArray::bind(uint32_t unit) noexcept
     {
+        static_cast<void>(unit);
         glBindVertexArray(id_);
     }
 

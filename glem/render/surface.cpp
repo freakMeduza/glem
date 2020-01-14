@@ -37,13 +37,13 @@ namespace glem::render {
 
     }
 
-    std::optional<Surface> Surface::load(const std::string &path) noexcept
+    std::shared_ptr<Surface> Surface::load(const std::string &path, const Options &options) noexcept
     {
         int width      {0};
         int height     {0};
         int components {0};
 
-        stbi_set_flip_vertically_on_load(1);
+        stbi_set_flip_vertically_on_load(options.verticalFlip ? 1 : 0);
 
         auto data = stbi_load(path.c_str(), &width, &height, &components, STBI_default);
 
@@ -68,7 +68,7 @@ namespace glem::render {
 
         stbi_image_free(data);
 
-        return Surface{pixels, static_cast<uint32_t>(width), static_cast<uint32_t>(height), format};
+        return std::make_shared<Surface>(pixels, static_cast<uint32_t>(width), static_cast<uint32_t>(height), format);
     }
 
     bool Surface::save(const std::string &path) const noexcept
