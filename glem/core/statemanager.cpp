@@ -9,9 +9,9 @@ namespace glem::core {
 
     void StateManager::push(const std::shared_ptr<State> &value) noexcept
     {
-        value->onAttach();
-
         states_.emplace_front(value);
+
+        value->onAttach();
     }
 
     void StateManager::pop() noexcept

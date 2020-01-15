@@ -100,19 +100,6 @@ namespace glem::render {
          */
         [[nodiscard]] uint32_t atlasIndex() const noexcept;
 
-//        inline void setIndex(uint32_t value) noexcept { index_ = value; }
-//        inline uint32_t index() const noexcept { return index_; }
-
-//        inline glm::vec2 offset() const noexcept {
-//            int column = index_ % texture_->numberOfRows();
-//            int row    = index_ / texture_->numberOfRows();
-
-//            float xoffset = static_cast<float>(column) / static_cast<float>(texture_->numberOfRows());
-//            float yoffset = static_cast<float>(row)    / static_cast<float>(texture_->numberOfRows());
-
-//            return {xoffset, yoffset};
-//        }
-
     private:
         void update() noexcept;
 

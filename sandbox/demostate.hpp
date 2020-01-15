@@ -17,6 +17,7 @@ public:
     void onDraw() noexcept override;
 
 private:
+    std::shared_ptr<glem::render::Font> font_ {nullptr};
     std::unique_ptr<glem::render::Camera>        camera_  {nullptr};
     std::unique_ptr<glem::render::ShaderProgram> program_ {nullptr};
 

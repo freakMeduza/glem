@@ -43,6 +43,7 @@ namespace {
                      layout(location = 0) out vec4 fragColor;
 
                      uniform vec2 uLightPosition;
+                     uniform mat4 uViewProjection;
 
                      uniform sampler2D uTexture[32];
 
@@ -65,65 +66,9 @@ namespace {
                             color = texture2D(uTexture[int(fSlot)], fUv);
                          }
 
-                         fragColor = color * intensity;
+                         fragColor = color;// * intensity;
                      }
                      )glsl";
-//    const auto& vs = R"glsl(
-//                     #version 450 core
-
-//                     layout(location = 0) in vec3  vPosition;
-//                     layout(location = 1) in vec4  vColor;
-//                     layout(location = 2) in vec2  vUv;
-//                     layout(location = 3) in float vSlot;
-
-//                     uniform mat4 uViewProjection;
-
-//                     out vec3  fPosition;
-//                     out vec4  fColor;
-//                     out vec2  fUv;
-//                     out float fSlot;
-
-//                     void main() {
-//                         gl_Position = uViewProjection * vec4(vPosition, 1.0f);
-
-//                         fPosition = vPosition;
-//                         fColor    = vColor;
-//                         fUv       = vUv;
-//                         fSlot     = vSlot;
-//                     }
-//                     )glsl";
-
-//    const auto& ps = R"glsl(
-//                     #version 450 core
-
-//                     layout(location = 0) out vec4 fragColor;
-
-//                     uniform vec2 uLightPosition;
-
-//                     uniform sampler2D uTexture[32];
-
-//                     in vec3  fPosition;
-//                     in vec4  fColor;
-//                     in vec2  fUv;
-//                     in float fSlot;
-
-//                     void main() {
-//                         float intensity = 1.0 / length(fPosition.xy - uLightPosition);
-
-//                         intensity = clamp(intensity, 0.0f, 1.0f);
-//                         intensity = sqrt(intensity);
-
-//                         intensity = intensity * 2.5f;
-
-//                         vec4 color = fColor;
-
-//                         if(fSlot >= 0.0f) {
-//                            color = texture2D(uTexture[int(fSlot)], fUv);
-//                         }
-
-//                         fragColor = color;// * intensity;
-//                     }
-//                     )glsl";
 
     std::vector<std::shared_ptr<glem::render::Texture>> textures;
 
@@ -213,6 +158,7 @@ void DemoState::onAttach() noexcept
     const auto& height = static_cast<float>(glem::core::Application::instance().window()->height());
 
     camera_.reset(new glem::render::Camera{glm::ortho(0.0f, width, 0.0f, height)});
+    camera_->setSensitivity(100.0f);
 
     program_.reset(new glem::render::ShaderProgram{});
 
@@ -228,44 +174,16 @@ void DemoState::onAttach() noexcept
     program_->setUniform("uViewProjection", camera_->viewProjection());
     program_->setUniform("uTexture", used, 10);
 
-    /**** generate atlas ****/
-    if(!exists(ATLAS))
-        make(ATLAS);
-
-    glem::render::Properties p;
-    p.wrap      = glem::render::Wrap::ClampToEdge;
-    p.minFilter = glem::render::Filter::Linear;
-    p.magFilter = glem::render::Filter::Linear;
-
-    glem::render::Options o;
-    o.verticalFlip = false;
-
-    textures.emplace_back(std::make_shared<glem::render::Texture>(TEXTURE0,
-                                                                  TEXTURE0,
-                                                                  p,
-                                                                  o));
-
-    textures.emplace_back(std::make_shared<glem::render::Texture>(TEXTURE1,
-                                                                  TEXTURE1,
-                                                                  p,
-                                                                  o));
-
-    textures.emplace_back(std::make_shared<glem::render::Texture>(ATLAS,
-                                                                  ATLAS,
-                                                                  p,
-                                                                  o,
-                                                                  ATLAS_DIMENSION / ATLAS_SLOT));
-
-
     const auto& side = 200.0f;
 
     auto&& position = glm::vec3{(width - side) / 4, (height - side) / 4, 0.0f};
     auto&& size     = glm::vec2{side, side};
     auto&& color    = glm::vec4{1.0f, 1.0f, 1.0f, 1.0f};
 
-    sprites_.emplace_back(std::make_shared<glem::render::Drawable>(position, size, color, textures[2], 0));
-    sprites_.emplace_back(std::make_shared<glem::render::Drawable>(position + glm::vec3{side - 50.0f, side - 50.0f, 0.0f}, size, color, textures[2], 1));
-    sprites_.emplace_back(std::make_shared<glem::render::Drawable>(position + glm::vec3{side - 50.0f, side - 50.0f, 0.0f} + glm::vec3{side - 50.0f, side - 50.0f, 0.0f}, size, color, textures[2], 2));
+    sprites_.emplace_back(std::make_shared<glem::render::Drawable>(position, size, color));
+
+    font_.reset(new glem::render::Font{});
+    font_->load("OCRAEXT.TTF");
 }
 
 void DemoState::onDetach() noexcept
@@ -303,15 +221,19 @@ void DemoState::onDraw() noexcept
 {
     program_->bind();
 
-    auto [x, y] = glem::core::InputManager::mouse().position();
+//    auto [x, y] = glem::core::InputManager::mouse().position();
 
-    program_->setUniform("uLightPosition", glm::vec2{x, (static_cast<float>(glem::core::Application::instance().window()->height()) - y)});
+//    program_->setUniform("uLightPosition", glm::vec2{x, (static_cast<float>(glem::core::Application::instance().window()->height()) - y)});
 
     glem::render::Renderer::begin();
 
-    for(auto s : sprites_)
-        glem::render::Renderer::submit(s);
+//    for(auto s : sprites_)
+//        glem::render::Renderer::submit(s);
+    glem::render::Renderer::submitText("!", glm::vec2{100.0f, (glem::core::Application::instance().window()->height() - 96.0f) / 2.0f}, font_);
+
 
     glem::render::Renderer::end();
     glem::render::Renderer::present();
+
+    glem::core::StateManager::pop();
 }
