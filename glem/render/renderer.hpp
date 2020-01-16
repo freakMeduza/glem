@@ -7,6 +7,7 @@
 
 namespace glem::render {
 
+    class Font;
     class Texture;
     class Drawable;
     class VertexArray;

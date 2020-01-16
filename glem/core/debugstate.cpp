@@ -12,6 +12,9 @@
 #include <render/vertexbuffer.hpp>
 #include <render/vertexarray.hpp>
 
+#include <render/atlas.hpp>
+#include <render/font.hpp>
+
 #include <glad/glad.h>
 
 #include <util/log.hpp>
@@ -79,7 +82,7 @@ namespace {
                             color = texture2D(unif_textures[int(frag_unit)], frag_uv);
                          }
 
-                         out_color = color;// * intensity;
+                         out_color = color * intensity;
                      }
                      )glsl";
 
@@ -117,7 +120,7 @@ namespace {
     const auto& WIDTH  = static_cast<float>(glem::core::Application::instance().window()->width());
     const auto& HEIGHT = static_cast<float>(glem::core::Application::instance().window()->height());
 
-    const uint32_t ATLAS_DIMENSION = 1024;
+//    const uint32_t ATLAS_DIMENSION = 1024;
     const char* FONT = "OCRAEXT.TTF";
 }
 
@@ -127,24 +130,24 @@ namespace glem::core {
     {
         init();
 
-        FT_Library ft;
+//        FT_Library ft;
 
-        if(FT_Init_FreeType(&ft)) {
-            util::Log::e(TAG, "Init FT failed.");
-            StateManager::pop();
-        }
+//        if(FT_Init_FreeType(&ft)) {
+//            util::Log::e(TAG, "Init FT failed.");
+//            StateManager::pop();
+//        }
 
-        FT_Face face;
+//        FT_Face face;
 
-        if(FT_New_Face(ft, FONT, 0, &face)) {
-            util::Log::e(TAG, "Load FT face failed.");
-            StateManager::pop();
-        }
+//        if(FT_New_Face(ft, FONT, 0, &face)) {
+//            util::Log::e(TAG, "Load FT face failed.");
+//            StateManager::pop();
+//        }
 
-        atlas_.reset(new Atlas{face, 48});
+//       atlas_.reset(new Atlas{face, 48});
 
-        FT_Done_Face(face);
-        FT_Done_FreeType(ft);
+//        FT_Done_Face(face);
+//        FT_Done_FreeType(ft);
     }
 
     void DebugState::onDetach() noexcept
@@ -164,16 +167,16 @@ namespace glem::core {
         if(InputManager::keyboard().isKeyPressed(Keyboard::Escape))
             Application::instance().window()->close();
 
-//        auto position = InputManager::mouse().position();
-//        position.y = HEIGHT - position.y;
+        auto position = InputManager::mouse().position();
+        position.y = HEIGHT - position.y;
 
-//        program_->setUniform("unif_light_position", position);
+        program_->setUniform("unif_light_position", position);
     }
 
     void DebugState::onDraw() noexcept
     {
-        renderText("Suck my fuck!", atlas_.get(), glm::vec2{100.0f, 100.0f}, glm::vec2{1.0f});
-//        draw();
+//        renderText("Suck my fuck!", atlas_.get(), glm::vec2{100.0f, 100.0f}, glm::vec2{1.0f});
+        draw();
     }
 
     void DebugState::init() noexcept
@@ -181,11 +184,11 @@ namespace glem::core {
         camera_.reset(new render::Camera{glm::ortho(0.0f, WIDTH, 0.0f, HEIGHT)});
 
         program_.reset(new render::ShaderProgram{});
-        program_->append(render::Shader::fromSource(vs_text, render::VS));
-        program_->append(render::Shader::fromSource(ps_text, render::PS));
+//        program_->append(render::Shader::fromSource(vs_text, render::VS));
+//        program_->append(render::Shader::fromSource(ps_text, render::PS));
 
-//        program_->append(render::Shader::fromSource(vs, render::VS));
-//        program_->append(render::Shader::fromSource(ps, render::PS));
+        program_->append(render::Shader::fromSource(vs, render::VS));
+        program_->append(render::Shader::fromSource(ps, render::PS));
 
         if(!program_->link()) {
             util::Log::e(TAG, "Failed to link shader program.");
@@ -199,7 +202,20 @@ namespace glem::core {
         const auto& x = (WIDTH  - side) / 2;
         const auto& y = (HEIGHT - side) / 2;
 
-        sprites_.emplace_back(std::make_shared<render::Drawable>(glm::vec3{x, y, 0.0f}, glm::vec2{side, side}, glm::vec4{0.5f, 0.7f, 0.8f, 1.0f}));
+        const std::string TEXTURE0 = "texture0.jpg";
+
+        render::Properties p;
+        p.wrap = render::Wrap::ClampToEdge;
+        p.minFilter = render::Filter::Linear;
+        p.magFilter = render::Filter::Linear;
+
+        render::Options o;
+        o.verticalFlip = true;
+
+        sprites_.emplace_back(std::make_shared<render::Drawable>(glm::vec3{x, y, 0.0f},
+                                                                 glm::vec2{side, side},
+                                                                 glm::vec4{0.5f, 0.7f, 0.8f, 1.0f},
+                                                                 std::make_shared<render::Texture>(TEXTURE0, TEXTURE0, p, o)));
     }
 
     void DebugState::draw() noexcept
@@ -218,161 +234,161 @@ namespace glem::core {
         render::Renderer::present();
     }
 
-    void DebugState::renderText(const std::string &text, Atlas *atlas, const glm::vec2 &position, const glm::vec2 &scale) noexcept
-    {
-        program_->bind();
-        program_->setUniform("unif_texture", 0);
+//    void DebugState::renderText(const std::string &text, Atlas *atlas, const glm::vec2 &position, const glm::vec2 &scale) noexcept
+//    {
+//        program_->bind();
+//        program_->setUniform("unif_texture", 0);
 
-        glBindTextureUnit(0, atlas->texture);
+//        glBindTextureUnit(0, atlas->texture);
 
-        auto pen_x = position.x;
-        auto pen_y = position.y;
+//        auto pen_x = position.x;
+//        auto pen_y = position.y;
 
-        std::vector<Point> points;
+//        std::vector<Point> points;
 
-        for(uint32_t i = 0; i < text.size(); ++i) {
-            const auto& ascii = text[i];
+//        for(uint32_t i = 0; i < text.size(); ++i) {
+//            const auto& ascii = text[i];
 
-            if(auto it = std::find_if(atlas->glyphs.begin(),
-                                      atlas->glyphs.end(),
-                                      [&ascii](const Atlas::Glyph& g){ return (ascii == g.ascii); });
-                    it != atlas->glyphs.end()) {
+//            if(auto it = std::find_if(atlas->glyphs.begin(),
+//                                      atlas->glyphs.end(),
+//                                      [&ascii](const Atlas::Glyph& g){ return (ascii == g.ascii); });
+//                    it != atlas->glyphs.end()) {
 
-                float x = pen_x + (*it).bearing.x * scale.x;
-                float y = - pen_y - (*it).bearing.y * scale.y;
+//                float x = pen_x + (*it).bearing.x * scale.x;
+//                float y = - pen_y - (*it).bearing.y * scale.y;
 
-                float w = (*it).size.x * scale.x;
-                float h = (*it).size.y * scale.y;
+//                float w = (*it).size.x * scale.x;
+//                float h = (*it).size.y * scale.y;
 
-                pen_x += (*it).advance.x * scale.x;
-                pen_y += (*it).advance.y * scale.y;
+//                pen_x += (*it).advance.x * scale.x;
+//                pen_y += (*it).advance.y * scale.y;
 
-                if(!w || !h)
-                    continue;
+//                if(!w || !h)
+//                    continue;
 
-                points.emplace_back(Point{x, -y, (*it).offset.x, (*it).offset.y});
-                points.emplace_back(Point{x + w, -y, (*it).offset.x + (*it).size.x / atlas->width, (*it).offset.y});
-                points.emplace_back(Point{x, -y - h, (*it).offset.x, (*it).offset.y + (*it).size.y / atlas->height});
-                points.emplace_back(Point{x + w, -y, (*it).offset.x + (*it).size.x / atlas->width, (*it).offset.y});
-                points.emplace_back(Point{x, -y - h, (*it).offset.x, (*it).offset.y + (*it).size.y / atlas->height});
-                points.emplace_back(Point{x + w, -y - h, (*it).offset.x + (*it).size.x / atlas->width, (*it).offset.y + (*it).size.y / atlas->height});
-            }
-        }
+//                points.emplace_back(Point{x, -y, (*it).offset.x, (*it).offset.y});
+//                points.emplace_back(Point{x + w, -y, (*it).offset.x + (*it).size.x / atlas->width, (*it).offset.y});
+//                points.emplace_back(Point{x, -y - h, (*it).offset.x, (*it).offset.y + (*it).size.y / atlas->height});
+//                points.emplace_back(Point{x + w, -y, (*it).offset.x + (*it).size.x / atlas->width, (*it).offset.y});
+//                points.emplace_back(Point{x, -y - h, (*it).offset.x, (*it).offset.y + (*it).size.y / atlas->height});
+//                points.emplace_back(Point{x + w, -y - h, (*it).offset.x + (*it).size.x / atlas->width, (*it).offset.y + (*it).size.y / atlas->height});
+//            }
+//        }
 
-        uint32_t vao {0};
-        uint32_t vbo {0};
+//        uint32_t vao {0};
+//        uint32_t vbo {0};
 
-        glCreateVertexArrays(1, &vao);
-        glBindVertexArray(vao);
-            glCreateBuffers(1, &vbo);
-            glBindBuffer(GL_ARRAY_BUFFER, vbo);
-            glBufferData(GL_ARRAY_BUFFER, sizeof (Point) * points.size(), points.data(), GL_STATIC_DRAW);
+//        glCreateVertexArrays(1, &vao);
+//        glBindVertexArray(vao);
+//            glCreateBuffers(1, &vbo);
+//            glBindBuffer(GL_ARRAY_BUFFER, vbo);
+//            glBufferData(GL_ARRAY_BUFFER, sizeof (Point) * points.size(), points.data(), GL_STATIC_DRAW);
 
-            glEnableVertexAttribArray(0);
-            glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof (float), reinterpret_cast<const void*>(0));
-        glBindVertexArray(0);
+//            glEnableVertexAttribArray(0);
+//            glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof (float), reinterpret_cast<const void*>(0));
+//        glBindVertexArray(0);
 
-        glBindVertexArray(vao);
+//        glBindVertexArray(vao);
 
-        glDrawArrays(GL_TRIANGLES, 0, points.size());
+//        glDrawArrays(GL_TRIANGLES, 0, points.size());
 
-        glDeleteBuffers(1, &vbo);
-        glDeleteVertexArrays(1, &vao);
-    }
+//        glDeleteBuffers(1, &vbo);
+//        glDeleteVertexArrays(1, &vao);
+//    }
 
-    /**** Atlas ****/
-    Atlas::Atlas(FT_Face face, int size)
-    {
-        FT_Set_Pixel_Sizes(face, 0, size);
+//    /**** Atlas ****/
+//    Atlas::Atlas(FT_Face face, int size)
+//    {
+//        FT_Set_Pixel_Sizes(face, 0, size);
 
-        FT_GlyphSlot g = face->glyph;
+//        FT_GlyphSlot g = face->glyph;
 
-        uint32_t roww = 0;
-        uint32_t rowh = 0;
+//        uint32_t roww = 0;
+//        uint32_t rowh = 0;
 
-        for(uint8_t i = 32; i < 128; ++i) {
-            if(FT_Load_Char(face, i, FT_LOAD_RENDER)) {
-                util::Log::e(TAG, "Loading character ", i, "failed.");
-                continue;
-            }
+//        for(uint8_t i = 32; i < 128; ++i) {
+//            if(FT_Load_Char(face, i, FT_LOAD_RENDER)) {
+//                util::Log::e(TAG, "Loading character ", i, "failed.");
+//                continue;
+//            }
 
-            if(roww + g->bitmap.width + 1 >= ATLAS_DIMENSION) {
-                width  = std::max(width, roww);
-                height += rowh;
-                roww = 0;
-                rowh = 0;
-            }
+//            if(roww + g->bitmap.width + 1 >= ATLAS_DIMENSION) {
+//                width  = std::max(width, roww);
+//                height += rowh;
+//                roww = 0;
+//                rowh = 0;
+//            }
 
-            roww += g->bitmap.width + 1;
-            rowh = std::max(rowh, g->bitmap.rows);
-        }
+//            roww += g->bitmap.width + 1;
+//            rowh = std::max(rowh, g->bitmap.rows);
+//        }
 
-        width  = std::max(width, roww);
-        height += rowh;
+//        width  = std::max(width, roww);
+//        height += rowh;
 
-        util::Log::d(TAG, "Atlas size: ", width, "x " , height);
+//        util::Log::d(TAG, "Atlas size: ", width, "x " , height);
 
-        glCreateTextures(GL_TEXTURE_2D, 1, &texture);
-        glBindTexture(GL_TEXTURE_2D, texture);
-        glTextureStorage2D(texture, 1, GL_R8, width, height);
+//        glCreateTextures(GL_TEXTURE_2D, 1, &texture);
+//        glBindTexture(GL_TEXTURE_2D, texture);
+//        glTextureStorage2D(texture, 1, GL_R8, width, height);
 
-        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+//        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-        glTextureParameteri(texture, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTextureParameteri(texture, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTextureParameteri(texture, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTextureParameteri(texture, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+//        glTextureParameteri(texture, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+//        glTextureParameteri(texture, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+//        glTextureParameteri(texture, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+//        glTextureParameteri(texture, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-        int offset_x = 0;
-        int offset_y = 0;
+//        int offset_x = 0;
+//        int offset_y = 0;
 
-        rowh = 0;
+//        rowh = 0;
 
-        for(int i = 32; i < 128; ++i) {
-            if(FT_Load_Char(face, i, FT_LOAD_RENDER)) {
-                util::Log::e(TAG, "Loading character ", i, "failed.");
-                continue;
-            }
+//        for(int i = 32; i < 128; ++i) {
+//            if(FT_Load_Char(face, i, FT_LOAD_RENDER)) {
+//                util::Log::e(TAG, "Loading character ", i, "failed.");
+//                continue;
+//            }
 
-            if(offset_x + g->bitmap.width + 1 >= ATLAS_DIMENSION) {
-                offset_y += rowh;
-                offset_x = 0;
-                rowh = 0;
-            }
+//            if(offset_x + g->bitmap.width + 1 >= ATLAS_DIMENSION) {
+//                offset_y += rowh;
+//                offset_x = 0;
+//                rowh = 0;
+//            }
 
-            glTextureSubImage2D(texture, 0, offset_x, offset_y, g->bitmap.width, g->bitmap.rows, GL_RED, GL_UNSIGNED_BYTE, g->bitmap.buffer);
+//            glTextureSubImage2D(texture, 0, offset_x, offset_y, g->bitmap.width, g->bitmap.rows, GL_RED, GL_UNSIGNED_BYTE, g->bitmap.buffer);
 
-            Glyph glyph;
-            glyph.ascii = i;
-            glyph.size.x = g->bitmap.width;
-            glyph.size.y = g->bitmap.rows;
-            glyph.advance.x = g->advance.x >> 6;
-            glyph.advance.y = g->advance.y >> 6;
-            glyph.bearing.x = g->bitmap_left;
-            glyph.bearing.y = g->bitmap_top;
-            glyph.offset.x = offset_x / static_cast<float>(width);
-            glyph.offset.y = offset_y / static_cast<float>(height);
+//            Glyph glyph;
+//            glyph.ascii = i;
+//            glyph.size.x = g->bitmap.width;
+//            glyph.size.y = g->bitmap.rows;
+//            glyph.advance.x = g->advance.x >> 6;
+//            glyph.advance.y = g->advance.y >> 6;
+//            glyph.bearing.x = g->bitmap_left;
+//            glyph.bearing.y = g->bitmap_top;
+//            glyph.offset.x = offset_x / static_cast<float>(width);
+//            glyph.offset.y = offset_y / static_cast<float>(height);
 
-            glyphs.emplace_back(glyph);
+//            glyphs.emplace_back(glyph);
 
-            rowh = std::max(rowh, g->bitmap.rows);
+//            rowh = std::max(rowh, g->bitmap.rows);
 
-            offset_x += g->bitmap.width + 1;
-        }
+//            offset_x += g->bitmap.width + 1;
+//        }
 
-        util::Log::d(TAG, "Atlas ", width, "x ", height, width * height / 1024);
+//        util::Log::d(TAG, "Atlas ", width, "x ", height, width * height / 1024);
 
-        std::vector<uint8_t> pixels;
-        pixels.resize(width * height);
+//        std::vector<uint8_t> pixels;
+//        pixels.resize(width * height);
 
-        glGetTextureImage(texture, 0, GL_RED, GL_UNSIGNED_BYTE, pixels.size() * sizeof(uint8_t), pixels.data());
+//        glGetTextureImage(texture, 0, GL_RED, GL_UNSIGNED_BYTE, pixels.size() * sizeof(uint8_t), pixels.data());
 
-        stbi_write_jpg("test.jpg", width, height, 1, pixels.data(), 100);
-    }
+//        stbi_write_jpg("test.jpg", width, height, 1, pixels.data(), 100);
+//    }
 
-    Atlas::~Atlas()
-    {
-        glDeleteTextures(1, &texture);
-    }
+//    Atlas::~Atlas()
+//    {
+//        glDeleteTextures(1, &texture);
+//    }
 
 }
