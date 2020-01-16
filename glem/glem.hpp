@@ -6,7 +6,6 @@
 #include <core/inputmanager.hpp>
 #include <core/statemanager.hpp>
 
-#include <render/font.hpp>
 #include <render/drawable.hpp>
 #include <render/renderer.hpp>
 #include <render/shader.hpp>

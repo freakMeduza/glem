@@ -19,8 +19,7 @@ namespace glem::render {
         Drawable(const glm::vec3& position,
                  const glm::vec2& size,
                  const glm::vec4& color = {1.0f, 1.0f, 1.0f, 1.0f},
-                 const std::shared_ptr<Texture>& texture = nullptr,
-                 uint32_t atlasIndex = 0);
+                 const std::shared_ptr<Texture>& texture = nullptr);
 
         Drawable(Drawable&&) = default;
         Drawable(const Drawable&) = default;
@@ -88,21 +87,7 @@ namespace glem::render {
          */
         [[nodiscard]] std::shared_ptr<Texture> texture() const noexcept;
 
-        /**
-         * @brief setAtlasIndex
-         * @param value
-         */
-        void setAtlasIndex(uint32_t value) noexcept;
-
-        /**
-         * @brief atlasIndex
-         * @return
-         */
-        [[nodiscard]] uint32_t atlasIndex() const noexcept;
-
     private:
-        void update() noexcept;
-
         glm::vec3 position_;
         glm::vec4 color_;
         glm::vec2 size_;
@@ -110,8 +95,6 @@ namespace glem::render {
         std::vector<glm::vec2> uv_;
 
         std::shared_ptr<Texture> texture_ {nullptr};
-
-        uint32_t atlasIndex_ {0};
     };
 
 }

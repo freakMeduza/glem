@@ -7,7 +7,6 @@
 
 namespace glem::render {
 
-    class Font;
     class Texture;
     class Drawable;
     class VertexArray;
@@ -45,8 +44,6 @@ namespace glem::render {
          * @param value
          */
         static void submit(const std::shared_ptr<Drawable>& value) noexcept;
-
-        static void submitText(const std::string& text, const glm::vec2& position, const std::shared_ptr<Font>& font) noexcept;
 
         /**
          * @brief end

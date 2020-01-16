@@ -1,6 +1,6 @@
 #pragma once
 
-#include <utility>
+#include <glm/glm.hpp>
 
 namespace glem::core {
 
@@ -45,7 +45,7 @@ namespace glem::core {
          * @brief position
          * @return
          */
-        std::pair<float, float> position() const noexcept;
+        glm::vec2 position() const noexcept;
 
     };
 

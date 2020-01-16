@@ -47,9 +47,8 @@ namespace {
 
 namespace glem::render {
 
-    Texture::Texture(const std::string &tag, const std::string &path, const Properties& properties, const Options& options, uint32_t columns) :
-        tag_     {tag},
-        columns_ {columns}
+    Texture::Texture(const std::string &tag, const std::string &path, const Properties& properties, const Options& options) :
+        tag_ {tag}
     {
         if(const auto& surface = Surface::load(path, options)) {
             surface_ = surface;
@@ -137,16 +136,6 @@ namespace glem::render {
     std::shared_ptr<Surface> Texture::surface() const noexcept
     {
         return surface_;
-    }
-
-    uint32_t Texture::columns() const noexcept
-    {
-        return columns_;
-    }
-
-    bool Texture::isAtlas() const noexcept
-    {
-        return (columns_ > 1);
     }
 
 }

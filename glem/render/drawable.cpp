@@ -2,14 +2,16 @@
 
 namespace glem::render {
 
-    Drawable::Drawable(const glm::vec3 &position, const glm::vec2 &size, const glm::vec4 &color, const std::shared_ptr<Texture> &texture, uint32_t atlasIndex) :
+    Drawable::Drawable(const glm::vec3 &position, const glm::vec2 &size, const glm::vec4 &color, const std::shared_ptr<Texture> &texture) :
         position_   {position},
         color_      {color},
         size_       {size},
-        texture_    {texture},
-        atlasIndex_ {atlasIndex}
+        texture_    {texture}
     {
-        update();
+        uv_.emplace_back(glm::vec2{0.0f, 0.0f});
+        uv_.emplace_back(glm::vec2{0.0f, 1.0f});
+        uv_.emplace_back(glm::vec2{1.0f, 1.0f});
+        uv_.emplace_back(glm::vec2{1.0f, 0.0f});
     }
 
     void Drawable::setPosition(const glm::vec3 &value) noexcept
@@ -60,49 +62,6 @@ namespace glem::render {
     std::shared_ptr<Texture> Drawable::texture() const noexcept
     {
         return texture_;
-    }
-
-    void Drawable::setAtlasIndex(uint32_t value) noexcept
-    {
-        atlasIndex_ = value;
-
-        update();
-    }
-
-    uint32_t Drawable::atlasIndex() const noexcept
-    {
-        return atlasIndex_;
-    }
-
-    void Drawable::update() noexcept
-    {
-        uv_.clear();
-
-        uv_.emplace_back(0.0f, 0.0f);
-        uv_.emplace_back(0.0f, 1.0f);
-        uv_.emplace_back(1.0f, 1.0f);
-        uv_.emplace_back(1.0f, 0.0f);
-
-        if(texture_ && texture_->isAtlas()) {
-            auto offset = [this]() {
-                int column = atlasIndex_ % texture_->columns();
-                int row    = atlasIndex_ / texture_->columns();
-
-                float xoffset = static_cast<float>(column) / static_cast<float>(texture_->columns());
-                float yoffset = static_cast<float>(row)    / static_cast<float>(texture_->columns());
-
-                return glm::vec2{xoffset, yoffset};
-            };
-
-            const auto& columns = texture_->columns();
-
-            for(size_t i = 0; i < 4; ++i) {
-                const auto& x = uv_[i].x;
-                const auto& y = uv_[i].y;
-
-                uv_[i] = glm::vec2{x / columns + offset().x, y / columns + offset().y};
-            }
-        }
     }
 
 }

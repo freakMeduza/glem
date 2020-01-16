@@ -30,7 +30,6 @@ namespace glem::core {
     private:
         std::shared_ptr<render::Camera>        camera_  {nullptr};
         std::shared_ptr<render::ShaderProgram> program_ {nullptr};
-        std::shared_ptr<render::Font>          font_    {nullptr};
 
         std::vector<std::shared_ptr<render::Drawable>> sprites_;
 

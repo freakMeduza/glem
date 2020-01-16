@@ -77,9 +77,6 @@ namespace glem::render {
         source_ {source}
     {
         id_ = compile(source_, type);
-
-        if(id_ == 0)
-            abort();
     }
 
     Shader::~Shader()

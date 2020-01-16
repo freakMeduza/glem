@@ -39,7 +39,7 @@ namespace glem::core {
 
         int fps {0};
 
-//        StateManager::push(std::make_shared<DebugState>());
+        StateManager::push(std::make_shared<DebugState>());
 
         while(true) {
             if(StateManager::empty()) {

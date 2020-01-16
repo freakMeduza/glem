@@ -15,8 +15,7 @@ namespace glem::render {
         Texture(const std::string& tag,
                 const std::string& path,
                 const Properties& properties = {},
-                const Options& options = {},
-                uint32_t columns = 1);
+                const Options& options = {});
 
         Texture(const std::string& tag,
                 uint32_t width,
@@ -65,18 +64,6 @@ namespace glem::render {
          */
         [[nodiscard]] std::shared_ptr<Surface> surface() const noexcept;
 
-        /**
-         * @brief columns
-         * @return
-         */
-        [[nodiscard]] uint32_t columns() const noexcept;
-
-        /**
-         * @brief isAtlas
-         * @return
-         */
-        bool isAtlas() const noexcept;
-
     private:
         std::string tag_ {"Undefined"};
 
@@ -84,8 +71,6 @@ namespace glem::render {
         uint32_t height_ {0};
 
         Format format_;
-
-        uint32_t columns_ {1};
 
         std::shared_ptr<Surface> surface_ {nullptr};
 

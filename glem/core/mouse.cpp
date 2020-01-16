@@ -14,7 +14,7 @@ namespace glem::core {
         return (state == GLFW_PRESS);
     }
 
-    std::pair<float, float> Mouse::position() const noexcept
+    glm::vec2 Mouse::position() const noexcept
     {
         double x {0.0};
         double y {0.0};
