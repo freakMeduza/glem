@@ -1,5 +1,7 @@
 #pragma once
 
+#include <glm/glm.hpp>
+
 #include "bindable.hpp"
 #include "surface.hpp"
 
@@ -52,6 +54,15 @@ namespace glem::render {
         [[nodiscard]] uint32_t height() const noexcept;
 
         /**
+         * @brief setSubSurface
+         * @param buffer
+         * @param size
+         * @param offset
+         * @return
+         */
+        bool setSubSurface(const void* buffer, const glm::vec2& size, const glm::vec2& offset) noexcept;
+
+        /**
          * @brief setSurface
          * @param value
          * @return
@@ -71,8 +82,6 @@ namespace glem::render {
         uint32_t height_ {0};
 
         Format format_;
-
-        std::shared_ptr<Surface> surface_ {nullptr};
 
     };
 

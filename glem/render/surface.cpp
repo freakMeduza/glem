@@ -54,7 +54,9 @@ namespace glem::render {
 
         Format format {Format::Unspecified};
 
-        if(components == 3)
+        if(components == 1)
+            format = Format::R;
+        else if(components == 3)
             format = Format::RGB;
         else if(components == 4)
             format = Format::RGBA;
@@ -73,7 +75,14 @@ namespace glem::render {
 
     bool Surface::save(const std::string &path) const noexcept
     {
-        if(format_ == Format::RGB) {
+        if(format_ == Format::R) {
+            auto _path = substring(path).append(SUFFIX_JPG);
+
+            int ret = stbi_write_jpg(_path.c_str(), width_, height_, 1, pixels_.data(), 100);
+
+            return (ret != 0);
+        }
+        else if(format_ == Format::RGB) {
             auto _path = substring(path).append(SUFFIX_JPG);
 
             int ret = stbi_write_jpg(_path.c_str(), width_, height_, 3, pixels_.data(), 100);

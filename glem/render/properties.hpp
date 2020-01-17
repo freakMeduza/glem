@@ -4,6 +4,7 @@ namespace glem::render {
 
     enum class Format {
         Unspecified = 0,
+        R,
         RGB,
         RGBA,
     };

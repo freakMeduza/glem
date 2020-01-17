@@ -1,5 +1,6 @@
 #include "renderer.hpp"
 
+#include "font.hpp"
 #include "texture.hpp"
 #include "drawable.hpp"
 #include "indexbuffer.hpp"
@@ -140,6 +141,88 @@ namespace glem::render {
         index_ += 6;
 
         submitted_++;
+    }
+
+    void Renderer::submitText(const std::string &text, const glm::vec2 &position, const Font &font, const glm::vec4 &color, float scale) noexcept
+    {
+        auto flush = [](){
+            end();
+            present();
+            begin();
+
+            submitted_ = 0;
+        };
+
+        if(submitted_ == MAX_SPRITE_SIZE)
+            flush();
+
+        auto unit = -1.0f;
+
+        if(const auto& t = font.atlas()) {
+            /**** choose texture unit ****/
+            if(auto it = std::find_if(textures_.begin(), textures_.end(), [&t](Texture* texture){ return (t->id() == texture->id()); }); it != textures_.end())
+                unit = static_cast<float>(std::distance(textures_.begin(), it));
+            else {
+                if(textures_.size() >= MAX_UNIT_SIZE)
+                    flush();
+
+                textures_.push_back(t.get());
+
+                unit = static_cast<float>(textures_.size() - 1);
+            }
+        }
+        else
+            util::Log::w(TAG, "Failed to find texture in atlas.");
+
+
+        auto pen_x = position.x;
+        auto pen_y = position.y;
+
+        for(uint32_t i = 0; i < text.size(); ++i) {
+            const auto& ascii = text[i];
+
+            if(auto it = std::find_if(font.glyphs().begin(),
+                                      font.glyphs().end(),
+                                      [character = ascii](const Glyph& glyph){ return (character == glyph.ascii); });
+                    it != font.glyphs().end()) {
+                float x = pen_x + (*it).bearing.x * scale;
+                float y = -pen_y - (*it).bearing.y * scale;
+
+                float width  = (*it).size.x * scale;
+                float height = (*it).size.y * scale;
+
+                vertex_->position = glm::vec3{x, -y, 0.0f};
+                vertex_->color    = color;
+                vertex_->uv       = glm::vec2{(*it).uv.x, (*it).uv.y};
+                vertex_->unit     = unit;
+                vertex_++;
+
+                vertex_->position = glm::vec3{x, -y - height, 0.0f};
+                vertex_->color    = color;
+                vertex_->uv       = glm::vec2{(*it).uv.x, (*it).uv.y + (*it).size.y / font.atlas()->height()};
+                vertex_->unit     = unit;
+                vertex_++;
+
+                vertex_->position = glm::vec3{x + width, -y - height, 0.0f};
+                vertex_->color    = color;
+                vertex_->uv       = glm::vec2{(*it).uv.x + (*it).size.x / font.atlas()->width(), (*it).uv.y + (*it).size.y / font.atlas()->height()};
+                vertex_->unit     = unit;
+                vertex_++;
+
+                vertex_->position = glm::vec3{x + width, -y, 0.0f};
+                vertex_->color    = color;
+                vertex_->uv       = glm::vec2{(*it).uv.x + (*it).size.x / font.atlas()->width(), (*it).uv.y};
+                vertex_->unit     = unit;
+                vertex_++;
+
+                pen_x += (*it).advance.x * scale;
+                pen_y += (*it).advance.y * scale;
+
+                index_ += 6;
+
+                submitted_++;
+            }
+        }
     }
 
     void Renderer::end() noexcept

@@ -11,6 +11,7 @@ namespace {
 
     [[maybe_unused]] std::tuple<GLenum, GLenum> convertFormat(glem::render::Format f) noexcept {
         switch (f) {
+        case glem::render::Format::R:    { return { GL_RED,  GL_R8    }; }
         case glem::render::Format::RGB:  { return { GL_RGB,  GL_RGB8  }; }
         case glem::render::Format::RGBA: { return { GL_RGBA, GL_RGBA8 }; }
         default: {
@@ -51,8 +52,6 @@ namespace glem::render {
         tag_ {tag}
     {
         if(const auto& surface = Surface::load(path, options)) {
-            surface_ = surface;
-
             width_  = surface->width();
             height_ = surface->height();
             format_ = surface->format();
@@ -60,8 +59,10 @@ namespace glem::render {
             auto[imageFormat, internalFormat] = convertFormat(format_);
 
             glCreateTextures(GL_TEXTURE_2D, 1, &id_);
-
+            glBindTexture(GL_TEXTURE_2D, id_);
             glTextureStorage2D(id_, 1, internalFormat, width_, height_);
+
+            glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
             glTextureParameteri(id_, GL_TEXTURE_MIN_FILTER, convertFilter(properties.minFilter));
             glTextureParameteri(id_, GL_TEXTURE_MAG_FILTER, convertFilter(properties.magFilter));
@@ -81,10 +82,13 @@ namespace glem::render {
         format_ {properties.format}
     {
         glCreateTextures(GL_TEXTURE_2D, 1, &id_);
+        glBindTexture(GL_TEXTURE_2D, id_);
 
         auto[imageFormat, internalFormat] = convertFormat(format_);
 
         glTextureStorage2D(id_, 1, internalFormat, width_, height_);
+
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
         glTextureParameteri(id_, GL_TEXTURE_MIN_FILTER, convertFilter(properties.minFilter));
         glTextureParameteri(id_, GL_TEXTURE_MAG_FILTER, convertFilter(properties.magFilter));
@@ -117,6 +121,17 @@ namespace glem::render {
         return height_;
     }
 
+    bool Texture::setSubSurface(const void *buffer, const glm::vec2 &size, const glm::vec2 &offset) noexcept
+    {
+        glBindTexture(GL_TEXTURE_2D, id_);
+
+        auto[imageFormat, internalFormat] = convertFormat(format_);
+
+        glTextureSubImage2D(id_, 0, offset.x, offset.y, size.x, size.y, imageFormat, GL_UNSIGNED_BYTE, buffer);
+
+        return true;
+    }
+
     bool Texture::setSurface(const std::shared_ptr<Surface> &value) noexcept
     {
         if(value->width() != width_ || value->height() != height_ || value->format() != format_) {
@@ -124,18 +139,25 @@ namespace glem::render {
             return false;
         }
 
+        glBindTexture(GL_TEXTURE_2D, id_);
+
         auto[imageFormat, internalFormat] = convertFormat(format_);
 
         glTextureSubImage2D(id_, 0, 0, 0, width_, height_, imageFormat, GL_UNSIGNED_BYTE, value->pixels().data());
-
-        surface_ = value;
 
         return true;
     }
 
     std::shared_ptr<Surface> Texture::surface() const noexcept
     {
-        return surface_;
+        auto[imageFormat, internalFormat] = convertFormat(format_);
+
+        std::vector<uint8_t> pixels;
+        pixels.resize(width_ * height_);
+
+        glGetTextureImage(id_, 0, imageFormat, GL_UNSIGNED_BYTE, pixels.size(), pixels.data());
+
+        return std::make_shared<Surface>(pixels, width_, height_, format_);
     }
 
 }

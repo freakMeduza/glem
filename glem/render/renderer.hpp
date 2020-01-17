@@ -1,5 +1,6 @@
 #pragma once
 
+#include <string>
 #include <memory>
 #include <vector>
 
@@ -45,6 +46,8 @@ namespace glem::render {
          * @param value
          */
         static void submit(const std::shared_ptr<Drawable>& value) noexcept;
+
+        static void submitText(const std::string& text, const glm::vec2& position, const Font& font, const glm::vec4& color = glm::vec4{1.0f}, float scale = 1.0f) noexcept;
 
         /**
          * @brief end
