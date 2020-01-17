@@ -17,26 +17,41 @@
 namespace {
     const std::string TAG = "Renderer";
 
-    const uint32_t MAX_SPRITE_SIZE = 50000;
+    const uint32_t MAX_SPRITE_SIZE = 60000;
     const uint32_t MAX_UNIT_SIZE   = 32;
 
     const uint32_t VERTEX_SIZE  = sizeof (glem::render::Vertex);
     const uint32_t SPRITE_SIZE  = VERTEX_SIZE * 4;
     const uint32_t BUFFER_SIZE  = SPRITE_SIZE * MAX_SPRITE_SIZE;
     const uint32_t INDICES_SIZE = MAX_SPRITE_SIZE * 6;
+
+    [[maybe_unused]] void flush() noexcept {
+        glem::render::Renderer::end();
+        glem::render::Renderer::present();
+        glem::render::Renderer::begin();
+    }
 }
 
 namespace glem::render {
 
-    VertexArray*          Renderer::vao_       {nullptr};
-    Vertex*               Renderer::vertex_    {nullptr};
-    uint32_t              Renderer::index_     {0};
-    uint32_t              Renderer::submitted_ {0};
-    std::vector<Texture*> Renderer::textures_;
+    struct RendererStorage {
+        std::unique_ptr<VertexArray> vao {nullptr};
+
+        Vertex* vertex {nullptr};
+
+        uint32_t index     {0};
+        uint32_t submitted {0};
+
+        std::vector<std::shared_ptr<Texture>> textures;
+    };
+
+    static RendererStorage* storage {nullptr};
 
     void Renderer::init() noexcept
     {
-        vao_ = new VertexArray{};
+        storage = new RendererStorage{};
+
+        storage->vao.reset(new VertexArray{});
 
         auto vbo = std::make_shared<VertexBuffer>(InputLayout{
                                                       { Float3, "position" },
@@ -63,34 +78,26 @@ namespace glem::render {
 
         auto ibo = std::make_shared<IndexBuffer>(indices.data(), indices.size() * sizeof (uint32_t));
 
-        vao_->append(vbo);
-        vao_->append(ibo);
+        storage->vao->append(std::move(vbo));
+        storage->vao->append(std::move(ibo));
     }
 
     void Renderer::deinit() noexcept
     {
-        delete vao_;
-        vao_ = nullptr;
+        delete storage;
+        storage = nullptr;
     }
 
     void Renderer::begin() noexcept
     {
-        vao_->bind();
+        storage->vao->bind();
 
-        vertex_ = static_cast<Vertex*>(glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY));
+        storage->vertex = static_cast<Vertex*>(glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY));
     }
 
     void Renderer::submit(const std::shared_ptr<Drawable> &value) noexcept
     {
-        auto flush = [](){
-            end();
-            present();
-            begin();
-
-            submitted_ = 0;
-        };
-
-        if(submitted_ == MAX_SPRITE_SIZE)
+        if(storage->submitted == MAX_SPRITE_SIZE)
             flush();
 
         const auto& position = value->position();
@@ -102,78 +109,71 @@ namespace glem::render {
 
         if(const auto& t = value->texture()) {
             /**** choose texture unit ****/
-            if(auto it = std::find_if(textures_.begin(), textures_.end(), [&t](Texture* texture){ return (t->id() == texture->id()); }); it != textures_.end())
-                unit = static_cast<float>(std::distance(textures_.begin(), it));
+            auto&& textures = storage->textures;
+
+            if(auto it = std::find_if(textures.begin(), textures.end(), [&t](const std::shared_ptr<Texture>& texture){ return (t->id() == texture->id()); }); it != textures.end())
+                unit = static_cast<float>(std::distance(textures.begin(), it));
             else {
-                if(textures_.size() >= MAX_UNIT_SIZE)
+                if(textures.size() >= MAX_UNIT_SIZE)
                     flush();
 
-                textures_.push_back(t.get());
+                textures.push_back(t);
 
-                unit = static_cast<float>(textures_.size() - 1);
+                unit = static_cast<float>(textures.size() - 1);
             }
         }
 
-        vertex_->position = position;
-        vertex_->color    = color;
-        vertex_->uv       = uv[0];
-        vertex_->unit     = unit;
-        vertex_++;
+        storage->vertex->position = position;
+        storage->vertex->color    = color;
+        storage->vertex->uv       = uv[0];
+        storage->vertex->unit     = unit;
+        storage->vertex++;
 
-        vertex_->position = glm::vec3(position.x, position.y + size.y, position.z);
-        vertex_->color    = color;
-        vertex_->uv       = uv[1];
-        vertex_->unit     = unit;
-        vertex_++;
+        storage->vertex->position = glm::vec3(position.x, position.y + size.y, position.z);
+        storage->vertex->color    = color;
+        storage->vertex->uv       = uv[1];
+        storage->vertex->unit     = unit;
+        storage->vertex++;
 
-        vertex_->position = glm::vec3(position.x + size.x, position.y + size.y, position.z);
-        vertex_->color    = color;
-        vertex_->uv       = uv[2];
-        vertex_->unit     = unit;
-        vertex_++;
+        storage->vertex->position = glm::vec3(position.x + size.x, position.y + size.y, position.z);
+        storage->vertex->color    = color;
+        storage->vertex->uv       = uv[2];
+        storage->vertex->unit     = unit;
+        storage->vertex++;
 
-        vertex_->position = glm::vec3(position.x + size.x, position.y, position.z);
-        vertex_->color    = color;
-        vertex_->uv       = uv[3];
-        vertex_->unit     = unit;
-        vertex_++;
+        storage->vertex->position = glm::vec3(position.x + size.x, position.y, position.z);
+        storage->vertex->color    = color;
+        storage->vertex->uv       = uv[3];
+        storage->vertex->unit     = unit;
+        storage->vertex++;
 
-        index_ += 6;
+        storage->index += 6;
 
-        submitted_++;
+        storage->submitted++;
     }
 
     void Renderer::submitText(const std::string &text, const glm::vec2 &position, const Font &font, const glm::vec4 &color, float scale) noexcept
     {
-        auto flush = [](){
-            end();
-            present();
-            begin();
-
-            submitted_ = 0;
-        };
-
-        if(submitted_ == MAX_SPRITE_SIZE)
+        if(storage->submitted == MAX_SPRITE_SIZE)
             flush();
 
         auto unit = -1.0f;
 
         if(const auto& t = font.atlas()) {
             /**** choose texture unit ****/
-            if(auto it = std::find_if(textures_.begin(), textures_.end(), [&t](Texture* texture){ return (t->id() == texture->id()); }); it != textures_.end())
-                unit = static_cast<float>(std::distance(textures_.begin(), it));
+            auto&& textures = storage->textures;
+
+            if(auto it = std::find_if(textures.begin(), textures.end(), [&t](const std::shared_ptr<Texture>& texture){ return (t->id() == texture->id()); }); it != textures.end())
+                unit = static_cast<float>(std::distance(textures.begin(), it));
             else {
-                if(textures_.size() >= MAX_UNIT_SIZE)
+                if(textures.size() >= MAX_UNIT_SIZE)
                     flush();
 
-                textures_.push_back(t.get());
+                textures.push_back(t);
 
-                unit = static_cast<float>(textures_.size() - 1);
+                unit = static_cast<float>(textures.size() - 1);
             }
         }
-        else
-            util::Log::w(TAG, "Failed to find texture in atlas.");
-
 
         auto pen_x = position.x;
         auto pen_y = position.y;
@@ -191,38 +191,39 @@ namespace glem::render {
                 float width  = (*it).size.x * scale;
                 float height = (*it).size.y * scale;
 
-                vertex_->position = glm::vec3{x, -y, 0.0f};
-                vertex_->color    = color;
-                vertex_->uv       = glm::vec2{(*it).uv.x, (*it).uv.y};
-                vertex_->unit     = unit;
-                vertex_++;
+                storage->vertex->position = glm::vec3{x, -y, 0.0f};
+                storage->vertex->color    = color;
+                storage->vertex->uv       = glm::vec2{(*it).uv.x, (*it).uv.y};
+                storage->vertex->unit     = unit;
+                storage->vertex++;
 
-                vertex_->position = glm::vec3{x, -y - height, 0.0f};
-                vertex_->color    = color;
-                vertex_->uv       = glm::vec2{(*it).uv.x, (*it).uv.y + (*it).size.y / font.atlas()->height()};
-                vertex_->unit     = unit;
-                vertex_++;
+                storage->vertex->position = glm::vec3{x, -y - height, 0.0f};
+                storage->vertex->color    = color;
+                storage->vertex->uv       = glm::vec2{(*it).uv.x, (*it).uv.y + (*it).size.y / font.atlas()->height()};
+                storage->vertex->unit     = unit;
+                storage->vertex++;
 
-                vertex_->position = glm::vec3{x + width, -y - height, 0.0f};
-                vertex_->color    = color;
-                vertex_->uv       = glm::vec2{(*it).uv.x + (*it).size.x / font.atlas()->width(), (*it).uv.y + (*it).size.y / font.atlas()->height()};
-                vertex_->unit     = unit;
-                vertex_++;
+                storage->vertex->position = glm::vec3{x + width, -y - height, 0.0f};
+                storage->vertex->color    = color;
+                storage->vertex->uv       = glm::vec2{(*it).uv.x + (*it).size.x / font.atlas()->width(), (*it).uv.y + (*it).size.y / font.atlas()->height()};
+                storage->vertex->unit     = unit;
+                storage->vertex++;
 
-                vertex_->position = glm::vec3{x + width, -y, 0.0f};
-                vertex_->color    = color;
-                vertex_->uv       = glm::vec2{(*it).uv.x + (*it).size.x / font.atlas()->width(), (*it).uv.y};
-                vertex_->unit     = unit;
-                vertex_++;
+                storage->vertex->position = glm::vec3{x + width, -y, 0.0f};
+                storage->vertex->color    = color;
+                storage->vertex->uv       = glm::vec2{(*it).uv.x + (*it).size.x / font.atlas()->width(), (*it).uv.y};
+                storage->vertex->unit     = unit;
+                storage->vertex++;
 
                 pen_x += (*it).advance.x * scale;
                 pen_y += (*it).advance.y * scale;
 
-                index_ += 6;
+                storage->index += 6;
 
-                submitted_++;
+                storage->submitted++;
             }
         }
+
     }
 
     void Renderer::end() noexcept
@@ -232,14 +233,15 @@ namespace glem::render {
 
     void Renderer::present() noexcept
     {
-        for(uint32_t i = 0; i < textures_.size(); ++i)
-            textures_[i]->bind(i);
+        for(uint32_t i = 0; i < storage->textures.size(); ++i)
+            storage->textures[i]->bind(i);
 
-        vao_->bind();
+        storage->vao->bind();
 
-        glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(index_), GL_UNSIGNED_INT, reinterpret_cast<const GLvoid*>(0));
+        glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(storage->index), GL_UNSIGNED_INT, reinterpret_cast<const GLvoid*>(0));
 
-        index_ = 0;
+        storage->index = 0;
+        storage->submitted = 0;
     }
 
 }

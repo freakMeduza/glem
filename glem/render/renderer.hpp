@@ -47,7 +47,15 @@ namespace glem::render {
          */
         static void submit(const std::shared_ptr<Drawable>& value) noexcept;
 
-        static void submitText(const std::string& text, const glm::vec2& position, const Font& font, const glm::vec4& color = glm::vec4{1.0f}, float scale = 1.0f) noexcept;
+        /**
+         * @brief submitText
+         * @param text
+         * @param position
+         * @param font
+         * @param color
+         * @param scale
+         */
+        static void submitText(const std::string& text, const glm::vec2& position, const Font& font, const glm::vec4& color = {1.0f, 1.0f, 1.0f, 1.0f}, float scale = 1.0f) noexcept;
 
         /**
          * @brief end
@@ -58,13 +66,6 @@ namespace glem::render {
          * @brief present
          */
         static void present() noexcept;
-
-    private:
-        static VertexArray*          vao_;
-        static Vertex*               vertex_;
-        static uint32_t              index_;
-        static uint32_t              submitted_;
-        static std::vector<Texture*> textures_;
 
     };
 
