@@ -8,6 +8,8 @@
 
 #include <util/log.hpp>
 
+#include <algorithm>
+
 namespace {
     const std::string TAG = "Atlas";
 

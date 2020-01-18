@@ -18,3 +18,5 @@
 #include <render/vertexarray.hpp>
 #include <render/vertexbuffer.hpp>
 #include <render/shaderprogram.hpp>
+
+#include <util/log.hpp>

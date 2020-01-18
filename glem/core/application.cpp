@@ -2,7 +2,6 @@
 #include "application.hpp"
 #include "inputmanager.hpp"
 #include "statemanager.hpp"
-#include "debugstate.hpp"
 
 #include <render/renderer.hpp>
 
@@ -38,8 +37,6 @@ namespace glem::core {
         auto&& lastTimestamp = glfwGetTime();
 
         int fps {0};
-
-        StateManager::push(std::make_shared<DebugState>());
 
         while(true) {
             if(StateManager::empty()) {

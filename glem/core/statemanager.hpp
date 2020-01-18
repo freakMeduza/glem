@@ -3,9 +3,9 @@
 #include <deque>
 #include <memory>
 
-namespace glem::core {
+#include "state.hpp"
 
-    class State;
+namespace glem::core {
 
     class StateManager {
     public:
