@@ -42,7 +42,7 @@ namespace glem::core {
             if(StateManager::empty()) {
                 util::Log::w(TAG, "State stack is empty.");
 
-                return 0;
+                window_->close();
             }
 
             /**** FPS ****/

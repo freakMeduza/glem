@@ -61,9 +61,6 @@ namespace glem::render {
 
         /**** vsync enabled ****/
         glfwSwapInterval(1);
-
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     }
 
     Context::~Context()
@@ -80,6 +77,17 @@ namespace glem::render {
     void Context::endFrame() noexcept
     {
         glfwSwapBuffers(parent_);
+    }
+
+    void Context::enableBlend() noexcept
+    {
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    }
+
+    void Context::disableBlend() noexcept
+    {
+        glDisable(GL_BLEND);
     }
 
 }

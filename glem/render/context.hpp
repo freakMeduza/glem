@@ -19,6 +19,9 @@ namespace glem::render {
         void beginFrame() noexcept;
         void endFrame() noexcept;
 
+        void enableBlend() noexcept;
+        void disableBlend() noexcept;
+
     private:
         GLFWwindow* parent_ {nullptr};
 

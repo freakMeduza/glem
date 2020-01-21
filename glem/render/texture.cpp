@@ -21,7 +21,7 @@ namespace {
         }
     }
 
-    [[maybe_unused]] GLenum convertFilter(glem::render::Filter f) noexcept {
+    [[maybe_unused]] GLint convertFilter(glem::render::Filter f) noexcept {
         switch (f) {
         case glem::render::Filter::Linear:  { return GL_LINEAR;  }
         case glem::render::Filter::Nearest: { return GL_NEAREST; }
@@ -32,7 +32,7 @@ namespace {
         }
     }
 
-    [[maybe_unused]] GLenum convertWrap(glem::render::Wrap w) noexcept {
+    [[maybe_unused]] GLint convertWrap(glem::render::Wrap w) noexcept {
         switch (w) {
         case glem::render::Wrap::Repeat:         { return GL_REPEAT;          }
         case glem::render::Wrap::ClampToEdge:    { return GL_CLAMP_TO_EDGE;   }
@@ -60,7 +60,7 @@ namespace glem::render {
 
             glCreateTextures(GL_TEXTURE_2D, 1, &id_);
             glBindTexture(GL_TEXTURE_2D, id_);
-            glTextureStorage2D(id_, 1, internalFormat, width_, height_);
+            glTextureStorage2D(id_, 1, internalFormat, static_cast<GLsizei>(width_), static_cast<GLsizei>(height_));
 
             glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
@@ -69,7 +69,7 @@ namespace glem::render {
             glTextureParameteri(id_, GL_TEXTURE_WRAP_S, convertWrap(properties.wrap));
             glTextureParameteri(id_, GL_TEXTURE_WRAP_T, convertWrap(properties.wrap));
 
-            glTextureSubImage2D(id_, 0, 0, 0, width_, height_, imageFormat, GL_UNSIGNED_BYTE, surface->pixels().data());
+            glTextureSubImage2D(id_, 0, 0, 0, static_cast<GLsizei>(width_), static_cast<GLsizei>(height_), imageFormat, GL_UNSIGNED_BYTE, surface->pixels().data());
         }
         else
             util::Log::e(TAG, "Unable to load image surface.");
@@ -86,7 +86,7 @@ namespace glem::render {
 
         auto[imageFormat, internalFormat] = convertFormat(format_);
 
-        glTextureStorage2D(id_, 1, internalFormat, width_, height_);
+        glTextureStorage2D(id_, 1, internalFormat, static_cast<GLsizei>(width_), static_cast<GLsizei>(height_));
 
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
@@ -127,7 +127,7 @@ namespace glem::render {
 
         auto[imageFormat, internalFormat] = convertFormat(format_);
 
-        glTextureSubImage2D(id_, 0, offset.x, offset.y, size.x, size.y, imageFormat, GL_UNSIGNED_BYTE, buffer);
+        glTextureSubImage2D(id_, 0, static_cast<GLint>(offset.x), static_cast<GLint>(offset.y), static_cast<GLsizei>(size.x), static_cast<GLsizei>(size.y), imageFormat, GL_UNSIGNED_BYTE, buffer);
 
         return true;
     }
@@ -143,7 +143,7 @@ namespace glem::render {
 
         auto[imageFormat, internalFormat] = convertFormat(format_);
 
-        glTextureSubImage2D(id_, 0, 0, 0, width_, height_, imageFormat, GL_UNSIGNED_BYTE, value->pixels().data());
+        glTextureSubImage2D(id_, 0, 0, 0, static_cast<GLsizei>(width_), static_cast<GLsizei>(height_), imageFormat, GL_UNSIGNED_BYTE, value->pixels().data());
 
         return true;
     }
@@ -155,7 +155,9 @@ namespace glem::render {
         std::vector<uint8_t> pixels;
         pixels.resize(width_ * height_);
 
-        glGetTextureImage(id_, 0, imageFormat, GL_UNSIGNED_BYTE, pixels.size(), pixels.data());
+        glBindTexture(GL_TEXTURE_2D, id_);
+
+        glGetTextureImage(id_, 0, imageFormat, GL_UNSIGNED_BYTE, static_cast<GLsizei>(pixels.size()), pixels.data());
 
         return std::make_shared<Surface>(pixels, width_, height_, format_);
     }
