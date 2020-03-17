@@ -6,6 +6,8 @@
 #include <memory>
 #include <vector>
 
+#include <glm/glm.hpp>
+
 namespace glem {
 
     class Program : public Bindable {
@@ -34,6 +36,9 @@ namespace glem {
          * @return
          */
         bool link() const noexcept;
+
+        bool setUniform(const std::string& tag, const glm::vec3& value) noexcept;
+        bool setUniform(const std::string& tag, const glm::mat4& value) noexcept;
 
     private:
         mutable std::vector<std::unique_ptr<Shader>> shaders_;

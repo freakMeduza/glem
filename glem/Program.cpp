@@ -2,6 +2,8 @@
 
 #include "Log.hpp"
 
+#include <glm/gtc/type_ptr.hpp>
+
 namespace {
     const std::string TAG = "Program";
 }
@@ -62,6 +64,34 @@ namespace glem {
         }
 
         shaders_.clear();
+
+        return true;
+    }
+
+    bool Program::setUniform(const std::string &tag, const glm::vec3 &value) noexcept
+    {
+        auto location = glGetUniformLocation(handler_, tag.data());
+
+        if(location == -1) {
+            Log::e(TAG, "Fuck off!");
+            return false;
+        }
+
+        glUniform3f(location, value.x, value.y, value.z);
+
+        return true;
+    }
+
+    bool Program::setUniform(const std::string &tag, const glm::mat4 &value) noexcept
+    {
+        auto location = glGetUniformLocation(handler_, tag.data());
+
+        if(location == -1) {
+            Log::e(TAG, "Fuck off!");
+            return false;
+        }
+
+        glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(value));
 
         return true;
     }

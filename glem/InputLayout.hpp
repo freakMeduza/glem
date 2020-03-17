@@ -8,19 +8,19 @@
 namespace glem {
 
     enum class ElementType {
-        Position2D,
-        Position3D
+        Vector2f,
+        Vector3f
     };
 
     template<ElementType Type> struct InputLayoutElementTypeMap;
 
-    template<> struct InputLayoutElementTypeMap<ElementType::Position2D> {
+    template<> struct InputLayoutElementTypeMap<ElementType::Vector2f> {
         static constexpr size_t type  = GL_FLOAT;
         static constexpr size_t size  = sizeof(GLfloat);
         static constexpr size_t count = 2;
     };
 
-    template<> struct InputLayoutElementTypeMap<ElementType::Position3D> {
+    template<> struct InputLayoutElementTypeMap<ElementType::Vector3f> {
         static constexpr size_t type  = GL_FLOAT;
         static constexpr size_t size  = sizeof(GLfloat);
         static constexpr size_t count = 3;
@@ -50,18 +50,18 @@ namespace glem {
         template<ElementType Type>
         void push(const std::string& name, bool normalized) noexcept {
             switch(Type) {
-            case ElementType::Position2D:
+            case ElementType::Vector2f:
                 push(name,
-                     InputLayoutElementTypeMap<ElementType::Position2D>::type,
-                     InputLayoutElementTypeMap<ElementType::Position2D>::size,
-                     InputLayoutElementTypeMap<ElementType::Position2D>::count,
+                     InputLayoutElementTypeMap<ElementType::Vector2f>::type,
+                     InputLayoutElementTypeMap<ElementType::Vector2f>::size,
+                     InputLayoutElementTypeMap<ElementType::Vector2f>::count,
                      normalized);
                 break;
-            case ElementType::Position3D:
+            case ElementType::Vector3f:
                 push(name,
-                     InputLayoutElementTypeMap<ElementType::Position3D>::type,
-                     InputLayoutElementTypeMap<ElementType::Position3D>::size,
-                     InputLayoutElementTypeMap<ElementType::Position3D>::count,
+                     InputLayoutElementTypeMap<ElementType::Vector3f>::type,
+                     InputLayoutElementTypeMap<ElementType::Vector3f>::size,
+                     InputLayoutElementTypeMap<ElementType::Vector3f>::count,
                      normalized);
                 break;
             }
