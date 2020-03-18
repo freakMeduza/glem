@@ -48,7 +48,7 @@ namespace glem {
          * @param normalized - Normalized
          */
         template<ElementType Type>
-        void push(const std::string& name, bool normalized) noexcept {
+        void push(const std::string& name, bool normalized = false) noexcept {
             switch(Type) {
             case ElementType::Vector2f:
                 push(name,
