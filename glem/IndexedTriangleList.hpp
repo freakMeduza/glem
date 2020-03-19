@@ -18,7 +18,7 @@ namespace glem {
 
         }
 
-        void calculateNormals() noexcept {
+        void setNormal() noexcept {
             assert(indices.size() % 3 == 0 && indices.size() > 0);
 
             for(uint32_t i = 0; i < indices.size(); i += 3) {

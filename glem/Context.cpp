@@ -103,8 +103,8 @@ namespace glem {
         auto version  = glGetString(GL_VERSION);
 
         Log::d(TAG, reinterpret_cast<const char*>(vendor));
-        Log::d(TAG, "OpenGL: ", reinterpret_cast<const char*>(version));
         Log::d(TAG, reinterpret_cast<const char*>(renderer));
+        Log::d(TAG, "OpenGL: ", reinterpret_cast<const char*>(version));
 
         /**** viewport ****/
         {
@@ -122,6 +122,22 @@ namespace glem {
     Context::~Context()
     {
 
+    }
+
+    void Context::beginFrame(const glm::vec4 &color) const noexcept
+    {
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glClearColor(color.r, color.g, color.b, color.a);
+    }
+
+    void Context::endFrame() const noexcept
+    {
+        glfwSwapBuffers(parent_);
+    }
+
+    void Context::drawIndexed(uint32_t size) noexcept
+    {
+        glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(size), GL_UNSIGNED_INT, reinterpret_cast<void*>(0));
     }
 
 }

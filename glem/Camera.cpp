@@ -2,17 +2,17 @@
 
 namespace glem {
 
-    Camera::Camera()
+    OldCamera::OldCamera()
     {
 
     }
 
-    Camera::~Camera()
+    OldCamera::~OldCamera()
     {
 
     }
 
-    Camera::Camera(const glm::vec3 &pos, const glm::vec3 &wu, float y, float p) :
+    OldCamera::OldCamera(const glm::vec3 &pos, const glm::vec3 &wu, float y, float p) :
         position {pos},
         front    {glm::vec3{0.0f, 0.0f, -5.0f}},
         worldUp  {wu},
@@ -22,12 +22,12 @@ namespace glem {
         update();
     }
 
-    glm::mat4 Camera::viewMatrix() const noexcept
+    glm::mat4 OldCamera::viewMatrix() const noexcept
     {
         return glm::lookAt(position, position + front, up);
     }
 
-    void Camera::processMouse(float x_offset, float y_offset) noexcept
+    void OldCamera::processMouse(float x_offset, float y_offset) noexcept
     {
         x_offset *= sensitivity;
         y_offset *= sensitivity;
@@ -43,7 +43,7 @@ namespace glem {
         update();
     }
 
-    void Camera::processKeyboard(Movement movement, float dt) noexcept
+    void OldCamera::processKeyboard(Movement movement, float dt) noexcept
     {
         float velocity = speed * dt;
 
@@ -57,7 +57,7 @@ namespace glem {
             position += right * velocity;
     }
 
-    void Camera::update() noexcept
+    void OldCamera::update() noexcept
     {
         glm::vec3 f;
         f.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));

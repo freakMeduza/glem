@@ -1,5 +1,4 @@
 #include "ParticleSystem.hpp"
-#include "Cube.hpp"
 
 #include <random>
 
@@ -31,15 +30,6 @@ ParticleSystem::ParticleSystem(const glm::mat4 &projection, size_t size) :
     pool_.resize(size);
 
     gen.seed(std::random_device()());
-
-    model_   = std::make_unique<Box>();
-//    program_ = std::make_unique<glem::Program>();
-
-//    program_->append(std::make_unique<glem::Shader>(vs, glem::ShaderType::VS));
-//    program_->append(std::make_unique<glem::Shader>(ps, glem::ShaderType::PS));
-
-//    if(!program_->link())
-//        glem::Log::e(TAG, "Failed to link program.");
 }
 
 ParticleSystem::~ParticleSystem()
@@ -68,7 +58,7 @@ void ParticleSystem::onUpdate(float deltaTime) noexcept
     }
 }
 
-void ParticleSystem::onRender(glem::Camera& camera, std::shared_ptr<glem::Program> program) noexcept
+void ParticleSystem::onRender(glem::OldCamera& camera, std::shared_ptr<glem::Program> program) noexcept
 {
     program->bind();
     program->setUniform("projectionMatrix", projection_);
@@ -92,8 +82,6 @@ void ParticleSystem::onRender(glem::Camera& camera, std::shared_ptr<glem::Progra
         program->bind();
         program->setUniform("modelMatrix", transform);
         program->setUniform("color", color);
-
-        model_->onRender();
     }
 }
 

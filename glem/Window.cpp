@@ -81,8 +81,6 @@ namespace glem {
             glfwSetWindowPos(handler_, (mode->width - WIDTH) / 2, (mode->height - HEIGHT) / 2);
         }
 
-        glfwSetInputMode(handler_, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-
         return true;
     }
 

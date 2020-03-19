@@ -1,6 +1,9 @@
 #pragma once
 
 #include <glm/glm.hpp>
+#include <glm/gtx/transform.hpp>
+#include <glm/gtc/quaternion.hpp>
+#include <glm/gtx/quaternion.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
@@ -13,12 +16,12 @@ namespace glem {
         Right
     };
 
-    class Camera {
+    class OldCamera {
     public:
-        Camera();
-        ~Camera();
+        OldCamera();
+        ~OldCamera();
 
-        Camera(const glm::vec3& pos,
+        OldCamera(const glm::vec3& pos,
                const glm::vec3& wu = glm::vec3{0.0f, 1.0f, 0.0f},
                float y = -90.0f,
                float p = 0.0f);
@@ -43,6 +46,87 @@ namespace glem {
 
     private:
         void update() noexcept;
+    };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    class Camera {
+    public:
+        virtual ~Camera() = default;
+
+        /**
+         * @brief Focus camera
+         */
+        virtual void focus() noexcept {}
+
+        /**
+         * @brief Update camera
+         */
+        virtual void update() noexcept {}
+
+        /**
+         * @brief setPosition
+         * @param value
+         */
+        inline void setPosition(const glm::vec3& value) noexcept {
+            position_ = value;
+        }
+
+        /**
+         * @brief position
+         * @return
+         */
+        inline glm::vec3 position() const noexcept {
+            return position_;
+        }
+
+        /**
+         * @brief Set projection matrix
+         * @param value
+         */
+        inline void setProjection(const glm::mat4& value) noexcept {
+            projection_ = value;
+        }
+
+        /**
+         * @brief Projection matrix
+         * @return
+         */
+        inline glm::mat4 projection() const noexcept {
+            return projection_;
+        }
+
+        /**
+         * @brief View matrix
+         * @return
+         */
+        inline glm::mat4 view() const noexcept {
+            return view_;
+        }
+
+    protected:
+        glm::vec3 position_  {glm::vec3{0.0f}};
+        glm::vec3 point_     {glm::vec3{0.0f}};
+
+        glm::mat4 projection_ {glm::mat4{1.0f}};
+        glm::mat4 view_       {glm::mat4{1.0f}};
+
     };
 
 }
