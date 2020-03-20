@@ -55,9 +55,6 @@ namespace glem {
         auto forward = glm::normalize(lookAt_ - position_);
         auto right   = glm::cross(forward, Y_AXIS);
 
-        Log::d(TAG, to_string(forward));
-        Log::d(TAG, to_string(right));
-
         auto speed = (Keyboard::isKeyPressed(Keyboard::Key::LeftShift) ? sprint_ : speed_) * deltaTime;
 
         if(Keyboard::isKeyPressed(Keyboard::Key::W))

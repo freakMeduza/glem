@@ -11,7 +11,7 @@ namespace glem {
 
         // Camera interface
         void focus() noexcept override;
-        void update() noexcept override;
+        void update(float deltaTime) noexcept override;
 
     private:
         float sensitivity_ {0.0f};

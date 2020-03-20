@@ -2,8 +2,7 @@
 
 #include <glem/Log.hpp>
 #include <glem/Window.hpp>
-#include <glem/Mouse.hpp>
-#include <glem/Keyboard.hpp>
+#include <glem/Input.hpp>
 #include <glem/Bindable.hpp>
 #include <glem/Context.hpp>
 #include <glem/VertexArray.hpp>
@@ -12,6 +11,8 @@
 #include <glem/Program.hpp>
 #include <glem/Timer.hpp>
 #include <glem/InputLayout.hpp>
+
+#include <glem/FreeCamera.hpp>
 
 #include <sstream>
 
@@ -29,7 +30,7 @@ namespace {
                      layout(location = 1) in vec3 vNormal;
 
                      uniform mat4 uProjectionMatrix;
-                     uniform mat4 uViewMatrix;
+                     uniform mat4 uViewMatrix  = mat4(1.0f);
                      uniform mat4 uModelMatrix = mat4(1.0f);
 
                      void main() {
@@ -108,7 +109,6 @@ int main(int argc, char** argv) {
     glem::Mouse::setParent(window->handler());
     glem::Keyboard::setParent(window->handler());
 
-
     auto program = std::make_shared<glem::Program>();
 
     program->append(std::make_unique<glem::Shader>(vs, glem::ShaderType::VS));
@@ -135,9 +135,9 @@ int main(int argc, char** argv) {
     properties.life       = 10.0f;
     /*************************/
 
-    float last_x = window->width()  / 2.0f;
-    float last_y = window->height() / 2.0f;
-    bool first = true;
+//    float last_x = window->width()  / 2.0f;
+//    float last_y = window->height() / 2.0f;
+//    bool first = true;
 
     glem::Timer timer;
 
@@ -150,7 +150,10 @@ int main(int argc, char** argv) {
 
     glfwSetInputMode(window->handler(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
-    auto camera = std::make_unique<glem::OldCamera>(glm::vec3{0.0f, 0.0f, 10.0f});
+//    auto camera = std::make_unique<glem::OldCamera>(glm::vec3{0.0f, 0.0f, 10.0f});
+
+    auto camera = std::make_unique<glem::FreeCamera>();
+    camera->setProjection(projection);
 
     auto model = std::make_unique<Box>();
 
@@ -184,41 +187,43 @@ int main(int argc, char** argv) {
             }
         }
 
-        /**** camera ****/
-        {
-            if (glem::Keyboard::isKeyPressed(glem::Keyboard::Key::W))
-                camera->processKeyboard(glem::Forward,  deltaTime);
-            if (glem::Keyboard::isKeyPressed(glem::Keyboard::Key::S))
-                camera->processKeyboard(glem::Backward, deltaTime);
-            if (glem::Keyboard::isKeyPressed(glem::Keyboard::Key::A))
-                camera->processKeyboard(glem::Left,     deltaTime);
-            if (glem::Keyboard::isKeyPressed(glem::Keyboard::Key::D))
-                camera->processKeyboard(glem::Right,    deltaTime);
+        camera->update(deltaTime);
 
-            auto position = glem::Mouse::position();
+        /**** old camera ****/
+//        {
+//            if (glem::Keyboard::isKeyPressed(glem::Keyboard::Key::W))
+//                camera->processKeyboard(glem::Forward,  deltaTime);
+//            if (glem::Keyboard::isKeyPressed(glem::Keyboard::Key::S))
+//                camera->processKeyboard(glem::Backward, deltaTime);
+//            if (glem::Keyboard::isKeyPressed(glem::Keyboard::Key::A))
+//                camera->processKeyboard(glem::Left,     deltaTime);
+//            if (glem::Keyboard::isKeyPressed(glem::Keyboard::Key::D))
+//                camera->processKeyboard(glem::Right,    deltaTime);
 
-            auto x = position.x;
-            auto y = position.y;
+//            auto position = glem::Mouse::position();
 
-            if (first) {
-                last_x = static_cast<float>(x);
-                last_y = static_cast<float>(y);
-                first = false;
-            }
+//            auto x = position.x;
+//            auto y = position.y;
 
-            float x_offset = static_cast<float>(x) - last_x;
-            float y_offset = last_y - static_cast<float>(y);
+//            if (first) {
+//                last_x = static_cast<float>(x);
+//                last_y = static_cast<float>(y);
+//                first = false;
+//            }
 
-            last_x = static_cast<float>(x);
-            last_y = static_cast<float>(y);
+//            float x_offset = static_cast<float>(x) - last_x;
+//            float y_offset = last_y - static_cast<float>(y);
 
-            camera->processMouse(x_offset, y_offset);
-        }
+//            last_x = static_cast<float>(x);
+//            last_y = static_cast<float>(y);
+
+//            camera->processMouse(x_offset, y_offset);
+//        }
 
         context->beginFrame({0.1f, 0.1f, 0.1f, 1.0f});
 
         program->bind();
-        program->setUniform("uViewMatrix", camera->viewMatrix());
+        program->setUniform("uViewMatrix", camera->view());
 
         model->render(*context);
 

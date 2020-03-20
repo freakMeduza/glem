@@ -77,11 +77,12 @@ namespace glem {
 
         /**
          * @brief Update camera
+         * @param deltaTime - delta time
          */
-        virtual void update() noexcept {}
+        virtual void update(float deltaTime) noexcept { static_cast<void>(deltaTime); }
 
         /**
-         * @brief setPosition
+         * @brief Set camera position
          * @param value
          */
         inline void setPosition(const glm::vec3& value) noexcept {
@@ -89,11 +90,27 @@ namespace glem {
         }
 
         /**
-         * @brief position
+         * @brief Position
          * @return
          */
         inline glm::vec3 position() const noexcept {
             return position_;
+        }
+
+        /**
+         * @brief Set focal point
+         * @param value
+         */
+        inline void setLookAt(const glm::vec3& value) noexcept {
+            lookAt_ = value;
+        }
+
+        /**
+         * @brief Focal point
+         * @return
+         */
+        inline glm::vec3 lookAt() const noexcept {
+            return lookAt_;
         }
 
         /**
@@ -122,7 +139,7 @@ namespace glem {
 
     protected:
         glm::vec3 position_  {glm::vec3{0.0f}};
-        glm::vec3 point_     {glm::vec3{0.0f}};
+        glm::vec3 lookAt_    {glm::vec3{0.0f}};
 
         glm::mat4 projection_ {glm::mat4{1.0f}};
         glm::mat4 view_       {glm::mat4{1.0f}};
