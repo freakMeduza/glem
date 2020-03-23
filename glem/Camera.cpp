@@ -17,6 +17,7 @@ namespace {
 
     [[maybe_unused]] static const glm::vec3 DEFAULT_CAMERA_POSITION = {0.0f, 0.0f, 40.0f};
 
+    [[maybe_unused]] static const float DEFAULT_CAMERA_RADIUS      = 10.0f;
     [[maybe_unused]] static const float DEFAULT_CAMERA_PITCH       = 0.0f;
     [[maybe_unused]] static const float DEFAULT_CAMERA_YAW         = 0.0f;
     [[maybe_unused]] static const float DEFAULT_CAMERA_SENSITIVITY = 0.05f;
@@ -26,6 +27,7 @@ namespace {
 
 namespace glem {
 
+    /**** Free camera ****/
     FreeCamera::FreeCamera() :
         sensitivity_ {DEFAULT_CAMERA_SENSITIVITY},
         speed_       {DEFAULT_CAMERA_SPEED},
@@ -33,32 +35,27 @@ namespace glem {
         pitch_       {DEFAULT_CAMERA_PITCH},
         yaw_         {DEFAULT_CAMERA_YAW}
     {
-
+        glfwSetCursorPos(Application::instance().window().handler(),
+                         Application::instance().window().width()  / 2.0f,
+                         Application::instance().window().height() / 2.0f);
     }
 
     FreeCamera::~FreeCamera()
     {
-        Application::instance().window().setCursorMode(true);
-    }
-
-    void FreeCamera::focus() noexcept
-    {
-        Application::instance().window().setCursorMode(false);
+        Mouse::setCapture(false);
     }
 
     void FreeCamera::update(float deltaTime) noexcept
     {
-        static bool captured {false};
+        if(!Mouse::captured()) {
+            Mouse::setCapture(true);
 
-        if(!captured) {
             double x {0.0};
             double y {0.0};
 
             glfwGetCursorPos(Application::instance().window().handler(), &x, &y);
 
             mouse_ = glm::vec2{static_cast<float>(x), static_cast<float>(y)};
-
-            captured = true;
         }
 
         auto mouse  = Mouse::position();
@@ -68,6 +65,11 @@ namespace glem {
 
         yaw_   += offset.x * sensitivity_;
         pitch_ += offset.y * sensitivity_;
+
+        if(pitch_ >=  89.0f)
+            pitch_ =  89.0f;
+        if(pitch_ <= -89.0f)
+            pitch_ = -89.0f;
 
         auto orientation = glm::cross(glm::angleAxis(glm::radians(-pitch_), X_AXIS), glm::angleAxis(glm::radians(yaw_), Y_AXIS));
 
@@ -88,6 +90,62 @@ namespace glem {
             position_ += right * speed;
 
         view_ = glm::toMat4(orientation) * glm::translate(-position_);
+    }
+
+    /**** Maya camera ****/
+    MayaCamera::MayaCamera() :
+        sensitivity_ {DEFAULT_CAMERA_SENSITIVITY},
+        radius_      {DEFAULT_CAMERA_RADIUS},
+        pitch_       {DEFAULT_CAMERA_PITCH},
+        yaw_         {DEFAULT_CAMERA_YAW}
+    {
+        double x {0.0};
+        double y {0.0};
+
+        glfwGetCursorPos(Application::instance().window().handler(), &x, &y);
+
+        mouse_ = glm::vec2{static_cast<float>(x), static_cast<float>(y)};
+    }
+
+    MayaCamera::~MayaCamera()
+    {
+        Mouse::setCapture(false);
+    }
+
+    void MayaCamera::update(float deltaTime) noexcept
+    {
+        if(Keyboard::isKeyPressed(Keyboard::Key::LeftAlt)) {
+            Mouse::setCapture(true);
+
+//            double x {0.0};
+//            double y {0.0};
+
+//            glfwGetCursorPos(Application::instance().window().handler(), &x, &y);
+
+//            mouse_ = glm::vec2{static_cast<float>(x), static_cast<float>(y)};
+
+            if(Mouse::isButtonPressed(Mouse::Button::ButtonLeft)) {
+                Log::d(TAG, "Left button pressed.");
+
+                auto mouse  = Mouse::position();
+                auto offset = mouse - mouse_;
+
+                mouse_ = mouse;
+
+                yaw_   += offset.x * sensitivity_;
+                pitch_ += offset.y * sensitivity_;
+            }
+
+            if(Mouse::isButtonPressed(Mouse::Button::ButtonRight)) {
+
+            }
+        }
+        else
+            Mouse::setCapture(false);
+
+        auto orientation = glm::cross(glm::angleAxis(glm::radians(-pitch_), X_AXIS), glm::angleAxis(glm::radians(yaw_), Y_AXIS));
+
+        view_ = glm::translate(-glm::vec3{0.0f, 0.0f, radius_}) * glm::toMat4(orientation);
     }
 
 }

@@ -14,11 +14,6 @@ namespace glem {
         virtual ~Camera() = default;
 
         /**
-         * @brief Focus camera
-         */
-        virtual void focus() noexcept {}
-
-        /**
          * @brief Update camera
          * @param deltaTime - delta time
          */
@@ -65,7 +60,7 @@ namespace glem {
         }
 
     protected:
-        glm::vec3 position_  {glm::vec3{0.0f}};
+        glm::vec3 position_ {glm::vec3{0.0f}};
 
         glm::mat4 projection_ {glm::mat4{1.0f}};
         glm::mat4 view_       {glm::mat4{1.0f}};
@@ -78,7 +73,6 @@ namespace glem {
         ~FreeCamera() override;
 
         // Camera interface
-        void focus() noexcept override;
         void update(float deltaTime) noexcept override;
 
     private:
@@ -87,6 +81,25 @@ namespace glem {
         float speed_  {0.0f};
         float sprint_ {0.0f};
 
+        float pitch_   {0.0f};
+        float yaw_     {0.0f};
+
+        glm::vec2 mouse_ {glm::vec2{0.0f}};
+
+    };
+
+    class MayaCamera : public Camera {
+    public:
+        MayaCamera();
+        ~MayaCamera() override;
+
+        // Camera interface
+        void update(float deltaTime) noexcept override;
+
+    private:
+        float sensitivity_ {0.0f};
+
+        float radius_  {0.0f};
         float pitch_   {0.0f};
         float yaw_     {0.0f};
 

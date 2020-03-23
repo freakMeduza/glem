@@ -21,7 +21,7 @@ namespace glem {
         void beginFrame(const glm::vec4& color) const noexcept;
         void endFrame() const noexcept;
 
-        void drawIndexed(uint32_t size) noexcept;
+        void drawIndexed(size_t size) noexcept;
 
     private:
         GLFWwindow* parent_ {nullptr};

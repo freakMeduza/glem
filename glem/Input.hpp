@@ -56,6 +56,18 @@ namespace glem {
         Mouse& operator=(const Mouse&) = delete;
 
         /**
+         * @brief Set mouse capture
+         * @param value
+         */
+        static void setCapture(bool value) noexcept;
+
+        /**
+         * @brief Is mouse captured
+         * @return
+         */
+        static bool captured() noexcept;
+
+        /**
          * @brief Is button pressed
          * @param value - button
          * @return

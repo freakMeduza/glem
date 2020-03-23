@@ -135,7 +135,7 @@ namespace glem {
         glfwSwapBuffers(parent_);
     }
 
-    void Context::drawIndexed(uint32_t size) noexcept
+    void Context::drawIndexed(size_t size) noexcept
     {
         glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(size), GL_UNSIGNED_INT, reinterpret_cast<void*>(0));
     }

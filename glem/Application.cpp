@@ -89,6 +89,27 @@ namespace {
         std::unique_ptr<glem::VertexArray> vao_ {nullptr};
 
     };
+
+    class SolidSphere {
+    public:
+        SolidSphere() {
+
+        }
+
+        ~SolidSphere() {
+
+        }
+
+        void render(glem::Context& context) const noexcept {
+            vao_->bind();
+
+            context.drawIndexed(vao_->indexCount());
+        }
+
+    private:
+        std::unique_ptr<glem::VertexArray> vao_ {nullptr};
+
+    };
 }
 
 namespace glem {
@@ -127,10 +148,9 @@ namespace glem {
 
         auto model = std::make_unique<Box>();
 
-        auto camera = std::make_unique<FreeCamera>();
+        auto camera = std::make_unique<MayaCamera>();
         camera->setPosition({0.0f, 0.0f, 10.0f});
         camera->setProjection(glm::perspective(glm::radians(45.0f), static_cast<float>(window_->width()) / static_cast<float>(window_->height()), 0.1f, 100.0f));
-        camera->focus();
 
         program->bind();
         program->setUniform("uProjectionMatrix", camera->projection());
@@ -149,14 +169,16 @@ namespace glem {
 
             camera->update(deltaTime);
 
-            program->bind();
             program->setUniform("uViewMatrix", camera->view());
 
-            context_->beginFrame({0.1f, 0.1f, 0.1f, 1.0f});
+            /**** draw call ****/
+            {
+                context_->beginFrame({0.1f, 0.1f, 0.1f, 1.0f});
 
-            model->render(*context_);
+                model->render(*context_);
 
-            context_->endFrame();
+                context_->endFrame();
+            }
         }
     }
 
@@ -177,7 +199,7 @@ namespace glem {
         context_ = std::make_unique<Context>(window_->handler());
 
         if(!context_) {
-            Log::e(TAG, "failed to create context.");
+            Log::e(TAG, "Failed to create context.");
             abort();
         }
 
