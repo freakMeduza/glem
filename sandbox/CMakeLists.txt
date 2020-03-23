@@ -5,21 +5,21 @@ project(sandbox LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-link_directories(${CMAKE_BINARY_DIR}/glem)
+if(WIN32)
+    link_directories(${CMAKE_BINARY_DIR}/glem)
+endif()
 
 include_directories(
     ${PROJECT_SOURCE_DIR}
-    ${PROJECT_SOURCE_DIR}/..
     ${PROJECT_SOURCE_DIR}/../glem
-    ${PROJECT_SOURCE_DIR}/../glem/libs/glad/include
-    ${PROJECT_SOURCE_DIR}/../glem/libs/glfw/include)
+)
 
-file(GLOB_RECURSE HDRS ${PROJECT_SOURCE_DIR}/*.hpp)
-file(GLOB_RECURSE SRCS ${PROJECT_SOURCE_DIR}/*.cpp)
+file(GLOB HDRS ${PROJECT_SOURCE_DIR}/*.hpp)
+file(GLOB SRCS ${PROJECT_SOURCE_DIR}/*.cpp)
 
 add_executable(${PROJECT_NAME} "main.cpp" ${HDRS} ${SRCS})
 
-target_link_libraries(${PROJECT_NAME} glem glfw glad)
+target_link_libraries(${PROJECT_NAME} glem)
 
 if(WIN32)
     add_custom_command(

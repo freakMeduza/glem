@@ -2,7 +2,7 @@
 
 namespace glem {
 
-    GLFWwindow* Input::parent_ {nullptr};
+    GLFWwindow* Input::parent_ = nullptr;
 
     bool Mouse::isButtonPressed(Mouse::Button value) noexcept
     {

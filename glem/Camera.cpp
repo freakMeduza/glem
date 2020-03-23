@@ -1,73 +1,93 @@
 #include "Camera.hpp"
 
+#include "Log.hpp"
+#include "Input.hpp"
+
+#include <glad/glad.h>
+
+#include "Application.hpp"
+#include "Window.hpp"
+
+namespace {
+    const std::string TAG = "FreeCamera";
+
+    [[maybe_unused]] static const glm::vec3 X_AXIS = {1.0f, 0.0f, 0.0f};
+    [[maybe_unused]] static const glm::vec3 Y_AXIS = {0.0f, 1.0f, 0.0f};
+    [[maybe_unused]] static const glm::vec3 Z_AXIS = {0.0f, 0.0f, 1.0f};
+
+    [[maybe_unused]] static const glm::vec3 DEFAULT_CAMERA_POSITION = {0.0f, 0.0f, 40.0f};
+
+    [[maybe_unused]] static const float DEFAULT_CAMERA_PITCH       = 0.0f;
+    [[maybe_unused]] static const float DEFAULT_CAMERA_YAW         = 0.0f;
+    [[maybe_unused]] static const float DEFAULT_CAMERA_SENSITIVITY = 0.05f;
+    [[maybe_unused]] static const float DEFAULT_CAMERA_SPEED       = 5.0f;
+    [[maybe_unused]] static const float DEFAULT_CAMERA_SPRINT      = DEFAULT_CAMERA_SPEED * 2.0f;
+}
+
 namespace glem {
 
-    OldCamera::OldCamera()
+    FreeCamera::FreeCamera() :
+        sensitivity_ {DEFAULT_CAMERA_SENSITIVITY},
+        speed_       {DEFAULT_CAMERA_SPEED},
+        sprint_      {DEFAULT_CAMERA_SPRINT},
+        pitch_       {DEFAULT_CAMERA_PITCH},
+        yaw_         {DEFAULT_CAMERA_YAW}
     {
 
     }
 
-    OldCamera::~OldCamera()
+    FreeCamera::~FreeCamera()
     {
-
+        Application::instance().window().setCursorMode(true);
     }
 
-    OldCamera::OldCamera(const glm::vec3 &pos, const glm::vec3 &wu, float y, float p) :
-        position {pos},
-        front    {glm::vec3{0.0f, 0.0f, -5.0f}},
-        worldUp  {wu},
-        yaw      {y},
-        pitch    {p}
+    void FreeCamera::focus() noexcept
     {
-        update();
+        Application::instance().window().setCursorMode(false);
     }
 
-    glm::mat4 OldCamera::viewMatrix() const noexcept
+    void FreeCamera::update(float deltaTime) noexcept
     {
-        return glm::lookAt(position, position + front, up);
-    }
+        static bool captured {false};
 
-    void OldCamera::processMouse(float x_offset, float y_offset) noexcept
-    {
-        x_offset *= sensitivity;
-        y_offset *= sensitivity;
+        if(!captured) {
+            double x {0.0};
+            double y {0.0};
 
-        yaw   += x_offset;
-        pitch += y_offset;
+            glfwGetCursorPos(Application::instance().window().handler(), &x, &y);
 
-        if (pitch > 89.0f)
-            pitch = 89.0f;
-        if (pitch < -89.0f)
-            pitch = -89.0f;
+            mouse_ = glm::vec2{static_cast<float>(x), static_cast<float>(y)};
 
-        update();
-    }
+            captured = true;
+        }
 
-    void OldCamera::processKeyboard(Movement movement, float dt) noexcept
-    {
-        float velocity = speed * dt;
+        auto mouse  = Mouse::position();
+        auto offset = glm::vec2{mouse.x - mouse_.x, mouse_.y - mouse.y};
 
-        if (movement == Forward)
-            position += front * velocity;
-        if (movement == Backward)
-            position -= front * velocity;
-        if (movement == Left)
-            position -= right * velocity;
-        if (movement == Right)
-            position += right * velocity;
-    }
+        mouse_ = mouse;
 
-    void OldCamera::update() noexcept
-    {
-        glm::vec3 f;
-        f.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
-        f.y = sin(glm::radians(pitch));
-        f.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+        yaw_   += offset.x * sensitivity_;
+        pitch_ += offset.y * sensitivity_;
 
-        front = glm::normalize(f);
+        auto orientation = glm::cross(glm::angleAxis(glm::radians(-pitch_), X_AXIS), glm::angleAxis(glm::radians(yaw_), Y_AXIS));
 
-        right = glm::normalize(glm::cross(front, worldUp));
-        up    = glm::normalize(glm::cross(right, front));
+        auto v = view();
+
+        auto forward = -glm::vec3{v[0][2], v[1][2], v[2][2]};
+        auto right   =  glm::vec3{v[0][0], v[1][0], v[2][0]};
+
+        auto speed = (Keyboard::isKeyPressed(Keyboard::Key::LeftShift) ? sprint_ : speed_) * deltaTime;
+
+        if(Keyboard::isKeyPressed(Keyboard::Key::W))
+            position_ += forward * speed;
+        if(Keyboard::isKeyPressed(Keyboard::Key::S))
+            position_ -= forward * speed;
+        if(Keyboard::isKeyPressed(Keyboard::Key::A))
+            position_ -= right * speed;
+        if(Keyboard::isKeyPressed(Keyboard::Key::D))
+            position_ += right * speed;
+
+        view_ = glm::toMat4(orientation) * glm::translate(-position_);
     }
 
 }

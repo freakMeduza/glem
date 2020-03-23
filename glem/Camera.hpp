@@ -9,63 +9,6 @@
 
 namespace glem {
 
-    enum Movement {
-        Forward,
-        Backward,
-        Left,
-        Right
-    };
-
-    class OldCamera {
-    public:
-        OldCamera();
-        ~OldCamera();
-
-        OldCamera(const glm::vec3& pos,
-               const glm::vec3& wu = glm::vec3{0.0f, 1.0f, 0.0f},
-               float y = -90.0f,
-               float p = 0.0f);
-
-        glm::mat4 viewMatrix() const noexcept;
-
-        void processMouse(float x_offset, float y_offset) noexcept;
-        void processKeyboard(Movement movement, float dt) noexcept;
-
-        glm::vec3 position {glm::vec3{0.0f}};
-        glm::vec3 front    {glm::vec3{0.0f}};
-        glm::vec3 right    {glm::vec3{0.0f}};
-        glm::vec3 up       {glm::vec3{0.0f}};
-
-        glm::vec3 worldUp  {glm::vec3{0.0f}};
-
-        float yaw   {0.0f};
-        float pitch {0.0f};
-
-        float speed       {3.0f};
-        float sensitivity {0.05f};
-
-    private:
-        void update() noexcept;
-    };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     class Camera {
     public:
         virtual ~Camera() = default;
@@ -98,22 +41,6 @@ namespace glem {
         }
 
         /**
-         * @brief Set focal point
-         * @param value
-         */
-        inline void setLookAt(const glm::vec3& value) noexcept {
-            lookAt_ = value;
-        }
-
-        /**
-         * @brief Focal point
-         * @return
-         */
-        inline glm::vec3 lookAt() const noexcept {
-            return lookAt_;
-        }
-
-        /**
          * @brief Set projection matrix
          * @param value
          */
@@ -139,10 +66,31 @@ namespace glem {
 
     protected:
         glm::vec3 position_  {glm::vec3{0.0f}};
-        glm::vec3 lookAt_    {glm::vec3{0.0f}};
 
         glm::mat4 projection_ {glm::mat4{1.0f}};
         glm::mat4 view_       {glm::mat4{1.0f}};
+
+    };
+
+    class FreeCamera : public Camera {
+    public:
+        FreeCamera();
+        ~FreeCamera() override;
+
+        // Camera interface
+        void focus() noexcept override;
+        void update(float deltaTime) noexcept override;
+
+    private:
+        float sensitivity_ {0.0f};
+
+        float speed_  {0.0f};
+        float sprint_ {0.0f};
+
+        float pitch_   {0.0f};
+        float yaw_     {0.0f};
+
+        glm::vec2 mouse_ {glm::vec2{0.0f}};
 
     };
 

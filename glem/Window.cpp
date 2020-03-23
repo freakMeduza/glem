@@ -49,6 +49,11 @@ namespace glem {
         glfwSetWindowShouldClose(handler_, GLFW_TRUE);
     }
 
+    void Window::setCursorMode(bool enable) const noexcept
+    {
+        glfwSetInputMode(handler_, GLFW_CURSOR, enable ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED);
+    }
+
     GLFWwindow *Window::handler() const noexcept
     {
         return handler_;
@@ -73,6 +78,8 @@ namespace glem {
 
         if(!handler_)
             return false;
+
+        glfwSetWindowUserPointer(handler_, handler_);
 
         /**** move window to center ****/
         {

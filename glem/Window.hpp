@@ -49,6 +49,12 @@ namespace glem {
         void close() const noexcept;
 
         /**
+         * @brief Set cursor visibility mode
+         * @param enable
+         */
+        void setCursorMode(bool enable) const noexcept;
+
+        /**
          * @brief Window handler
          * @return
          */

@@ -5,7 +5,7 @@
 
 #include <glm/glm.hpp>
 
-namespace glem {
+namespace primitives {
 
     template<typename T>
     struct IndexedTriangleList {
