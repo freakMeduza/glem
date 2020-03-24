@@ -99,7 +99,6 @@ namespace glem {
     private:
         float sensitivity_ {0.0f};
 
-        float radius_  {0.0f};
         float pitch_   {0.0f};
         float yaw_     {0.0f};
 

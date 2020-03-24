@@ -68,6 +68,20 @@ namespace glem {
         return true;
     }
 
+    bool Program::setUniform(const std::string &tag, float value) noexcept
+    {
+        auto location = glGetUniformLocation(handler_, tag.data());
+
+        if(location == -1) {
+            Log::e(TAG, "Fuck off!");
+            return false;
+        }
+
+        glUniform1f(location, value);
+
+        return true;
+    }
+
     bool Program::setUniform(const std::string &tag, const glm::vec3 &value) noexcept
     {
         auto location = glGetUniformLocation(handler_, tag.data());

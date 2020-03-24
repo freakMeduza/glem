@@ -39,6 +39,10 @@ namespace glem {
          */
         size_t indexCount() const noexcept;
 
+        uint32_t handler() const noexcept {
+            return handler_;
+        }
+
     private:
         uint32_t index_ {0u};
 

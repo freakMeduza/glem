@@ -17,7 +17,7 @@ namespace {
 
     [[maybe_unused]] static const glm::vec3 DEFAULT_CAMERA_POSITION = {0.0f, 0.0f, 40.0f};
 
-    [[maybe_unused]] static const float DEFAULT_CAMERA_RADIUS      = 10.0f;
+    [[maybe_unused]] static const float DEFAULT_CAMERA_RADIUS      = 50.0f;
     [[maybe_unused]] static const float DEFAULT_CAMERA_PITCH       = 0.0f;
     [[maybe_unused]] static const float DEFAULT_CAMERA_YAW         = 0.0f;
     [[maybe_unused]] static const float DEFAULT_CAMERA_SENSITIVITY = 0.05f;
@@ -95,7 +95,6 @@ namespace glem {
     /**** Maya camera ****/
     MayaCamera::MayaCamera() :
         sensitivity_ {DEFAULT_CAMERA_SENSITIVITY},
-        radius_      {DEFAULT_CAMERA_RADIUS},
         pitch_       {DEFAULT_CAMERA_PITCH},
         yaw_         {DEFAULT_CAMERA_YAW}
     {
@@ -105,6 +104,8 @@ namespace glem {
         glfwGetCursorPos(Application::instance().window().handler(), &x, &y);
 
         mouse_ = glm::vec2{static_cast<float>(x), static_cast<float>(y)};
+
+        position_.z = DEFAULT_CAMERA_RADIUS;
     }
 
     MayaCamera::~MayaCamera()
@@ -117,17 +118,9 @@ namespace glem {
         if(Keyboard::isKeyPressed(Keyboard::Key::LeftAlt)) {
             Mouse::setCapture(true);
 
-//            double x {0.0};
-//            double y {0.0};
-
-//            glfwGetCursorPos(Application::instance().window().handler(), &x, &y);
-
-//            mouse_ = glm::vec2{static_cast<float>(x), static_cast<float>(y)};
+            auto mouse = Mouse::position();
 
             if(Mouse::isButtonPressed(Mouse::Button::ButtonLeft)) {
-                Log::d(TAG, "Left button pressed.");
-
-                auto mouse  = Mouse::position();
                 auto offset = mouse - mouse_;
 
                 mouse_ = mouse;
@@ -137,15 +130,21 @@ namespace glem {
             }
 
             if(Mouse::isButtonPressed(Mouse::Button::ButtonRight)) {
+                auto offset = mouse - mouse_;
 
+                mouse_ = mouse;
+
+                position_.z += offset.y * deltaTime;
             }
+
+            mouse_ = mouse;
         }
         else
             Mouse::setCapture(false);
 
         auto orientation = glm::cross(glm::angleAxis(glm::radians(-pitch_), X_AXIS), glm::angleAxis(glm::radians(yaw_), Y_AXIS));
 
-        view_ = glm::translate(-glm::vec3{0.0f, 0.0f, radius_}) * glm::toMat4(orientation);
+        view_ = glm::translate(-glm::vec3{0.0f, 0.0f, position_.z}) * glm::toMat4(orientation);
     }
 
 }

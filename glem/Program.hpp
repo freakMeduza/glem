@@ -37,6 +37,7 @@ namespace glem {
          */
         bool link() const noexcept;
 
+        bool setUniform(const std::string& tag, float value) noexcept;
         bool setUniform(const std::string& tag, const glm::vec3& value) noexcept;
         bool setUniform(const std::string& tag, const glm::vec4& value) noexcept;
         bool setUniform(const std::string& tag, const glm::mat4& value) noexcept;
