@@ -54,7 +54,7 @@ namespace glem {
 
             glGetProgramInfoLog(handler_, length, &length, msg.data());
 
-            Log::e(TAG, "Unable to link program:", msg);
+            Log::e(TAG, "Unable to link program: ", msg);
 
             shaders_.clear();
 
@@ -68,60 +68,76 @@ namespace glem {
         return true;
     }
 
-    bool Program::setUniform(const std::string &tag, float value) noexcept
+    bool Program::setUniform(const std::string &tag, int value) noexcept
     {
-        auto location = glGetUniformLocation(handler_, tag.data());
-
-        if(location == -1) {
-            Log::e(TAG, "Fuck off!");
-            return false;
+        if(auto location = resolveUniformLocation(tag)) {
+            glUniform1i(*location, value);
+            return true;
         }
 
-        glUniform1f(location, value);
+        Log::e(TAG, "Failed to resolve uniform location: ", tag);
 
-        return true;
+        return false;
+    }
+
+    bool Program::setUniform(const std::string &tag, float value) noexcept
+    {
+        if(auto location = resolveUniformLocation(tag)) {
+            glUniform1f(*location, value);
+            return true;
+        }
+
+        Log::e(TAG, "Failed to resolve uniform location: ", tag);
+
+        return false;
     }
 
     bool Program::setUniform(const std::string &tag, const glm::vec3 &value) noexcept
     {
-        auto location = glGetUniformLocation(handler_, tag.data());
-
-        if(location == -1) {
-            Log::e(TAG, "Fuck off!");
-            return false;
+        if(auto location = resolveUniformLocation(tag)) {
+            glUniform3f(*location, value.x, value.y, value.z);
+            return true;
         }
 
-        glUniform3f(location, value.x, value.y, value.z);
+        Log::e(TAG, "Failed to resolve uniform location: ", tag);
 
-        return true;
+        return false;
     }
 
     bool Program::setUniform(const std::string &tag, const glm::vec4 &value) noexcept
     {
-        auto location = glGetUniformLocation(handler_, tag.data());
-
-        if(location == -1) {
-            Log::e(TAG, "Fuck off!");
-            return false;
+        if(auto location = resolveUniformLocation(tag)) {
+            glUniform4f(*location, value.x, value.y, value.z, value.w);
+            return true;
         }
 
-        glUniform4f(location, value.x, value.y, value.z, value.w);
+        Log::e(TAG, "Failed to resolve uniform location: ", tag);
 
-        return true;
+        return false;
     }
 
     bool Program::setUniform(const std::string &tag, const glm::mat4 &value) noexcept
     {
-        auto location = glGetUniformLocation(handler_, tag.data());
-
-        if(location == -1) {
-            Log::e(TAG, "Fuck off!");
-            return false;
+        if(auto location = resolveUniformLocation(tag)) {
+            glUniformMatrix4fv(*location, 1, GL_FALSE, glm::value_ptr(value));
+            return true;
         }
 
-        glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(value));
+        Log::e(TAG, "Failed to resolve uniform location: ", tag);
 
-        return true;
+        return false;
+    }
+
+    std::optional<GLint> Program::resolveUniformLocation(const std::string &value) noexcept {
+        if(auto it = location.find(value); it != location.end())
+            return location[value];
+
+        if(auto l = glGetUniformLocation(handler_, value.c_str()); l != -1) {
+            location[value] = l;
+            return l;
+        }
+
+        return {};
     }
 
 }

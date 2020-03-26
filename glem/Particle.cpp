@@ -100,9 +100,9 @@ namespace glem {
 
         p.position = {0.0f, 0.0f, 0.0f};
 
-        p.velocity.x = random<float>(1.0f, 20.0f) * (random<float>(0.0f, 1.0f) - 0.5f);
-        p.velocity.y = random<float>(1.0f, 20.0f) * (random<float>(0.0f, 1.0f) - 0.5f);
-        p.velocity.z = random<float>(1.0f, 20.0f) * (random<float>(0.0f, 1.0f) - 0.5f);
+        p.velocity.x = random<float>(1.0f, 10.0f) * (random<float>(0.0f, 1.0f) - 0.5f);
+        p.velocity.y = random<float>(1.0f, 10.0f) * (random<float>(0.0f, 1.0f) - 0.5f);
+        p.velocity.z = random<float>(1.0f, 10.0f) * (random<float>(0.0f, 1.0f) - 0.5f);
 
         p.rotation.x = random<float>(2.5f, 2 * M_PI) * (random<float>(0.0f, 1.0f) - 0.5f);
         p.rotation.y = random<float>(2.5f, 2 * M_PI) * (random<float>(0.0f, 1.0f) - 0.5f);

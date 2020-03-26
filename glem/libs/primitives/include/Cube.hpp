@@ -46,6 +46,37 @@ namespace primitives {
 
             return {std::move(vertices), std::move(indices)};
         }
+
+        static IndexedTriangleList<T> createTextured() noexcept {
+            auto model = create();
+
+            model.vertices[0].uv  = { 0.0f, 0.0f };
+            model.vertices[1].uv  = { 1.0f, 0.0f };
+            model.vertices[2].uv  = { 0.0f, 1.0f };
+            model.vertices[3].uv  = { 1.0f, 1.0f };
+            model.vertices[4].uv  = { 0.0f, 0.0f };
+            model.vertices[5].uv  = { 1.0f, 0.0f };
+            model.vertices[6].uv  = { 0.0f, 1.0f };
+            model.vertices[7].uv  = { 1.0f, 1.0f };
+            model.vertices[8].uv  = { 0.0f, 0.0f };
+            model.vertices[9].uv  = { 1.0f, 0.0f };
+            model.vertices[10].uv = { 0.0f, 1.0f };
+            model.vertices[11].uv = { 1.0f, 1.0f };
+            model.vertices[12].uv = { 0.0f, 0.0f };
+            model.vertices[13].uv = { 1.0f, 0.0f };
+            model.vertices[14].uv = { 0.0f, 1.0f };
+            model.vertices[15].uv = { 1.0f, 1.0f };
+            model.vertices[16].uv = { 0.0f, 0.0f };
+            model.vertices[17].uv = { 1.0f, 0.0f };
+            model.vertices[18].uv = { 0.0f, 1.0f };
+            model.vertices[19].uv = { 1.0f, 1.0f };
+            model.vertices[20].uv = { 0.0f, 0.0f };
+            model.vertices[21].uv = { 1.0f, 0.0f };
+            model.vertices[22].uv = { 0.0f, 1.0f };
+            model.vertices[23].uv = { 1.0f, 1.0f };
+
+            return model;
+        }
     };
 
 }

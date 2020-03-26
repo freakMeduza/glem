@@ -5,6 +5,7 @@
 
 namespace glem {
 
+    class Scene;
     class Window;
     class Context;
 
@@ -50,8 +51,5 @@ namespace glem {
         std::unique_ptr<Context> context_ {nullptr};
 
     };
-
-
-
 
 }

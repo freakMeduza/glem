@@ -3,8 +3,10 @@
 #include "Shader.hpp"
 #include "Bindable.hpp"
 
+#include <map>
 #include <memory>
 #include <vector>
+#include <optional>
 
 #include <glm/glm.hpp>
 
@@ -13,7 +15,7 @@ namespace glem {
     class Program : public Bindable {
     public:
         Program();
-        ~Program();
+        ~Program() override;
 
         Program(Program&&) = delete;
         Program(const Program&) = delete;
@@ -37,12 +39,23 @@ namespace glem {
          */
         bool link() const noexcept;
 
+        /**
+         * @brief Set uniform value
+         * @param tag   - Uniform name
+         * @param value - value (int, float, glm::vec3, glm::vec4, glm::mat4 supported)
+         * @return
+         */
+        bool setUniform(const std::string& tag, int value) noexcept;
         bool setUniform(const std::string& tag, float value) noexcept;
         bool setUniform(const std::string& tag, const glm::vec3& value) noexcept;
         bool setUniform(const std::string& tag, const glm::vec4& value) noexcept;
         bool setUniform(const std::string& tag, const glm::mat4& value) noexcept;
 
     private:
+        std::optional<GLint> resolveUniformLocation(const std::string& value) noexcept;
+
+        std::map<std::string, GLint> location;
+
         mutable std::vector<std::unique_ptr<Shader>> shaders_;
 
     };

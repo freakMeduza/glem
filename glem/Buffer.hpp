@@ -18,13 +18,13 @@ namespace glem {
     template<ElementType Type> struct InputLayoutElementTypeMap;
 
     template<> struct InputLayoutElementTypeMap<ElementType::Vector2f> {
-        static constexpr GLint type  = GL_FLOAT;
+        static constexpr GLint  type  = GL_FLOAT;
         static constexpr size_t size  = sizeof(GLfloat);
         static constexpr size_t count = 2;
     };
 
     template<> struct InputLayoutElementTypeMap<ElementType::Vector3f> {
-        static constexpr size_t type  = GL_FLOAT;
+        static constexpr GLint  type  = GL_FLOAT;
         static constexpr size_t size  = sizeof(GLfloat);
         static constexpr size_t count = 3;
     };
@@ -106,11 +106,11 @@ namespace glem {
     template<BufferUsage Usage> struct BufferUsageMap;
 
     template<> struct BufferUsageMap<BufferUsage::Static> {
-        static constexpr size_t usage = GL_STATIC_DRAW;
+        static constexpr GLint usage = GL_STATIC_DRAW;
     };
 
     template<> struct BufferUsageMap<BufferUsage::Dynamic> {
-        static constexpr size_t usage = GL_DYNAMIC_DRAW;
+        static constexpr GLint usage = GL_DYNAMIC_DRAW;
     };
 
     class VertexBuffer : public Bindable {
@@ -219,10 +219,6 @@ namespace glem {
          * @return
          */
         size_t indexCount() const noexcept;
-
-        uint32_t handler() const noexcept {
-            return handler_;
-        }
 
     private:
         uint32_t index_ {0u};
