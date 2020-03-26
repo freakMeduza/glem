@@ -10,9 +10,9 @@
 #include <glm/gtc/constants.hpp>
 #include <glm/gtx/compatibility.hpp>
 
+#include "Buffer.hpp"
 #include "Context.hpp"
 #include "Program.hpp"
-#include "VertexArray.hpp"
 
 namespace {
     const std::string TAG = "Particle";

@@ -1,33 +1,10 @@
 #pragma once
 
-#define GLFW_INCLUDE_NONE
-#include <GLFW/glfw3.h>
-
 #include <glm/glm.hpp>
 
 namespace glem {
 
-    class Input {
-    public:
-        Input() = delete;
-        ~Input() = delete;
-
-        Input(Input&&) = delete;
-        Input(const Input&) = delete;
-
-        Input& operator=(Input&&) = delete;
-        Input& operator=(const Input&) = delete;
-
-        static void setParent(GLFWwindow* parent) noexcept {
-            parent_ = parent;
-        }
-
-    protected:
-        static GLFWwindow* parent_;
-
-    };
-
-    class Mouse : public Input {
+    class Mouse {
     public:
         enum class Button {
             // From glfw3.h
@@ -56,23 +33,11 @@ namespace glem {
         Mouse& operator=(const Mouse&) = delete;
 
         /**
-         * @brief Set mouse capture
+         * @brief Button pressed
          * @param value
-         */
-        static void setCapture(bool value) noexcept;
-
-        /**
-         * @brief Is mouse captured
          * @return
          */
-        static bool captured() noexcept;
-
-        /**
-         * @brief Is button pressed
-         * @param value - button
-         * @return
-         */
-        static bool isButtonPressed(Button value) noexcept;
+        static bool pressed(Button value) noexcept;
 
         /**
          * @brief Mouse position
@@ -82,7 +47,7 @@ namespace glem {
 
     };
 
-    class Keyboard : public Input {
+    class Keyboard {
     public:
         enum class Key {
                // From glfw3.h
@@ -228,11 +193,11 @@ namespace glem {
         Keyboard& operator=(const Keyboard&) = delete;
 
         /**
-         * @brief Is key pressed
-         * @param value - Key
+         * @brief Key pressed
+         * @param value
          * @return
          */
-        static bool isKeyPressed(Key value) noexcept;
+        static bool pressed(Key value) noexcept;
 
     };
 

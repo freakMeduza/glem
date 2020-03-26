@@ -1,34 +1,12 @@
 #include "Input.hpp"
-
-#include "Application.hpp"
 #include "Window.hpp"
-
-namespace {
-    static bool captured_ {false};
-}
+#include "Application.hpp"
 
 namespace glem {
 
-    GLFWwindow* Input::parent_ = nullptr;
-
-    void Mouse::setCapture(bool value) noexcept
+    bool Mouse::pressed(Mouse::Button value) noexcept
     {
-        if(!captured_)
-            Application::instance().window().setCursorMode(!value);
-        else
-            Application::instance().window().setCursorMode(!value);
-
-        captured_ = value;
-    }
-
-    bool Mouse::captured() noexcept
-    {
-        return captured_;
-    }
-
-    bool Mouse::isButtonPressed(Mouse::Button value) noexcept
-    {
-        auto state = glfwGetMouseButton(parent_, static_cast<int>(value));
+        auto state = glfwGetMouseButton(Application::instance().window().handler(), static_cast<int>(value));
 
         return (state == GLFW_PRESS);
     }
@@ -38,14 +16,14 @@ namespace glem {
         double x{0.0};
         double y{0.0};
 
-        glfwGetCursorPos(parent_, &x, &y);
+        glfwGetCursorPos(Application::instance().window().handler(), &x, &y);
 
         return { static_cast<float>(x), static_cast<float>(y) };
     }
 
-    bool Keyboard::isKeyPressed(Keyboard::Key value) noexcept
+    bool Keyboard::pressed(Keyboard::Key value) noexcept
     {
-        auto state = glfwGetKey(parent_, static_cast<int>(value));
+        auto state = glfwGetKey(Application::instance().window().handler(), static_cast<int>(value));
 
         return (state == GLFW_PRESS || state == GLFW_REPEAT);
     }

@@ -10,7 +10,6 @@
 #include "Buffer.hpp"
 #include "Shader.hpp"
 #include "Program.hpp"
-#include "VertexArray.hpp"
 
 #include <glad/glad.h>
 
@@ -227,6 +226,12 @@ namespace {
 
 namespace glem {
 
+    Application &Application::instance() noexcept {
+        static Application i;
+
+        return i;
+    }
+
     Window &Application::window() const noexcept
     {
         return *window_;
@@ -309,16 +314,16 @@ namespace glem {
 
             auto deltaTime = timer.mark();
 
-            if(Keyboard::isKeyPressed(Keyboard::Key::Escape))
+            if(Keyboard::pressed(Keyboard::Key::Escape))
                 window_->close();
 
-            if(Keyboard::isKeyPressed(Keyboard::Key::F1)) {
+            if(Keyboard::pressed(Keyboard::Key::F1)) {
                 camera.reset(new FreeCamera{});
                 camera->setProjection(projection);
                 camera->setPosition({0.0f, 0.0f, 50.0f});
             }
 
-            if(Keyboard::isKeyPressed(Keyboard::Key::F2)) {
+            if(Keyboard::pressed(Keyboard::Key::F2)) {
                 camera.reset(new MayaCamera{});
                 camera->setProjection(projection);
                 camera->setPosition({0.0f, 0.0f, 50.0f});
@@ -326,19 +331,19 @@ namespace glem {
 
             auto speed = 10.0f;
 
-            if(Keyboard::isKeyPressed(Keyboard::Key::Up))
+            if(Keyboard::pressed(Keyboard::Key::Up))
                 lightPosition.y += speed * deltaTime;
-            if(Keyboard::isKeyPressed(Keyboard::Key::Down))
+            if(Keyboard::pressed(Keyboard::Key::Down))
                 lightPosition.y -= speed * deltaTime;
-            if(Keyboard::isKeyPressed(Keyboard::Key::Right))
+            if(Keyboard::pressed(Keyboard::Key::Right))
                 lightPosition.x += speed * deltaTime;
-            if(Keyboard::isKeyPressed(Keyboard::Key::Left))
+            if(Keyboard::pressed(Keyboard::Key::Left))
                 lightPosition.x -= speed * deltaTime;
-            if(Keyboard::isKeyPressed(Keyboard::Key::PageUp))
+            if(Keyboard::pressed(Keyboard::Key::PageUp))
                 lightPosition.z += speed * deltaTime;
-            if(Keyboard::isKeyPressed(Keyboard::Key::PageDown))
+            if(Keyboard::pressed(Keyboard::Key::PageDown))
                 lightPosition.z -= speed * deltaTime;
-            if(Keyboard::isKeyPressed(Keyboard::Key::Space))
+            if(Keyboard::pressed(Keyboard::Key::Space))
                 lightPosition = glm::vec3{0.0f};
 
             emitter.update(deltaTime);
@@ -376,29 +381,33 @@ namespace glem {
         }
     }
 
-    Application::Application()
+    bool Application::init() noexcept
     {
         if(!glfwInit()) {
             Log::e(TAG, "Failed to initialize GLFW.");
-            abort();
+            return false;
         }
 
         window_ = std::make_unique<Window>();
 
         if(!window_) {
             Log::e(TAG, "Failed to create window.");
-            abort();
+            return false;
         }
 
         context_ = std::make_unique<Context>(window_->handler());
 
         if(!context_) {
             Log::e(TAG, "Failed to create context.");
-            abort();
+            return false;
         }
 
-        Mouse::setParent(window_->handler());
-        Keyboard::setParent(window_->handler());
+        return true;
+    }
+
+    Application::Application()
+    {
+        init();
     }
 
     Application::~Application()

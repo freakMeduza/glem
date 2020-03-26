@@ -3,8 +3,6 @@
 #include "Log.hpp"
 #include "Input.hpp"
 
-#include <glad/glad.h>
-
 #include "Application.hpp"
 #include "Window.hpp"
 
@@ -21,7 +19,7 @@ namespace {
     [[maybe_unused]] static const float DEFAULT_CAMERA_PITCH       = 0.0f;
     [[maybe_unused]] static const float DEFAULT_CAMERA_YAW         = 0.0f;
     [[maybe_unused]] static const float DEFAULT_CAMERA_SENSITIVITY = 0.05f;
-    [[maybe_unused]] static const float DEFAULT_CAMERA_SPEED       = 5.0f;
+    [[maybe_unused]] static const float DEFAULT_CAMERA_SPEED       = 10.0f;
     [[maybe_unused]] static const float DEFAULT_CAMERA_SPRINT      = DEFAULT_CAMERA_SPEED * 2.0f;
 }
 
@@ -38,26 +36,24 @@ namespace glem {
         glfwSetCursorPos(Application::instance().window().handler(),
                          Application::instance().window().width()  / 2.0f,
                          Application::instance().window().height() / 2.0f);
+
+        double x {0.0};
+        double y {0.0};
+
+        glfwGetCursorPos(Application::instance().window().handler(), &x, &y);
+
+        mouse_ = glm::vec2{static_cast<float>(x), static_cast<float>(y)};
+
+        glfwSetInputMode(Application::instance().window().handler(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     }
 
     FreeCamera::~FreeCamera()
     {
-        Mouse::setCapture(false);
+
     }
 
     void FreeCamera::update(float deltaTime) noexcept
     {
-        if(!Mouse::captured()) {
-            Mouse::setCapture(true);
-
-            double x {0.0};
-            double y {0.0};
-
-            glfwGetCursorPos(Application::instance().window().handler(), &x, &y);
-
-            mouse_ = glm::vec2{static_cast<float>(x), static_cast<float>(y)};
-        }
-
         auto mouse  = Mouse::position();
         auto offset = glm::vec2{mouse.x - mouse_.x, mouse_.y - mouse.y};
 
@@ -78,15 +74,15 @@ namespace glem {
         auto forward = -glm::vec3{v[0][2], v[1][2], v[2][2]};
         auto right   =  glm::vec3{v[0][0], v[1][0], v[2][0]};
 
-        auto speed = (Keyboard::isKeyPressed(Keyboard::Key::LeftShift) ? sprint_ : speed_) * deltaTime;
+        auto speed = (Keyboard::pressed(Keyboard::Key::LeftShift) ? sprint_ : speed_) * deltaTime;
 
-        if(Keyboard::isKeyPressed(Keyboard::Key::W))
+        if(Keyboard::pressed(Keyboard::Key::W))
             position_ += forward * speed;
-        if(Keyboard::isKeyPressed(Keyboard::Key::S))
+        if(Keyboard::pressed(Keyboard::Key::S))
             position_ -= forward * speed;
-        if(Keyboard::isKeyPressed(Keyboard::Key::A))
+        if(Keyboard::pressed(Keyboard::Key::A))
             position_ -= right * speed;
-        if(Keyboard::isKeyPressed(Keyboard::Key::D))
+        if(Keyboard::pressed(Keyboard::Key::D))
             position_ += right * speed;
 
         view_ = glm::toMat4(orientation) * glm::translate(-position_);
@@ -110,17 +106,17 @@ namespace glem {
 
     MayaCamera::~MayaCamera()
     {
-        Mouse::setCapture(false);
+
     }
 
     void MayaCamera::update(float deltaTime) noexcept
     {
-        if(Keyboard::isKeyPressed(Keyboard::Key::LeftAlt)) {
-            Mouse::setCapture(true);
+        if(Keyboard::pressed(Keyboard::Key::LeftAlt)) {
+            glfwSetInputMode(Application::instance().window().handler(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
             auto mouse = Mouse::position();
 
-            if(Mouse::isButtonPressed(Mouse::Button::ButtonLeft)) {
+            if(Mouse::pressed(Mouse::Button::ButtonLeft)) {
                 auto offset = mouse - mouse_;
 
                 mouse_ = mouse;
@@ -129,7 +125,7 @@ namespace glem {
                 pitch_ += offset.y * sensitivity_;
             }
 
-            if(Mouse::isButtonPressed(Mouse::Button::ButtonRight)) {
+            if(Mouse::pressed(Mouse::Button::ButtonRight)) {
                 auto offset = mouse - mouse_;
 
                 mouse_ = mouse;
@@ -140,7 +136,7 @@ namespace glem {
             mouse_ = mouse;
         }
         else
-            Mouse::setCapture(false);
+            glfwSetInputMode(Application::instance().window().handler(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 
         auto orientation = glm::cross(glm::angleAxis(glm::radians(-pitch_), X_AXIS), glm::angleAxis(glm::radians(yaw_), Y_AXIS));
 

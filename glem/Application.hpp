@@ -3,8 +3,6 @@
 #include <array>
 #include <memory>
 
-#include <glm/glm.hpp>
-
 namespace glem {
 
     class Window;
@@ -18,11 +16,11 @@ namespace glem {
         Application& operator=(Application&&) = delete;
         Application& operator=(const Application&) = delete;
 
-        static Application& instance() noexcept {
-            static Application i;
-
-            return i;
-        }
+        /**
+         * @brief Application instance
+         * @return
+         */
+        static Application& instance() noexcept;
 
         /**
          * @brief Application window
@@ -43,6 +41,8 @@ namespace glem {
         int exec() noexcept;
 
     private:
+        bool init() noexcept;
+
         Application();
         ~Application();
 
