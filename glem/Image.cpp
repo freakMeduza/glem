@@ -12,18 +12,18 @@
 namespace glem {
 
     Image::Image(int w, int h, const std::vector<uint8_t> &p) :
-        width{w}, heigth{h}, pixels{p}
+        width{w}, height{h}, pixels{p}
     {
 
     }
 
-    Image Image::load(const std::string &filepath) noexcept
+    Image Image::load(const std::string &filepath, bool flip) noexcept
     {
         int w {0};
         int h {0};
         int c {0};
 
-        stbi_set_flip_vertically_on_load(1);
+        stbi_set_flip_vertically_on_load(flip);
 
         auto data = stbi_load(filepath.c_str(), &w, &h, &c, STBI_default);
 

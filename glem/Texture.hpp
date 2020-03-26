@@ -11,13 +11,18 @@
 namespace glem {
 
     enum class TextureUsage {
-        Texture2D
+        Texture2D,
+        TextureCubeMap
     };
 
     template<TextureUsage Usage> struct TextureUsageMap;
 
     template<> struct TextureUsageMap<TextureUsage::Texture2D> {
         static constexpr GLint usage = GL_TEXTURE_2D;
+    };
+
+    template<> struct TextureUsageMap<TextureUsage::TextureCubeMap> {
+        static constexpr GLint usage = GL_TEXTURE_CUBE_MAP;
     };
 
     class Texture : public Bindable {

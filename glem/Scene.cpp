@@ -163,6 +163,8 @@ namespace glem {
 
         auto cube = ::primitives::Cube<Vertex>::create();
 
+        cube.transform(glm::scale(glm::mat4{1.0f}, glm::vec3{0.5f}));
+
         cube.setNormal();
 
         InputLayout cubeVertexLayout;
@@ -186,6 +188,11 @@ namespace glem {
         lightVertexArray_->append(std::make_unique<IndexBuffer>(sphere.indices));
 
         emitter_ = std::make_unique<ParticleEmitter>();
+
+        glEnable(GL_CULL_FACE);
+        glEnable(GL_DEPTH_TEST);
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
         setVisible(true);
     }
@@ -237,11 +244,6 @@ namespace glem {
     void ParticleScene::render() noexcept
     {
         if(visible()) {
-            glEnable(GL_CULL_FACE);
-            glEnable(GL_DEPTH_TEST);
-            glEnable(GL_BLEND);
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
             /**** particle rendering ****/
             modelProgram_->bind();
             modelProgram_->setUniform("uProjectionMatrix", camera_->projection());
@@ -411,8 +413,8 @@ namespace glem {
             return;
         }
 
-        diffuseMap_  = std::make_unique<Texture>(diffuseImage.pixels,  glm::ivec2{diffuseImage.width,  diffuseImage.heigth},  0);
-        specularMap_ = std::make_unique<Texture>(specularImage.pixels, glm::ivec2{specularImage.width, specularImage.heigth}, 1);
+        diffuseMap_  = std::make_unique<Texture>(diffuseImage.pixels,  glm::ivec2{diffuseImage.width,  diffuseImage.height},  0);
+        specularMap_ = std::make_unique<Texture>(specularImage.pixels, glm::ivec2{specularImage.width, specularImage.height}, 1);
 
         modelProgram_->bind();
 
@@ -471,6 +473,11 @@ namespace glem {
         lightVertexArray_->append(std::make_unique<VertexBuffer>(sphere.vertices, sphereVertexLayout));
         lightVertexArray_->append(std::make_unique<IndexBuffer>(sphere.indices));
 
+        glEnable(GL_CULL_FACE);
+        glEnable(GL_DEPTH_TEST);
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
         setVisible(true);
     }
 
@@ -512,11 +519,6 @@ namespace glem {
     void TextureMapScene::render() noexcept
     {
         if(visible()) {
-            glEnable(GL_CULL_FACE);
-            glEnable(GL_DEPTH_TEST);
-            glEnable(GL_BLEND);
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
             Application::instance().context().beginFrame({0.1f, 0.1f, 0.1f, 1.0f});
 
             modelProgram_->bind();
@@ -540,6 +542,109 @@ namespace glem {
             lightVertexArray_->bind();
 
             Application::instance().context().renderIndexed(lightVertexArray_->indexCount(), GL_TRIANGLE_STRIP);
+
+            Application::instance().context().endFrame();
+        }
+    }
+
+    /**** SkyboxScene ****/
+    SkyboxScene::SkyboxScene()
+    {
+        attach();
+    }
+
+    SkyboxScene::~SkyboxScene()
+    {
+        detach();
+    }
+
+    void SkyboxScene::attach() noexcept
+    {
+        const auto& vs = R"glsl(
+                         #version 450
+                         layout(location = 0) in vec3 vPosition;
+                            uniform mat4 uProjectionMatrix;
+                            uniform mat4 uViewMatrix;
+                            out vec3 fUv;
+                         void main() {
+                            gl_Position = uProjectionMatrix * uViewMatrix * vec4(vPosition, 1.0f);
+                            fUv         = vPosition;
+                         }
+                         )glsl";
+
+        const auto& ps = R"glsl(
+                         #version 450
+                         layout(location = 0) out vec4 FragmentColor;
+                            in vec3 fUv;
+                            uniform samplerCube skybox;
+                         void main() {
+                            FragmentColor = texture(skybox, fUv);
+                         }
+                         )glsl";
+
+        program_ = std::make_shared<Program>();
+        program_->append(std::make_unique<Shader>(vs, ShaderType::VS));
+        program_->append(std::make_unique<Shader>(ps, ShaderType::PS));
+
+        if(!program_->link()) {
+            Log::e(TAG, "Failed to link skybox shader program.");
+            return;
+        }
+
+        camera_ = std::make_unique<FreeCamera>();
+        camera_->setPosition({0.0f, 0.0f, 0.0f});
+        camera_->setProjection(projection);
+
+        texture_ = std::make_unique<Texture>(std::vector<uint8_t>{}, glm::ivec2{}, 0, TextureUsage::TextureCubeMap);
+
+        struct Vertex {
+            glm::vec3 position;
+        };
+
+        auto cube = ::primitives::Cube<Vertex>::create();
+
+        InputLayout layout;
+        layout.push<ElementType::Vector3f>("position");
+
+        vertexArray_ = std::make_shared<VertexArray>();
+        vertexArray_->append(std::make_unique<VertexBuffer>(cube.vertices, layout));
+        vertexArray_->append(std::make_unique<IndexBuffer>(cube.indices));
+
+        glDisable(GL_CULL_FACE);
+        glDisable(GL_DEPTH_TEST);
+        glDisable(GL_BLEND);
+
+        setVisible(true);
+    }
+
+    void SkyboxScene::detach() noexcept
+    {
+        setVisible(false);
+    }
+
+    void SkyboxScene::update(float deltaTime) noexcept
+    {
+        if(visible())
+            camera_->update(deltaTime);
+    }
+
+    void SkyboxScene::render() noexcept
+    {
+        if(visible()) {
+            Application::instance().context().beginFrame({0.1f, 0.1f, 0.1f, 1.0f});
+
+            glDepthFunc(GL_LEQUAL);
+
+            program_->bind();
+            program_->setUniform("uProjectionMatrix", camera_->projection());
+            program_->setUniform("uViewMatrix",       glm::mat4{glm::mat3{camera_->view()}});
+
+            texture_->bind();
+            vertexArray_->bind();
+
+            Application::instance().context().renderIndexed(vertexArray_->indexCount(), GL_TRIANGLES);
+
+            glDepthFunc(GL_LESS);
 
             Application::instance().context().endFrame();
         }

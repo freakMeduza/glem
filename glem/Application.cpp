@@ -35,8 +35,6 @@ namespace glem {
 
         std::unique_ptr<Scene> scene {nullptr};
 
-        scene.reset(new TextureMapScene{});
-
         while(true) {
             if(auto ret = window_->pollEvents()) {
                 /**** shitdown ****/
@@ -53,9 +51,13 @@ namespace glem {
                 scene.reset(new ParticleScene{});
             if(Keyboard::pressed(Keyboard::Key::KP2))
                 scene.reset(new TextureMapScene{});
+            if(Keyboard::pressed(Keyboard::Key::KP3))
+                scene.reset(new SkyboxScene{});
 
-            scene->update(deltaTime);
-            scene->render();
+            if(scene) {
+                scene->update(deltaTime);
+                scene->render();
+            }
         }
     }
 

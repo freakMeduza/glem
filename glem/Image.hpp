@@ -9,10 +9,10 @@ namespace glem {
         Image(int w, int h, const std::vector<uint8_t>& p);
         ~Image() = default;
 
-        static Image load(const std::string& filepath) noexcept;
+        static Image load(const std::string& filepath, bool flip = true) noexcept;
 
         int width  {0};
-        int heigth {0};
+        int height {0};
 
         std::vector<uint8_t> pixels;
 

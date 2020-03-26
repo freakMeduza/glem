@@ -104,4 +104,23 @@ namespace glem {
         glm::vec3 lightPosition_ {1.2f, 1.0f, 2.0f};
     };
 
+    class SkyboxScene : public Scene {
+    public:
+        SkyboxScene();
+        ~SkyboxScene() override;
+
+        // Scene interface
+        void attach() noexcept override;
+        void detach() noexcept override;
+        void update(float deltaTime) noexcept override;
+        void render() noexcept override;
+
+    private:
+        std::unique_ptr<Camera>  camera_ {nullptr};
+
+        std::shared_ptr<Program>     program_     {nullptr};
+        std::unique_ptr<Texture>     texture_     {nullptr};
+        std::shared_ptr<VertexArray> vertexArray_ {nullptr};
+    };
+
 }

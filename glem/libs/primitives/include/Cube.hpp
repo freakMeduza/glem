@@ -7,7 +7,7 @@ namespace primitives {
     template<typename T>
     struct Cube {
         static IndexedTriangleList<T> create() noexcept {
-            constexpr float side = 1.0f / 2.0f;
+            constexpr float side = 1.0f;
 
             std::vector<T> vertices(24);
             vertices[0].position  = { -side, -side, -side };
