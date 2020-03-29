@@ -4,8 +4,6 @@
 
 #include <string>
 
-#include <glad/glad.h>
-
 namespace glem {
 
     enum class ShaderType {
@@ -13,15 +11,7 @@ namespace glem {
         PS
     };
 
-    template<ShaderType Type> struct ShaderTypeMap;
-
-    template<> struct ShaderTypeMap<ShaderType::VS> {
-        static constexpr size_t type = GL_VERTEX_SHADER;
-    };
-
-    template<> struct ShaderTypeMap<ShaderType::PS> {
-        static constexpr size_t type = GL_FRAGMENT_SHADER;
-    };
+    template<ShaderType> struct ShaderTypeMap;
 
     class Shader {
     public:
@@ -41,6 +31,8 @@ namespace glem {
         uint32_t handler() const noexcept;
 
     private:
+        uint32_t compile(const std::string& src, ShaderType type) noexcept;
+
         uint32_t handler_{0u};
 
         ShaderType type_;

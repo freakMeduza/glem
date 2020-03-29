@@ -104,6 +104,8 @@ namespace glem {
         glm::vec3 lightPosition_ {1.2f, 1.0f, 2.0f};
     };
 
+    class Cubemap;
+
     class SkyboxScene : public Scene {
     public:
         SkyboxScene();
@@ -119,7 +121,7 @@ namespace glem {
         std::unique_ptr<Camera>  camera_ {nullptr};
 
         std::shared_ptr<Program>     program_     {nullptr};
-        std::unique_ptr<Texture>     texture_     {nullptr};
+        std::unique_ptr<Cubemap>     cubemap_     {nullptr};
         std::shared_ptr<VertexArray> vertexArray_ {nullptr};
     };
 

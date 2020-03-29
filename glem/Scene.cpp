@@ -20,11 +20,6 @@
 #include "Primitives.hpp"
 
 namespace {
-    static auto projection = glm::perspective(glm::radians(45.0f),
-                                              static_cast<float>(glem::Application::instance().window().width()) / static_cast<float>(glem::Application::instance().window().height()),
-                                              0.1f,
-                                              1000.0f);
-
     static constexpr const char* TAG = "Scene";
 }
 
@@ -151,6 +146,11 @@ namespace glem {
         modelProgram_->setUniform("uLight.linear",    0.09f);
         modelProgram_->setUniform("uLight.quadratic", 0.032f);
 
+        const auto projection = glm::perspective(glm::radians(45.0f),
+                                                 static_cast<float>(glem::Application::instance().window().width()) / static_cast<float>(glem::Application::instance().window().height()),
+                                                 0.1f,
+                                                 1000.0f);
+
         camera_ = std::make_unique<MayaCamera>();
         camera_->setPosition({0.0f, 0.0f, 50.0f});
         camera_->setProjection(projection);
@@ -206,12 +206,22 @@ namespace glem {
     {
         if(visible()) {
             if(Keyboard::pressed(Keyboard::Key::F1)) {
+                const auto projection = glm::perspective(glm::radians(45.0f),
+                                                         static_cast<float>(glem::Application::instance().window().width()) / static_cast<float>(glem::Application::instance().window().height()),
+                                                         0.1f,
+                                                         1000.0f);
+
                 camera_.reset(new FreeCamera{});
                 camera_->setProjection(projection);
                 camera_->setPosition({0.0f, 0.0f, 50.0f});
             }
 
             if(Keyboard::pressed(Keyboard::Key::F2)) {
+                const auto projection = glm::perspective(glm::radians(45.0f),
+                                                         static_cast<float>(glem::Application::instance().window().width()) / static_cast<float>(glem::Application::instance().window().height()),
+                                                         0.1f,
+                                                         1000.0f);
+
                 camera_.reset(new MayaCamera{});
                 camera_->setProjection(projection);
                 camera_->setPosition({0.0f, 0.0f, 50.0f});
@@ -405,22 +415,37 @@ namespace glem {
             return;
         }
 
-        auto diffuseImage  = Image::load("container2.png");
-        auto specularImage = Image::load("container2_specular.png");
+        TextureSettings diffuseMapSettings;
 
-        if(diffuseImage.pixels.empty() || specularImage.pixels.empty()) {
-            Log::e(TAG, "Failed to load images.");
-            return;
-        }
+        diffuseMapSettings.Unit           = 0;
+        diffuseMapSettings.Usage          = TextureUsage::Texture2D;
+        diffuseMapSettings.Format         = TextureFormat::RGBA;
+        diffuseMapSettings.InternalFormat = TextureFormat::RGBA;
+        diffuseMapSettings.MinFilter      = TextureFilter::Linear;
+        diffuseMapSettings.MagFilter      = TextureFilter::Linear;
+        diffuseMapSettings.WrapSMode      = TextureWrap::ClampToEdge;
+        diffuseMapSettings.WrapTMode      = TextureWrap::ClampToEdge;
 
-        diffuseMap_  = std::make_unique<Texture>(diffuseImage.pixels,  glm::ivec2{diffuseImage.width,  diffuseImage.height},  0);
-        specularMap_ = std::make_unique<Texture>(specularImage.pixels, glm::ivec2{specularImage.width, specularImage.height}, 1);
+        diffuseMap_ = std::make_unique<Texture>(Image::load("container2.png"), diffuseMapSettings);
+
+        TextureSettings specularMapSettings;
+
+        specularMapSettings.Unit           = 1;
+        specularMapSettings.Usage          = TextureUsage::Texture2D;
+        specularMapSettings.Format         = TextureFormat::RGBA;
+        specularMapSettings.InternalFormat = TextureFormat::RGBA;
+        specularMapSettings.MinFilter      = TextureFilter::Linear;
+        specularMapSettings.MagFilter      = TextureFilter::Linear;
+        specularMapSettings.WrapSMode      = TextureWrap::ClampToEdge;
+        specularMapSettings.WrapTMode      = TextureWrap::ClampToEdge;
+
+        specularMap_ = std::make_unique<Texture>(Image::load("container2_specular.png"), specularMapSettings);
 
         modelProgram_->bind();
 
         /**** material setup ****/
-        modelProgram_->setUniform("uMaterial.diffuse",   static_cast<int>(diffuseMap_->unit()));
-        modelProgram_->setUniform("uMaterial.specular",  static_cast<int>(specularMap_->unit()));
+        modelProgram_->setUniform("uMaterial.diffuse",   static_cast<int>(diffuseMap_->settings().Unit));
+        modelProgram_->setUniform("uMaterial.specular",  static_cast<int>(specularMap_->settings().Unit));
         modelProgram_->setUniform("uMaterial.shininess", 64.0f);
 
         /**** light setup ****/
@@ -431,6 +456,11 @@ namespace glem {
         modelProgram_->setUniform("uLight.constant",  1.0f);
         modelProgram_->setUniform("uLight.linear",    0.09f);
         modelProgram_->setUniform("uLight.quadratic", 0.032f);
+
+        const auto projection = glm::perspective(glm::radians(45.0f),
+                                                 static_cast<float>(glem::Application::instance().window().width()) / static_cast<float>(glem::Application::instance().window().height()),
+                                                 0.1f,
+                                                 1000.0f);
 
         camera_ = std::make_unique<FreeCamera>();
         camera_->setPosition({0.0f, 0.0f, 5.0f});
@@ -490,6 +520,11 @@ namespace glem {
     {
         if(visible()) {
             if(Keyboard::pressed(Keyboard::Key::F1)) {
+                const auto projection = glm::perspective(glm::radians(45.0f),
+                                                         static_cast<float>(glem::Application::instance().window().width()) / static_cast<float>(glem::Application::instance().window().height()),
+                                                         0.1f,
+                                                         1000.0f);
+
                 camera_.reset(new FreeCamera{});
                 camera_->setProjection(projection);
                 camera_->setPosition({0.0f, 0.0f, 5.0f});
@@ -591,11 +626,42 @@ namespace glem {
             return;
         }
 
+        const auto projection = glm::perspective(glm::radians(45.0f),
+                                                 static_cast<float>(glem::Application::instance().window().width()) / static_cast<float>(glem::Application::instance().window().height()),
+                                                 0.1f,
+                                                 1000.0f);
+
         camera_ = std::make_unique<FreeCamera>();
         camera_->setPosition({0.0f, 0.0f, 0.0f});
         camera_->setProjection(projection);
 
-        texture_ = std::make_unique<Texture>(std::vector<uint8_t>{}, glm::ivec2{}, 0, TextureUsage::TextureCubeMap);
+        std::array<const char*, 6> faces {
+            "skybox/posx.jpg",
+            "skybox/negx.jpg",
+            "skybox/posy.jpg",
+            "skybox/negy.jpg",
+            "skybox/posz.jpg",
+            "skybox/negz.jpg"
+        };
+
+        std::array<Image, 6> images;
+
+        for(size_t i = 0; i < faces.size(); ++i)
+            images[i] = Image::load(faces[i], false);
+
+        TextureSettings cubeMapSettings;
+
+        cubeMapSettings.Unit           = 0;
+        cubeMapSettings.Usage          = TextureUsage::TextureCubemap;
+        cubeMapSettings.Format         = TextureFormat::RGB;
+        cubeMapSettings.InternalFormat = TextureFormat::RGB;
+        cubeMapSettings.MinFilter      = TextureFilter::Linear;
+        cubeMapSettings.MagFilter      = TextureFilter::Linear;
+        cubeMapSettings.WrapSMode      = TextureWrap::ClampToEdge;
+        cubeMapSettings.WrapTMode      = TextureWrap::ClampToEdge;
+        cubeMapSettings.WrapRMode      = TextureWrap::ClampToEdge;
+
+        cubemap_ = std::make_unique<Cubemap>(images, cubeMapSettings);
 
         struct Vertex {
             glm::vec3 position;
@@ -639,7 +705,7 @@ namespace glem {
             program_->setUniform("uProjectionMatrix", camera_->projection());
             program_->setUniform("uViewMatrix",       glm::mat4{glm::mat3{camera_->view()}});
 
-            texture_->bind();
+            cubemap_->bind();
             vertexArray_->bind();
 
             Application::instance().context().renderIndexed(vertexArray_->indexCount(), GL_TRIANGLES);

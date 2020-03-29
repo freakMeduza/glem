@@ -1,9 +1,10 @@
 #include "Texture.hpp"
 
-// TODO: do something with this dirty shit!
 #include "Image.hpp"
 
 #include "Log.hpp"
+
+#include <glad/glad.h>
 
 namespace {
     static constexpr const char* TAG = "Texture";
@@ -11,63 +12,130 @@ namespace {
 
 namespace glem {
 
-    Texture::Texture(const std::vector<uint8_t> &data, const glm::ivec2 &size, uint32_t unit, TextureUsage usage) :
-        unit_{unit}
+    template<> struct TextureWrapMap<TextureWrap::Repeat> {
+        static constexpr const GLenum wrap = GL_REPEAT;
+    };
+
+    template<> struct TextureWrapMap<TextureWrap::MirroredRepeat> {
+        static constexpr const GLenum wrap = GL_MIRRORED_REPEAT;
+    };
+
+    template<> struct TextureWrapMap<TextureWrap::ClampToEdge> {
+        static constexpr const GLenum wrap = GL_CLAMP_TO_EDGE;
+    };
+
+    template<> struct TextureWrapMap<TextureWrap::ClampToBorder> {
+        static constexpr const GLenum wrap = GL_CLAMP_TO_BORDER;
+    };
+
+    template<> struct TextureUsageMap<TextureUsage::Texture2D> {
+        static constexpr const GLenum usage = GL_TEXTURE_2D;
+    };
+
+    template<> struct TextureUsageMap<TextureUsage::TextureCubemap> {
+        static constexpr const GLenum usage = GL_TEXTURE_CUBE_MAP;
+    };
+
+    template<> struct TextureFilterMap<TextureFilter::Linear> {
+        static constexpr const GLenum filter = GL_LINEAR;
+    };
+
+    template<> struct TextureFilterMap<TextureFilter::Nearest> {
+        static constexpr const GLenum filter = GL_NEAREST;
+    };
+
+    template<> struct TextureFormatMap<TextureFormat::RGB> {
+        static constexpr const GLenum format         = GL_RGB;
+        static constexpr const GLenum internalFormat = GL_RGB8;
+    };
+
+    template<> struct TextureFormatMap<TextureFormat::RGBA> {
+        static constexpr const GLenum format         = GL_RGBA;
+        static constexpr const GLenum internalFormat = GL_RGBA8;
+    };
+
+    Texture::Texture(const Image &data, const TextureSettings &settings) :
+        settings_{settings}
     {
-        switch (usage) {
-        case TextureUsage::Texture2D: {
+        switch (settings_.Usage) {
+        case TextureUsage::Texture2D:
             glCreateTextures(TextureUsageMap<TextureUsage::Texture2D>::usage, 1, &handler_);
 
-            glBindTexture(TextureUsageMap<TextureUsage::Texture2D>::usage, handler_);
+            bind();
 
-            glTextureStorage2D(handler_, 1, GL_RGBA8, size.x, size.y);
-
-            glTextureParameteri(handler_, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-            glTextureParameteri(handler_, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-            glTextureParameteri(handler_, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-            glTextureParameteri(handler_, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-            glTextureSubImage2D(handler_, 0, 0, 0, size.x, size.y, GL_RGBA, GL_UNSIGNED_BYTE, data.data());
-
-            glBindTexture(TextureUsageMap<TextureUsage::Texture2D>::usage, 0);
-            break;
-        }
-        case TextureUsage::TextureCubeMap: {
-            glCreateTextures(TextureUsageMap<TextureUsage::TextureCubeMap>::usage, 1, &handler_);
-
-            glBindTexture(TextureUsageMap<TextureUsage::TextureCubeMap>::usage, handler_);
-
-            std::vector<const char*> face {
-                "skybox/posx.jpg",
-                "skybox/negx.jpg",
-                "skybox/posy.jpg",
-                "skybox/negy.jpg",
-                "skybox/posz.jpg",
-                "skybox/negz.jpg"
-            };
-
-            for(size_t i = 0; i < face.size(); ++i) {
-                auto image = Image::load(face[i], false);
-
-                if(!image.pixels.empty())
-                    glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, image.width, image.height, 0, GL_RGB, GL_UNSIGNED_BYTE, image.pixels.data());
-                else
-                    Log::e(TAG, "Failed to load image: ", face[i]);
+            switch (settings_.InternalFormat) {
+            case TextureFormat::RGB:
+                glTextureStorage2D(handler_, 1, TextureFormatMap<TextureFormat::RGB>::internalFormat, data.width, data.height);
+                break;
+            case TextureFormat::RGBA:
+                glTextureStorage2D(handler_, 1, TextureFormatMap<TextureFormat::RGBA>::internalFormat, data.width, data.height);
+                break;
             }
 
-            glTextureParameteri(handler_, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-            glTextureParameteri(handler_, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-            glTextureParameteri(handler_, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-            glTextureParameteri(handler_, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-            glTextureParameteri(handler_, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+            switch (settings_.MinFilter) {
+            case TextureFilter::Linear:
+                glTextureParameteri(handler_, GL_TEXTURE_MIN_FILTER, TextureFilterMap<TextureFilter::Linear>::filter);
+                break;
+            case TextureFilter::Nearest:
+                glTextureParameteri(handler_, GL_TEXTURE_MIN_FILTER, TextureFilterMap<TextureFilter::Nearest>::filter);
+                break;
+            }
 
-            glBindTexture(TextureUsageMap<TextureUsage::TextureCubeMap>::usage, 0);
+            switch (settings_.MagFilter) {
+            case TextureFilter::Linear:
+                glTextureParameteri(handler_, GL_TEXTURE_MAG_FILTER, TextureFilterMap<TextureFilter::Linear>::filter);
+                break;
+            case TextureFilter::Nearest:
+                glTextureParameteri(handler_, GL_TEXTURE_MAG_FILTER, TextureFilterMap<TextureFilter::Nearest>::filter);
+                break;
+            }
+
+            switch (settings_.WrapSMode) {
+            case TextureWrap::Repeat:
+                glTextureParameteri(handler_, GL_TEXTURE_WRAP_S, TextureWrapMap<TextureWrap::Repeat>::wrap);
+                break;
+            case TextureWrap::MirroredRepeat:
+                glTextureParameteri(handler_, GL_TEXTURE_WRAP_S, TextureWrapMap<TextureWrap::MirroredRepeat>::wrap);
+                break;
+            case TextureWrap::ClampToEdge:
+                glTextureParameteri(handler_, GL_TEXTURE_WRAP_S, TextureWrapMap<TextureWrap::ClampToEdge>::wrap);
+                break;
+            case TextureWrap::ClampToBorder:
+                glTextureParameteri(handler_, GL_TEXTURE_WRAP_S, TextureWrapMap<TextureWrap::ClampToBorder>::wrap);
+                break;
+            }
+
+            switch (settings_.WrapTMode) {
+            case TextureWrap::Repeat:
+                glTextureParameteri(handler_, GL_TEXTURE_WRAP_T, TextureWrapMap<TextureWrap::Repeat>::wrap);
+                break;
+            case TextureWrap::MirroredRepeat:
+                glTextureParameteri(handler_, GL_TEXTURE_WRAP_T, TextureWrapMap<TextureWrap::MirroredRepeat>::wrap);
+                break;
+            case TextureWrap::ClampToEdge:
+                glTextureParameteri(handler_, GL_TEXTURE_WRAP_T, TextureWrapMap<TextureWrap::ClampToEdge>::wrap);
+                break;
+            case TextureWrap::ClampToBorder:
+                glTextureParameteri(handler_, GL_TEXTURE_WRAP_T, TextureWrapMap<TextureWrap::ClampToBorder>::wrap);
+                break;
+            }
+
+            switch (settings_.Format) {
+            case TextureFormat::RGB:
+                glTextureSubImage2D(handler_, 0, 0, 0, data.width, data.height, TextureFormatMap<TextureFormat::RGB>::format, GL_UNSIGNED_BYTE, data.pixels.data());
+                break;
+            case TextureFormat::RGBA:
+                glTextureSubImage2D(handler_, 0, 0, 0, data.width, data.height, TextureFormatMap<TextureFormat::RGBA>::format, GL_UNSIGNED_BYTE, data.pixels.data());
+                break;
+            }
+
+            unbind();
 
             break;
+        default:
+            Log::e(TAG, "Unsupported texture usage.");
+            break;
         }
-        }
-
-        // TODO: format and other shit
     }
 
     Texture::~Texture()
@@ -77,12 +145,135 @@ namespace glem {
 
     void Texture::bind() const noexcept
     {
-        glBindTextureUnit(unit_, handler_);
+        glBindTextureUnit(settings_.Unit, handler_);
     }
 
     void Texture::unbind() const noexcept
     {
-        glBindTextureUnit(unit_, 0);
+        glBindTextureUnit(settings_.Unit, 0);
+    }
+
+    const TextureSettings &Texture::settings() const noexcept
+    {
+        return settings_;
+    }
+
+    Cubemap::Cubemap(const std::array<Image, 6> &data, const TextureSettings &settings) :
+        settings_{settings}
+    {
+        glCreateTextures(TextureUsageMap<TextureUsage::TextureCubemap>::usage, 1, &handler_);
+
+        bind();
+
+        for(size_t i = 0; i < data.size(); ++i) {
+            GLenum format;
+            GLenum internalFormat;
+
+            switch (settings_.Format) {
+            case TextureFormat::RGB:
+                format = TextureFormatMap<TextureFormat::RGB>::format;
+                break;
+            case TextureFormat::RGBA:
+                format = TextureFormatMap<TextureFormat::RGBA>::format;
+                break;
+            }
+
+            switch (settings_.InternalFormat) {
+            case TextureFormat::RGB:
+                internalFormat = TextureFormatMap<TextureFormat::RGB>::internalFormat;
+                break;
+            case TextureFormat::RGBA:
+                internalFormat = TextureFormatMap<TextureFormat::RGBA>::internalFormat;
+                break;
+            }
+
+            glTexImage2D(static_cast<GLenum>(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i), 0, internalFormat, data[i].width, data[i].height, 0, format, GL_UNSIGNED_BYTE, data[i].pixels.data());
+        }
+
+        switch (settings_.MinFilter) {
+        case TextureFilter::Linear:
+            glTextureParameteri(handler_, GL_TEXTURE_MIN_FILTER, TextureFilterMap<TextureFilter::Linear>::filter);
+            break;
+        case TextureFilter::Nearest:
+            glTextureParameteri(handler_, GL_TEXTURE_MIN_FILTER, TextureFilterMap<TextureFilter::Nearest>::filter);
+            break;
+        }
+
+        switch (settings_.MagFilter) {
+        case TextureFilter::Linear:
+            glTextureParameteri(handler_, GL_TEXTURE_MAG_FILTER, TextureFilterMap<TextureFilter::Linear>::filter);
+            break;
+        case TextureFilter::Nearest:
+            glTextureParameteri(handler_, GL_TEXTURE_MAG_FILTER, TextureFilterMap<TextureFilter::Nearest>::filter);
+            break;
+        }
+
+        switch (settings_.WrapSMode) {
+        case TextureWrap::Repeat:
+            glTextureParameteri(handler_, GL_TEXTURE_WRAP_S, TextureWrapMap<TextureWrap::Repeat>::wrap);
+            break;
+        case TextureWrap::MirroredRepeat:
+            glTextureParameteri(handler_, GL_TEXTURE_WRAP_S, TextureWrapMap<TextureWrap::MirroredRepeat>::wrap);
+            break;
+        case TextureWrap::ClampToEdge:
+            glTextureParameteri(handler_, GL_TEXTURE_WRAP_S, TextureWrapMap<TextureWrap::ClampToEdge>::wrap);
+            break;
+        case TextureWrap::ClampToBorder:
+            glTextureParameteri(handler_, GL_TEXTURE_WRAP_S, TextureWrapMap<TextureWrap::ClampToBorder>::wrap);
+            break;
+        }
+
+        switch (settings_.WrapTMode) {
+        case TextureWrap::Repeat:
+            glTextureParameteri(handler_, GL_TEXTURE_WRAP_T, TextureWrapMap<TextureWrap::Repeat>::wrap);
+            break;
+        case TextureWrap::MirroredRepeat:
+            glTextureParameteri(handler_, GL_TEXTURE_WRAP_T, TextureWrapMap<TextureWrap::MirroredRepeat>::wrap);
+            break;
+        case TextureWrap::ClampToEdge:
+            glTextureParameteri(handler_, GL_TEXTURE_WRAP_T, TextureWrapMap<TextureWrap::ClampToEdge>::wrap);
+            break;
+        case TextureWrap::ClampToBorder:
+            glTextureParameteri(handler_, GL_TEXTURE_WRAP_T, TextureWrapMap<TextureWrap::ClampToBorder>::wrap);
+            break;
+        }
+
+        switch (settings_.WrapRMode) {
+        case TextureWrap::Repeat:
+            glTextureParameteri(handler_, GL_TEXTURE_WRAP_R, TextureWrapMap<TextureWrap::Repeat>::wrap);
+            break;
+        case TextureWrap::MirroredRepeat:
+            glTextureParameteri(handler_, GL_TEXTURE_WRAP_R, TextureWrapMap<TextureWrap::MirroredRepeat>::wrap);
+            break;
+        case TextureWrap::ClampToEdge:
+            glTextureParameteri(handler_, GL_TEXTURE_WRAP_R, TextureWrapMap<TextureWrap::ClampToEdge>::wrap);
+            break;
+        case TextureWrap::ClampToBorder:
+            glTextureParameteri(handler_, GL_TEXTURE_WRAP_R, TextureWrapMap<TextureWrap::ClampToBorder>::wrap);
+            break;
+        }
+
+        unbind();
+    }
+
+    Cubemap::~Cubemap()
+    {
+        glDeleteTextures(1, &handler_);
+    }
+
+    void Cubemap::bind() const noexcept
+    {
+        glBindTextureUnit(settings_.Unit, handler_);
+    }
+
+    void Cubemap::unbind() const noexcept
+    {
+        glBindTextureUnit(settings_.Unit, 0);
+    }
+
+    const TextureSettings &Cubemap::settings() const noexcept
+    {
+        return settings_;
     }
 
 }

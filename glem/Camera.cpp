@@ -7,20 +7,16 @@
 #include "Window.hpp"
 
 namespace {
-    const std::string TAG = "FreeCamera";
+    [[maybe_unused]] static constexpr const glm::vec3 X_AXIS = {1.0f, 0.0f, 0.0f};
+    [[maybe_unused]] static constexpr const glm::vec3 Y_AXIS = {0.0f, 1.0f, 0.0f};
+    [[maybe_unused]] static constexpr const glm::vec3 Z_AXIS = {0.0f, 0.0f, 1.0f};
 
-    [[maybe_unused]] static const glm::vec3 X_AXIS = {1.0f, 0.0f, 0.0f};
-    [[maybe_unused]] static const glm::vec3 Y_AXIS = {0.0f, 1.0f, 0.0f};
-    [[maybe_unused]] static const glm::vec3 Z_AXIS = {0.0f, 0.0f, 1.0f};
-
-    [[maybe_unused]] static const glm::vec3 DEFAULT_CAMERA_POSITION = {0.0f, 0.0f, 40.0f};
-
-    [[maybe_unused]] static const float DEFAULT_CAMERA_RADIUS      = 50.0f;
-    [[maybe_unused]] static const float DEFAULT_CAMERA_PITCH       = 0.0f;
-    [[maybe_unused]] static const float DEFAULT_CAMERA_YAW         = 0.0f;
-    [[maybe_unused]] static const float DEFAULT_CAMERA_SENSITIVITY = 0.05f;
-    [[maybe_unused]] static const float DEFAULT_CAMERA_SPEED       = 10.0f;
-    [[maybe_unused]] static const float DEFAULT_CAMERA_SPRINT      = DEFAULT_CAMERA_SPEED * 2.0f;
+    [[maybe_unused]] static constexpr const float DEFAULT_CAMERA_RADIUS      = 50.0f;
+    [[maybe_unused]] static constexpr const float DEFAULT_CAMERA_PITCH       = 0.0f;
+    [[maybe_unused]] static constexpr const float DEFAULT_CAMERA_YAW         = 0.0f;
+    [[maybe_unused]] static constexpr const float DEFAULT_CAMERA_SENSITIVITY = 0.05f;
+    [[maybe_unused]] static constexpr const float DEFAULT_CAMERA_SPEED       = 10.0f;
+    [[maybe_unused]] static constexpr const float DEFAULT_CAMERA_SPRINT      = DEFAULT_CAMERA_SPEED * 2.0f;
 }
 
 namespace glem {

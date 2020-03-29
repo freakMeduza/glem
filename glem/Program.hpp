@@ -52,9 +52,9 @@ namespace glem {
         bool setUniform(const std::string& tag, const glm::mat4& value) noexcept;
 
     private:
-        std::optional<GLint> resolveUniformLocation(const std::string& value) noexcept;
+        std::optional<int> resolveUniformLocation(const std::string& value) noexcept;
 
-        std::map<std::string, GLint> location;
+        std::map<std::string, int> location;
 
         mutable std::vector<std::unique_ptr<Shader>> shaders_;
 

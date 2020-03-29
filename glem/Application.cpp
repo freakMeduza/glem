@@ -8,7 +8,7 @@
 #include "Timer.hpp"
 
 namespace {
-    const std::string TAG = "Application";
+    static constexpr const char* TAG = "Application";
 }
 
 namespace glem {
@@ -33,7 +33,7 @@ namespace glem {
     {
         Timer timer;
 
-        std::unique_ptr<Scene> scene {nullptr};
+        std::unique_ptr<Scene> scene = std::make_unique<ParticleScene>();
 
         while(true) {
             if(auto ret = window_->pollEvents()) {
@@ -58,6 +58,10 @@ namespace glem {
                 scene->update(deltaTime);
                 scene->render();
             }
+            else {
+                context_->beginFrame({0.1f, 0.1f, 0.1f, 1.0f});
+                context_->endFrame();
+            }
         }
     }
 
@@ -75,7 +79,7 @@ namespace glem {
             return false;
         }
 
-        context_ = std::make_unique<Context>(window_->handler());
+        context_ = std::make_unique<Context>(*window_);
 
         if(!context_) {
             Log::e(TAG, "Failed to create context.");

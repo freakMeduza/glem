@@ -1,10 +1,10 @@
 #include "Window.hpp"
 
 namespace {
-    const char* TITLE = "Glem Engine";
+    static constexpr const char* TITLE = "Glem Engine";
 
-    const uint32_t WIDTH  = 1280u;
-    const uint32_t HEIGHT = 720u;
+    static constexpr const uint32_t WIDTH  = 1280u;
+    static constexpr const uint32_t HEIGHT = 720u;
 }
 
 namespace glem {
@@ -62,7 +62,6 @@ namespace glem {
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
         glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
-        glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
 
 #ifdef NDEBUG
 #else

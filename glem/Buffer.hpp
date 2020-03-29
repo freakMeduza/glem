@@ -18,13 +18,13 @@ namespace glem {
     template<ElementType Type> struct InputLayoutElementTypeMap;
 
     template<> struct InputLayoutElementTypeMap<ElementType::Vector2f> {
-        static constexpr GLint  type  = GL_FLOAT;
+        static constexpr GLenum type  = GL_FLOAT;
         static constexpr size_t size  = sizeof(GLfloat);
         static constexpr size_t count = 2;
     };
 
     template<> struct InputLayoutElementTypeMap<ElementType::Vector3f> {
-        static constexpr GLint  type  = GL_FLOAT;
+        static constexpr GLenum type  = GL_FLOAT;
         static constexpr size_t size  = sizeof(GLfloat);
         static constexpr size_t count = 3;
     };
@@ -32,7 +32,7 @@ namespace glem {
     struct Element {
         std::string name;
 
-        size_t type   {0u};
+        GLenum type   {0u};
         size_t size   {0u};
         size_t count  {0u};
         size_t offset {0u};
@@ -87,7 +87,7 @@ namespace glem {
         }
 
     private:
-        void push(const std::string& name, size_t type, size_t size, size_t count, bool normalized) noexcept {
+        void push(const std::string& name, GLenum type, size_t size, size_t count, bool normalized) noexcept {
             layout_.emplace_back(Element{name, type, size, count, stride_, normalized});
             stride_ += size * count;
         }

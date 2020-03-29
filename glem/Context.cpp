@@ -1,4 +1,6 @@
 #include "Context.hpp"
+#include "Window.hpp"
+
 #include "Log.hpp"
 
 #include <assert.h>
@@ -8,7 +10,7 @@
 #include <glad/glad.h>
 
 namespace {
-    const std::string TAG = "Context";
+    static constexpr const char* TAG = "Context";
 
     void APIENTRY gl_debug_callback(GLenum        source,
                                     GLenum        type,
@@ -62,18 +64,16 @@ namespace {
 
         ss << msg;
 
-        glem::Log::e(TAG, ss.str());
+        glem::Log::d(TAG, ss.str());
     }
 }
 
 namespace glem {
 
-    Context::Context(GLFWwindow *parent) :
+    Context::Context(Window &parent) :
         parent_{parent}
     {
-        assert(parent_ != nullptr);
-
-        glfwMakeContextCurrent(parent_);
+        glfwMakeContextCurrent(parent_.handler());
 
         if(!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress))) {
             Log::e(TAG, "Failed to initialize GLAD.");
@@ -91,7 +91,14 @@ namespace glem {
             glDebugMessageCallback(gl_debug_callback, nullptr);
 
             glDebugMessageControl(GL_DONT_CARE,
-                                  GL_DEBUG_TYPE_ERROR,
+                                  GL_DONT_CARE,
+                                  GL_DONT_CARE,
+                                  0,
+                                  nullptr,
+                                  GL_FALSE);
+
+            glDebugMessageControl(GL_DEBUG_SOURCE_API,
+                                  GL_DEBUG_TYPE_ERROR | GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR | GL_DEBUG_TYPE_PERFORMANCE,
                                   GL_DONT_CARE,
                                   0,
                                   nullptr,
@@ -108,12 +115,7 @@ namespace glem {
 
         /**** viewport ****/
         {
-            int w {0};
-            int h {0};
-
-            glfwGetWindowSize(parent_, &w, &h);
-
-            glViewport(0, 0, w, h);
+            glViewport(0, 0, parent_.width(), parent_.height());
         }
 
         glfwSwapInterval(1);
@@ -132,10 +134,10 @@ namespace glem {
 
     void Context::endFrame() const noexcept
     {
-        glfwSwapBuffers(parent_);
+        glfwSwapBuffers(parent_.handler());
     }
 
-    void Context::renderIndexed(size_t size, GLint topology) noexcept
+    void Context::renderIndexed(size_t size, GLenum topology) noexcept
     {
         glDrawElements(topology, static_cast<GLsizei>(size), GL_UNSIGNED_INT, reinterpret_cast<void*>(0));
     }

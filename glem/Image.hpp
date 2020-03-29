@@ -6,8 +6,10 @@
 namespace glem {
 
     struct Image {
-        Image(int w, int h, const std::vector<uint8_t>& p);
+        Image() = default;
         ~Image() = default;
+
+        Image(int w, int h, const std::vector<uint8_t>& p);
 
         static Image load(const std::string& filepath, bool flip = true) noexcept;
 

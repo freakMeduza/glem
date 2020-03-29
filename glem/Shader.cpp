@@ -2,18 +2,48 @@
 
 #include "Log.hpp"
 
-namespace {
-    const std::string TAG = "Shader";
+#include <glad/glad.h>
 
-    [[maybe_unused]] auto compile(const std::string& src, glem::ShaderType type) noexcept {
+namespace {
+    static constexpr const char* TAG = "Shader";
+}
+
+namespace glem {
+
+    template<> struct ShaderTypeMap<ShaderType::VS> {
+        static constexpr size_t type = GL_VERTEX_SHADER;
+    };
+
+    template<> struct ShaderTypeMap<ShaderType::PS> {
+        static constexpr size_t type = GL_FRAGMENT_SHADER;
+    };
+
+    Shader::Shader(const std::string &source, ShaderType type) :
+        type_{type}
+    {
+        handler_ = compile(source, type_);
+    }
+
+    Shader::~Shader()
+    {
+        glDeleteShader(handler_);
+    }
+
+    uint32_t Shader::handler() const noexcept
+    {
+        return handler_;
+    }
+
+    uint32_t Shader::compile(const std::string &src, ShaderType type) noexcept
+    {
         uint32_t shader{0u};
 
         switch (type) {
-        case glem::ShaderType::VS:
-            shader = glCreateShader(glem::ShaderTypeMap<glem::ShaderType::VS>::type);
+        case ShaderType::VS:
+            shader = glCreateShader(ShaderTypeMap<ShaderType::VS>::type);
             break;
-        case glem::ShaderType::PS:
-            shader = glCreateShader(glem::ShaderTypeMap<glem::ShaderType::PS>::type);
+        case ShaderType::PS:
+            shader = glCreateShader(ShaderTypeMap<ShaderType::PS>::type);
             break;
         }
 
@@ -36,7 +66,7 @@ namespace {
 
             glGetShaderInfoLog(shader, length, &length, msg.data());
 
-            glem::Log::e(TAG, "Unable to compile shader:", msg, src);
+            glem::Log::e(TAG, "Unable to compile shader: ", msg, src);
 
             glDeleteShader(shader);
 
@@ -44,25 +74,6 @@ namespace {
         }
 
         return shader;
-    }
-}
-
-namespace glem {
-
-    Shader::Shader(const std::string &source, ShaderType type) :
-        type_{type}
-    {
-        handler_ = compile(source, type_);
-    }
-
-    Shader::~Shader()
-    {
-        glDeleteShader(handler_);
-    }
-
-    uint32_t Shader::handler() const noexcept
-    {
-        return handler_;
     }
 
 }

@@ -4,6 +4,8 @@
 
 #include <glm/gtc/type_ptr.hpp>
 
+#include <glad/glad.h>
+
 namespace {
     const std::string TAG = "Program";
 }
@@ -128,7 +130,7 @@ namespace glem {
         return false;
     }
 
-    std::optional<GLint> Program::resolveUniformLocation(const std::string &value) noexcept {
+    std::optional<int> Program::resolveUniformLocation(const std::string &value) noexcept {
         if(auto it = location.find(value); it != location.end())
             return location[value];
 
