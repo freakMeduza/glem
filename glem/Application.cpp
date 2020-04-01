@@ -7,6 +7,9 @@
 #include "Log.hpp"
 #include "Timer.hpp"
 
+#include "Image.hpp"
+#include "Texture.hpp"
+
 namespace {
     static constexpr const char* TAG = "Application";
 }
@@ -34,6 +37,24 @@ namespace glem {
         Timer timer;
 
         std::unique_ptr<Scene> scene = std::make_unique<ParticleScene>();
+
+        /**** test ****/
+        TextureSettings diffuseMapSettings;
+
+        diffuseMapSettings.unit           = 0;
+        diffuseMapSettings.usage          = TextureUsage::Texture2D;
+        diffuseMapSettings.format         = TextureFormat::RGBA;
+        diffuseMapSettings.internalFormat = TextureFormat::RGBA;
+        diffuseMapSettings.minFilter      = TextureFilter::Linear;
+        diffuseMapSettings.magFilter      = TextureFilter::Linear;
+        diffuseMapSettings.wrapSMode      = TextureWrap::ClampToEdge;
+        diffuseMapSettings.wrapTMode      = TextureWrap::ClampToEdge;
+
+        auto t = std::make_unique<Texture>(*Image::load("container2.png"), diffuseMapSettings);
+
+        if(auto image = t->image()) {
+            Image::save(*image, "image.png");
+        }
 
         while(true) {
             if(auto ret = window_->pollEvents()) {

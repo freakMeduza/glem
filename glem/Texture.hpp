@@ -6,6 +6,7 @@
 
 #include <array>
 #include <vector>
+#include <optional>
 
 namespace glem {
 
@@ -39,19 +40,21 @@ namespace glem {
     template<TextureFormat> struct TextureFormatMap;
 
     struct TextureSettings {
-        TextureWrap WrapSMode {TextureWrap::Repeat};
-        TextureWrap WrapTMode {TextureWrap::Repeat};
-        TextureWrap WrapRMode {TextureWrap::Repeat};
+        TextureWrap wrapSMode {TextureWrap::Repeat};
+        TextureWrap wrapTMode {TextureWrap::Repeat};
+        TextureWrap wrapRMode {TextureWrap::Repeat};
 
-        TextureUsage Usage {TextureUsage::Texture2D};
+        TextureUsage usage {TextureUsage::Texture2D};
 
-        TextureFilter MinFilter {TextureFilter::Linear};
-        TextureFilter MagFilter {TextureFilter::Linear};
+        TextureFilter minFilter {TextureFilter::Linear};
+        TextureFilter magFilter {TextureFilter::Linear};
 
-        TextureFormat Format         {TextureFormat::RGBA};
-        TextureFormat InternalFormat {TextureFormat::RGBA};
+        TextureFormat format         {TextureFormat::RGBA};
+        TextureFormat internalFormat {TextureFormat::RGBA};
 
-        int Unit = 0;
+        int unit   = 0;
+        int width  = 0;
+        int height = 0;
     };
 
     class Texture : public Bindable {
@@ -74,6 +77,12 @@ namespace glem {
          * @return
          */
         const TextureSettings& settings() const noexcept;
+
+        /**
+         * @brief Image from texture
+         * @return
+         */
+        std::optional<Image> image() const noexcept;
 
     private:
         TextureSettings settings_;

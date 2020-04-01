@@ -57,22 +57,25 @@ namespace glem {
     Texture::Texture(const Image &data, const TextureSettings &settings) :
         settings_{settings}
     {
-        switch (settings_.Usage) {
+        settings_.width  = data.width();
+        settings_.height = data.height();
+
+        switch (settings_.usage) {
         case TextureUsage::Texture2D:
             glCreateTextures(TextureUsageMap<TextureUsage::Texture2D>::usage, 1, &handler_);
 
             bind();
 
-            switch (settings_.InternalFormat) {
+            switch (settings_.internalFormat) {
             case TextureFormat::RGB:
-                glTextureStorage2D(handler_, 1, TextureFormatMap<TextureFormat::RGB>::internalFormat, data.width, data.height);
+                glTextureStorage2D(handler_, 1, TextureFormatMap<TextureFormat::RGB>::internalFormat, data.width(), data.height());
                 break;
             case TextureFormat::RGBA:
-                glTextureStorage2D(handler_, 1, TextureFormatMap<TextureFormat::RGBA>::internalFormat, data.width, data.height);
+                glTextureStorage2D(handler_, 1, TextureFormatMap<TextureFormat::RGBA>::internalFormat, data.width(), data.height());
                 break;
             }
 
-            switch (settings_.MinFilter) {
+            switch (settings_.minFilter) {
             case TextureFilter::Linear:
                 glTextureParameteri(handler_, GL_TEXTURE_MIN_FILTER, TextureFilterMap<TextureFilter::Linear>::filter);
                 break;
@@ -81,7 +84,7 @@ namespace glem {
                 break;
             }
 
-            switch (settings_.MagFilter) {
+            switch (settings_.magFilter) {
             case TextureFilter::Linear:
                 glTextureParameteri(handler_, GL_TEXTURE_MAG_FILTER, TextureFilterMap<TextureFilter::Linear>::filter);
                 break;
@@ -90,7 +93,7 @@ namespace glem {
                 break;
             }
 
-            switch (settings_.WrapSMode) {
+            switch (settings_.wrapSMode) {
             case TextureWrap::Repeat:
                 glTextureParameteri(handler_, GL_TEXTURE_WRAP_S, TextureWrapMap<TextureWrap::Repeat>::wrap);
                 break;
@@ -105,7 +108,7 @@ namespace glem {
                 break;
             }
 
-            switch (settings_.WrapTMode) {
+            switch (settings_.wrapTMode) {
             case TextureWrap::Repeat:
                 glTextureParameteri(handler_, GL_TEXTURE_WRAP_T, TextureWrapMap<TextureWrap::Repeat>::wrap);
                 break;
@@ -120,12 +123,12 @@ namespace glem {
                 break;
             }
 
-            switch (settings_.Format) {
+            switch (settings_.format) {
             case TextureFormat::RGB:
-                glTextureSubImage2D(handler_, 0, 0, 0, data.width, data.height, TextureFormatMap<TextureFormat::RGB>::format, GL_UNSIGNED_BYTE, data.pixels.data());
+                glTextureSubImage2D(handler_, 0, 0, 0, data.width(), data.height(), TextureFormatMap<TextureFormat::RGB>::format, GL_UNSIGNED_BYTE, data.data().data());
                 break;
             case TextureFormat::RGBA:
-                glTextureSubImage2D(handler_, 0, 0, 0, data.width, data.height, TextureFormatMap<TextureFormat::RGBA>::format, GL_UNSIGNED_BYTE, data.pixels.data());
+                glTextureSubImage2D(handler_, 0, 0, 0, data.width(), data.height(), TextureFormatMap<TextureFormat::RGBA>::format, GL_UNSIGNED_BYTE, data.data().data());
                 break;
             }
 
@@ -145,17 +148,41 @@ namespace glem {
 
     void Texture::bind() const noexcept
     {
-        glBindTextureUnit(settings_.Unit, handler_);
+        glBindTextureUnit(settings_.unit, handler_);
     }
 
     void Texture::unbind() const noexcept
     {
-        glBindTextureUnit(settings_.Unit, 0);
+        glBindTextureUnit(settings_.unit, 0);
     }
 
     const TextureSettings &Texture::settings() const noexcept
     {
         return settings_;
+    }
+
+    std::optional<Image> Texture::image() const noexcept
+    {
+        bind();
+
+        std::vector<uint8_t> data(settings_.width * settings_.height);
+
+        int channels;
+
+        switch (settings_.format) {
+        case TextureFormat::RGB:
+            glGetTextureImage(handler_, 0, TextureFormatMap<TextureFormat::RGB>::format, GL_UNSIGNED_BYTE, data.size(), data.data());
+            channels = 3;
+            break;
+        case TextureFormat::RGBA:
+            glGetTextureImage(handler_, 0, TextureFormatMap<TextureFormat::RGBA>::format, GL_UNSIGNED_BYTE, data.size(), data.data());
+            channels = 4;
+            break;
+        }
+
+        unbind();
+
+        return Image{settings_.width, settings_.height, channels, data};
     }
 
     Cubemap::Cubemap(const std::array<Image, 6> &data, const TextureSettings &settings) :
@@ -169,7 +196,7 @@ namespace glem {
             GLenum format;
             GLenum internalFormat;
 
-            switch (settings_.Format) {
+            switch (settings_.format) {
             case TextureFormat::RGB:
                 format = TextureFormatMap<TextureFormat::RGB>::format;
                 break;
@@ -178,7 +205,7 @@ namespace glem {
                 break;
             }
 
-            switch (settings_.InternalFormat) {
+            switch (settings_.internalFormat) {
             case TextureFormat::RGB:
                 internalFormat = TextureFormatMap<TextureFormat::RGB>::internalFormat;
                 break;
@@ -187,10 +214,10 @@ namespace glem {
                 break;
             }
 
-            glTexImage2D(static_cast<GLenum>(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i), 0, internalFormat, data[i].width, data[i].height, 0, format, GL_UNSIGNED_BYTE, data[i].pixels.data());
+            glTexImage2D(static_cast<GLenum>(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i), 0, internalFormat, data[i].width(), data[i].height(), 0, format, GL_UNSIGNED_BYTE, data[i].data().data());
         }
 
-        switch (settings_.MinFilter) {
+        switch (settings_.minFilter) {
         case TextureFilter::Linear:
             glTextureParameteri(handler_, GL_TEXTURE_MIN_FILTER, TextureFilterMap<TextureFilter::Linear>::filter);
             break;
@@ -199,7 +226,7 @@ namespace glem {
             break;
         }
 
-        switch (settings_.MagFilter) {
+        switch (settings_.magFilter) {
         case TextureFilter::Linear:
             glTextureParameteri(handler_, GL_TEXTURE_MAG_FILTER, TextureFilterMap<TextureFilter::Linear>::filter);
             break;
@@ -208,7 +235,7 @@ namespace glem {
             break;
         }
 
-        switch (settings_.WrapSMode) {
+        switch (settings_.wrapSMode) {
         case TextureWrap::Repeat:
             glTextureParameteri(handler_, GL_TEXTURE_WRAP_S, TextureWrapMap<TextureWrap::Repeat>::wrap);
             break;
@@ -223,7 +250,7 @@ namespace glem {
             break;
         }
 
-        switch (settings_.WrapTMode) {
+        switch (settings_.wrapTMode) {
         case TextureWrap::Repeat:
             glTextureParameteri(handler_, GL_TEXTURE_WRAP_T, TextureWrapMap<TextureWrap::Repeat>::wrap);
             break;
@@ -238,7 +265,7 @@ namespace glem {
             break;
         }
 
-        switch (settings_.WrapRMode) {
+        switch (settings_.wrapRMode) {
         case TextureWrap::Repeat:
             glTextureParameteri(handler_, GL_TEXTURE_WRAP_R, TextureWrapMap<TextureWrap::Repeat>::wrap);
             break;
@@ -263,12 +290,12 @@ namespace glem {
 
     void Cubemap::bind() const noexcept
     {
-        glBindTextureUnit(settings_.Unit, handler_);
+        glBindTextureUnit(settings_.unit, handler_);
     }
 
     void Cubemap::unbind() const noexcept
     {
-        glBindTextureUnit(settings_.Unit, 0);
+        glBindTextureUnit(settings_.unit, 0);
     }
 
     const TextureSettings &Cubemap::settings() const noexcept

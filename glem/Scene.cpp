@@ -417,35 +417,35 @@ namespace glem {
 
         TextureSettings diffuseMapSettings;
 
-        diffuseMapSettings.Unit           = 0;
-        diffuseMapSettings.Usage          = TextureUsage::Texture2D;
-        diffuseMapSettings.Format         = TextureFormat::RGBA;
-        diffuseMapSettings.InternalFormat = TextureFormat::RGBA;
-        diffuseMapSettings.MinFilter      = TextureFilter::Linear;
-        diffuseMapSettings.MagFilter      = TextureFilter::Linear;
-        diffuseMapSettings.WrapSMode      = TextureWrap::ClampToEdge;
-        diffuseMapSettings.WrapTMode      = TextureWrap::ClampToEdge;
+        diffuseMapSettings.unit           = 0;
+        diffuseMapSettings.usage          = TextureUsage::Texture2D;
+        diffuseMapSettings.format         = TextureFormat::RGBA;
+        diffuseMapSettings.internalFormat = TextureFormat::RGBA;
+        diffuseMapSettings.minFilter      = TextureFilter::Linear;
+        diffuseMapSettings.magFilter      = TextureFilter::Linear;
+        diffuseMapSettings.wrapSMode      = TextureWrap::ClampToEdge;
+        diffuseMapSettings.wrapTMode      = TextureWrap::ClampToEdge;
 
-        diffuseMap_ = std::make_unique<Texture>(Image::load("container2.png"), diffuseMapSettings);
+        diffuseMap_ = std::make_unique<Texture>(*Image::load("container2.png"), diffuseMapSettings);
 
         TextureSettings specularMapSettings;
 
-        specularMapSettings.Unit           = 1;
-        specularMapSettings.Usage          = TextureUsage::Texture2D;
-        specularMapSettings.Format         = TextureFormat::RGBA;
-        specularMapSettings.InternalFormat = TextureFormat::RGBA;
-        specularMapSettings.MinFilter      = TextureFilter::Linear;
-        specularMapSettings.MagFilter      = TextureFilter::Linear;
-        specularMapSettings.WrapSMode      = TextureWrap::ClampToEdge;
-        specularMapSettings.WrapTMode      = TextureWrap::ClampToEdge;
+        specularMapSettings.unit           = 1;
+        specularMapSettings.usage          = TextureUsage::Texture2D;
+        specularMapSettings.format         = TextureFormat::RGBA;
+        specularMapSettings.internalFormat = TextureFormat::RGBA;
+        specularMapSettings.minFilter      = TextureFilter::Linear;
+        specularMapSettings.magFilter      = TextureFilter::Linear;
+        specularMapSettings.wrapSMode      = TextureWrap::ClampToEdge;
+        specularMapSettings.wrapTMode      = TextureWrap::ClampToEdge;
 
-        specularMap_ = std::make_unique<Texture>(Image::load("container2_specular.png"), specularMapSettings);
+        specularMap_ = std::make_unique<Texture>(*Image::load("container2_specular.png"), specularMapSettings);
 
         modelProgram_->bind();
 
         /**** material setup ****/
-        modelProgram_->setUniform("uMaterial.diffuse",   static_cast<int>(diffuseMap_->settings().Unit));
-        modelProgram_->setUniform("uMaterial.specular",  static_cast<int>(specularMap_->settings().Unit));
+        modelProgram_->setUniform("uMaterial.diffuse",   static_cast<int>(diffuseMap_->settings().unit));
+        modelProgram_->setUniform("uMaterial.specular",  static_cast<int>(specularMap_->settings().unit));
         modelProgram_->setUniform("uMaterial.shininess", 64.0f);
 
         /**** light setup ****/
@@ -647,19 +647,20 @@ namespace glem {
         std::array<Image, 6> images;
 
         for(size_t i = 0; i < faces.size(); ++i)
-            images[i] = Image::load(faces[i], false);
+            // TODO: replace with if statement aka std::optional
+            images[i] = *(Image::load(faces[i], false));
 
         TextureSettings cubeMapSettings;
 
-        cubeMapSettings.Unit           = 0;
-        cubeMapSettings.Usage          = TextureUsage::TextureCubemap;
-        cubeMapSettings.Format         = TextureFormat::RGB;
-        cubeMapSettings.InternalFormat = TextureFormat::RGB;
-        cubeMapSettings.MinFilter      = TextureFilter::Linear;
-        cubeMapSettings.MagFilter      = TextureFilter::Linear;
-        cubeMapSettings.WrapSMode      = TextureWrap::ClampToEdge;
-        cubeMapSettings.WrapTMode      = TextureWrap::ClampToEdge;
-        cubeMapSettings.WrapRMode      = TextureWrap::ClampToEdge;
+        cubeMapSettings.unit           = 0;
+        cubeMapSettings.usage          = TextureUsage::TextureCubemap;
+        cubeMapSettings.format         = TextureFormat::RGB;
+        cubeMapSettings.internalFormat = TextureFormat::RGB;
+        cubeMapSettings.minFilter      = TextureFilter::Linear;
+        cubeMapSettings.magFilter      = TextureFilter::Linear;
+        cubeMapSettings.wrapSMode      = TextureWrap::ClampToEdge;
+        cubeMapSettings.wrapTMode      = TextureWrap::ClampToEdge;
+        cubeMapSettings.wrapRMode      = TextureWrap::ClampToEdge;
 
         cubemap_ = std::make_unique<Cubemap>(images, cubeMapSettings);
 
