@@ -22,6 +22,11 @@ namespace glem {
         return layout_;
     }
 
+    const VertexLayout &VertexBuffer::vLayout() const noexcept
+    {
+        return vLayout_;
+    }
+
     IndexBuffer::IndexBuffer(const std::vector<uint32_t> &data, BufferUsage usage) :
         size_{data.size()}, usage_{usage}
     {
@@ -85,20 +90,46 @@ namespace glem {
         bind();
         value->bind();
 
-        const auto& layout = value->layout();
+        const auto& layout = value->vLayout();
 
-        for(const auto& a : layout.layout()) {
+        for(const auto& attr : layout.attributes()) {
             glEnableVertexAttribArray(index_);
 
+            GLenum type {GL_NONE};
+
+            switch (attr.type()) {
+            case AttributeType::Vector2f:
+                type = AttributeTypeMap<AttributeType::Vector2f>::systemType;
+                break;
+            case AttributeType::Vector3f:
+                type = AttributeTypeMap<AttributeType::Vector3f>::systemType;
+                break;
+            }
+
             glVertexAttribPointer(index_,
-                                  static_cast<GLint>(a.count),
-                                  a.type,
-                                  a.normalized ? GL_TRUE : GL_FALSE,
-                                  static_cast<GLsizei>(layout.stride()),
-                                  reinterpret_cast<const GLvoid*>(a.offset));
+                                  static_cast<GLint>(attr.count()),
+                                  type,
+                                  GL_FALSE,
+                                  static_cast<GLsizei>(layout.size()),
+                                  reinterpret_cast<const GLvoid*>(attr.offset()));
 
             index_++;
         }
+
+//        const auto& layout = value->layout();
+
+//        for(const auto& a : layout.layout()) {
+//            glEnableVertexAttribArray(index_);
+
+//            glVertexAttribPointer(index_,
+//                                  static_cast<GLint>(a.count),
+//                                  a.type,
+//                                  a.normalized ? GL_TRUE : GL_FALSE,
+//                                  static_cast<GLsizei>(layout.stride()),
+//                                  reinterpret_cast<const GLvoid*>(a.offset));
+
+//            index_++;
+//        }
 
         array_.emplace_back(std::move(value));
     }

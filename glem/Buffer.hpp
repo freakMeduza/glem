@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Vertex.hpp"
 #include "Bindable.hpp"
 
 #include <glad/glad.h>
@@ -135,6 +136,25 @@ namespace glem {
             glBindBuffer(GL_ARRAY_BUFFER, 0);
         }
 
+        VertexBuffer(const VertexByteBuffer& buffer, BufferUsage usage = BufferUsage::Static) :
+            vLayout_{buffer.layout()}, usage_{usage}
+        {
+            glCreateBuffers(1, &handler_);
+
+            glBindBuffer(GL_ARRAY_BUFFER, handler_);
+
+            switch (usage) {
+            case BufferUsage::Static:
+                glBufferData(GL_ARRAY_BUFFER, buffer.size(), buffer.data(), BufferUsageMap<BufferUsage::Static>::usage);
+                break;
+            case BufferUsage::Dynamic:
+                glBufferData(GL_ARRAY_BUFFER, buffer.size(), buffer.data(), BufferUsageMap<BufferUsage::Dynamic>::usage);
+                break;
+            }
+
+            glBindBuffer(GL_ARRAY_BUFFER, 0);
+        }
+
         ~VertexBuffer() override;
 
         VertexBuffer(VertexBuffer&&) = delete;
@@ -153,7 +173,15 @@ namespace glem {
          */
         const InputLayout& layout() const noexcept;
 
+        /**
+         * @brief Vertex layout
+         * @return
+         */
+        const VertexLayout& vLayout() const noexcept;
+
     private:
+        VertexLayout vLayout_;
+
         InputLayout layout_;
         BufferUsage usage_;
 
