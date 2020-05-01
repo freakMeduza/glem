@@ -3,6 +3,7 @@
 #include "Window.hpp"
 #include "Input.hpp"
 #include "Scene.hpp"
+#include "Mesh.hpp"
 
 #include "Log.hpp"
 #include "Timer.hpp"
@@ -35,7 +36,9 @@ namespace glem {
     {
         Timer timer;
 
-        std::unique_ptr<Scene> scene = std::make_unique<ParticleScene>();
+        std::unique_ptr<Scene> scene = std::make_unique<ParticleScene>();//= std::make_unique<DynamicVertexSystemTest>();
+
+        auto model = Shape::cube();
 
         while(true) {
             if(auto ret = window_->pollEvents()) {
@@ -48,13 +51,6 @@ namespace glem {
 
             if(Keyboard::pressed(Keyboard::Key::Escape))
                 window_->close();
-
-            if(Keyboard::pressed(Keyboard::Key::KP1))
-                scene.reset(new ParticleScene{});
-            if(Keyboard::pressed(Keyboard::Key::KP2))
-                scene.reset(new TextureMapScene{});
-            if(Keyboard::pressed(Keyboard::Key::KP3))
-                scene.reset(new SkyboxScene{});
 
             if(scene) {
                 scene->update(deltaTime);

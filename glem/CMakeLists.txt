@@ -21,9 +21,9 @@ file(GLOB SRCS ${PROJECT_SOURCE_DIR}/*.cpp)
 if(WIN32)
     set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 
-    list(APPEND LIBS opengl32 glfw glm glad primitives)
+    list(APPEND LIBS opengl32 glfw glm glad)
 elseif(UNIX)
-    list(APPEND LIBS ${OPENGL_opengl_LIBRARY} glfw glm glad primitives ${CMAKE_DL_LIBS})
+    list(APPEND LIBS ${OPENGL_opengl_LIBRARY} glfw glm glad ${CMAKE_DL_LIBS})
 endif()
 
 add_library(${PROJECT_NAME} SHARED ${HDRS} ${SRCS})

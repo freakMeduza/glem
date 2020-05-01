@@ -1,5 +1,6 @@
 #pragma once
 
+#include <vector>
 #include <memory>
 
 #define GLM_ENABLE_EXPERIMENTAL
@@ -123,6 +124,27 @@ namespace glem {
         std::shared_ptr<Program>     program_     {nullptr};
         std::unique_ptr<Cubemap>     cubemap_     {nullptr};
         std::shared_ptr<VertexArray> vertexArray_ {nullptr};
+    };
+
+    class DynamicVertexSystemTest : public Scene {
+    public:
+        DynamicVertexSystemTest();
+        ~DynamicVertexSystemTest() override;
+
+        // Scene interface
+        void attach() noexcept override;
+        void detach() noexcept override;
+        void update(float deltaTime) noexcept override;
+        void render() noexcept override;
+
+    private:
+        size_t currentIndex_ {0u};
+
+        std::vector<std::unique_ptr<Camera>> camera_;
+
+        std::shared_ptr<Program>     program_ {nullptr};
+        std::shared_ptr<VertexArray> model_   {nullptr};
+
     };
 
 }

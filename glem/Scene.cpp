@@ -16,8 +16,9 @@
 
 #include "Log.hpp"
 
+#include "Mesh.hpp"
 #include "Particle.hpp"
-#include "Primitives.hpp"
+//#include "Primitives.hpp"
 
 namespace {
     static constexpr const char* TAG = "Scene";
@@ -161,30 +162,24 @@ namespace glem {
             glm::vec3 normal   {glm::vec3{0.0f}};
         };
 
-        auto cube = ::primitives::Cube<Vertex>::create();
+        //auto cube = ::primitives::Cube<Vertex>::create();
+        auto cube = Shape::cube();
 
         cube.transform(glm::scale(glm::mat4{1.0f}, glm::vec3{0.5f}));
 
-        cube.setNormal();
-
-        InputLayout cubeVertexLayout;
-        cubeVertexLayout.push<ElementType::Vector3f>("position");
-        cubeVertexLayout.push<ElementType::Vector3f>("normal");
+        cube.setFlat();
 
         modelVertexArray_ = std::make_shared<VertexArray>();
-        modelVertexArray_->append(std::make_unique<VertexBuffer>(cube.vertices, cubeVertexLayout));
+        modelVertexArray_->append(std::make_unique<VertexBuffer>(cube.buffer));
         modelVertexArray_->append(std::make_unique<IndexBuffer>(cube.indices));
 
-        auto sphere = ::primitives::Sphere<Vertex>::create({12, 12});
+        //auto sphere = ::primitives::Sphere<Vertex>::create({12, 12});
+        auto sphere = Shape::sphere({12, 12});
 
         sphere.transform(glm::scale(glm::mat4{1.0f}, glm::vec3{0.2f}));
 
-        InputLayout sphereVertexLayout;
-        sphereVertexLayout.push<ElementType::Vector3f>("position");
-        sphereVertexLayout.push<ElementType::Vector3f>("normal");
-
         lightVertexArray_ = std::make_shared<VertexArray>();
-        lightVertexArray_->append(std::make_unique<VertexBuffer>(sphere.vertices, sphereVertexLayout));
+        lightVertexArray_->append(std::make_unique<VertexBuffer>(sphere.buffer));
         lightVertexArray_->append(std::make_unique<IndexBuffer>(sphere.indices));
 
         emitter_ = std::make_unique<ParticleEmitter>();
@@ -467,31 +462,15 @@ namespace glem {
         camera_->setProjection(projection);
 
         /**** init vertex arrays ****/
-        struct CubeVertex {
-            glm::vec3 position {glm::vec3{0.0f}};
-            glm::vec3 normal   {glm::vec3{0.0f}};
-            glm::vec2 uv       {glm::vec2{0.0f}};
-        };
+        auto cube = Shape::texturedCube();
 
-        auto cube = ::primitives::Cube<CubeVertex>::createTextured();
-
-        cube.setNormal();
-
-        InputLayout cubeVertexLayout;
-        cubeVertexLayout.push<ElementType::Vector3f>("position");
-        cubeVertexLayout.push<ElementType::Vector3f>("normal");
-        cubeVertexLayout.push<ElementType::Vector2f>("uv");
+        cube.setFlat();
 
         modelVertexArray_ = std::make_shared<VertexArray>();
-        modelVertexArray_->append(std::make_unique<VertexBuffer>(cube.vertices, cubeVertexLayout));
+        modelVertexArray_->append(std::make_unique<VertexBuffer>(cube.buffer));
         modelVertexArray_->append(std::make_unique<IndexBuffer>(cube.indices));
 
-        struct SphereVertex {
-            glm::vec3 position {glm::vec3{0.0f}};
-            glm::vec3 normal   {glm::vec3{0.0f}};
-        };
-
-        auto sphere = ::primitives::Sphere<SphereVertex>::create({12, 12});
+        auto sphere = Shape::sphere({12, 12});
 
         sphere.transform(glm::scale(glm::mat4{1.0f}, glm::vec3{0.2f}));
 
@@ -500,7 +479,7 @@ namespace glem {
         sphereVertexLayout.push<ElementType::Vector3f>("normal");
 
         lightVertexArray_ = std::make_shared<VertexArray>();
-        lightVertexArray_->append(std::make_unique<VertexBuffer>(sphere.vertices, sphereVertexLayout));
+        lightVertexArray_->append(std::make_unique<VertexBuffer>(sphere.buffer));
         lightVertexArray_->append(std::make_unique<IndexBuffer>(sphere.indices));
 
         glEnable(GL_CULL_FACE);
@@ -664,17 +643,10 @@ namespace glem {
 
         cubemap_ = std::make_unique<Cubemap>(images, cubeMapSettings);
 
-        struct Vertex {
-            glm::vec3 position;
-        };
-
-        auto cube = ::primitives::Cube<Vertex>::create();
-
-        InputLayout layout;
-        layout.push<ElementType::Vector3f>("position");
+        auto cube = Shape::cube();
 
         vertexArray_ = std::make_shared<VertexArray>();
-        vertexArray_->append(std::make_unique<VertexBuffer>(cube.vertices, layout));
+        vertexArray_->append(std::make_unique<VertexBuffer>(cube.buffer));
         vertexArray_->append(std::make_unique<IndexBuffer>(cube.indices));
 
         glDisable(GL_CULL_FACE);
@@ -713,6 +685,112 @@ namespace glem {
 
             glDepthFunc(GL_LESS);
 
+            Application::instance().context().endFrame();
+        }
+    }
+
+    DynamicVertexSystemTest::DynamicVertexSystemTest()
+    {
+        attach();
+    }
+
+    DynamicVertexSystemTest::~DynamicVertexSystemTest()
+    {
+        detach();
+    }
+
+    void DynamicVertexSystemTest::attach() noexcept
+    {
+        const auto& vs = R"glsl(
+                         #version 450
+                         layout(location = 0) in vec3 v_position;
+                         layout(location = 1) in vec3 v_normal;
+                            uniform mat4 u_projection;
+                            uniform mat4 u_view;
+                            uniform mat4 u_model;
+                            out vec3 f_normal;
+                         void main() {
+                            gl_Position = u_projection * u_view * u_model * vec4(v_position, 1.0f);
+                            f_normal = v_normal;
+                         }
+                         )glsl";
+
+        const auto& ps = R"glsl(
+                         #version 450
+                         layout(location = 0) out vec4 p_color;
+                            in vec3 f_normal;
+                         void main() {
+                            p_color = vec4(1.0f, 0.0f, 0.0f, 1.0f);
+                         }
+                         )glsl";
+
+        program_ = std::make_shared<Program>();
+
+        program_->append(std::make_unique<Shader>(vs, ShaderType::VS));
+        program_->append(std::make_unique<Shader>(ps, ShaderType::PS));
+
+        if(!program_->link()) {
+            Log::e(TAG, "Failed to link skybox shader program.");
+            return;
+        }
+
+        const auto projection = glm::perspective(glm::radians(45.0f),
+                                                 static_cast<float>(glem::Application::instance().window().width()) / static_cast<float>(glem::Application::instance().window().height()),
+                                                 0.1f,
+                                                 1000.0f);
+
+        auto camera1 = std::make_unique<FreeCamera>();
+        camera1->setProjection(projection);
+        camera1->setPosition({0.0f, 0.0f, 10.0f});
+
+        auto camera2 = std::make_unique<MayaCamera>();
+        camera2->setProjection(projection);
+        camera2->setPosition({0.0f, 0.0f, 10.0f});
+
+        camera_.push_back(std::move(camera1));
+        camera_.push_back(std::move(camera2));
+
+        auto model = Shape::sphere({24,12});
+
+        model_ = std::make_shared<VertexArray>();
+        model_->append(std::make_unique<VertexBuffer>(model.buffer));
+        model_->append(std::make_unique<IndexBuffer>(model.indices));
+
+        glEnable(GL_CULL_FACE);
+        glEnable(GL_DEPTH_TEST);
+
+        setVisible(true);
+    }
+
+    void DynamicVertexSystemTest::detach() noexcept
+    {
+        setVisible(false);
+    }
+
+    void DynamicVertexSystemTest::update(float deltaTime) noexcept
+    {
+        if(visible()) {
+            if(Keyboard::pressed(Keyboard::Key::KP1))
+                currentIndex_ = 0;
+            if(Keyboard::pressed(Keyboard::Key::KP2))
+                currentIndex_ = 1;
+
+            camera_[currentIndex_]->update(deltaTime);
+        }
+    }
+
+    void DynamicVertexSystemTest::render() noexcept
+    {
+        if(visible()) {
+            program_->bind();
+            program_->setUniform("u_projection", camera_[currentIndex_]->projection());
+            program_->setUniform("u_view",       camera_[currentIndex_]->view());
+            program_->setUniform("u_model",      glm::mat4{1.0f});
+
+            model_->bind();
+
+            Application::instance().context().beginFrame({0.1f, 0.1f, 0.1f, 1.0f});
+            Application::instance().context().renderIndexed(model_->indexCount(), GL_TRIANGLE_STRIP);
             Application::instance().context().endFrame();
         }
     }

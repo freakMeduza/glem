@@ -192,6 +192,13 @@ namespace glem {
         VertexByteBuffer(const VertexLayout& layout);
         ~VertexByteBuffer() = default;
 
+        inline Vertex operator[](size_t index) {
+            if(index > count())
+                std::runtime_error{"Stack overflow."};
+
+            return Vertex{ buffer_.data() + layout_.size() * index, layout_ };
+        }
+
         /**
          * @brief Buffer data
          * @return
