@@ -2,7 +2,6 @@
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
-
 #ifdef __WIN32__
     #define STBI_MSC_SECURE_CRT
 #endif

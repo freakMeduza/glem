@@ -207,7 +207,7 @@ namespace glem {
         template<typename ... Ts>
         void emplace_back(Ts&& ... args) {
             if(sizeof ... (args) != layout_.count())
-                throw std::runtime_error("Parameter count dousn't match number of vertex attributes.");
+                throw std::runtime_error("Parameter count doesn't match number of vertex attributes.");
 
             buffer_.resize(buffer_.size() + layout_.size());
 

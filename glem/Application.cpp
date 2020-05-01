@@ -35,7 +35,7 @@ namespace glem {
     {
         Timer timer;
 
-        std::unique_ptr<Scene> scene{nullptr};// = std::make_unique<ParticleScene>();
+        std::unique_ptr<Scene> scene = std::make_unique<ParticleScene>();
 
         while(true) {
             if(auto ret = window_->pollEvents()) {
